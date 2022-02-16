@@ -1,17 +1,19 @@
 {
-  "name": ":vendor_slug/:package_slug",
-  "description": ":package_description",
+  "name": "spiral/temporal-bridge",
+  "description": "Temporal integration package for Spiral Framework",
   "keywords": [
-    ":vendor_name",
     "spiral",
-    ":package_slug"
+    "spiral-framework",
+    "php",
+    "workflow",
+    "temporal"
   ],
-  "homepage": "https://github.com/:vendor_slug/:package_slug",
+  "homepage": "https://github.com/spiral/temporal-bridge",
   "license": "MIT",
   "authors": [
     {
-      "name": ":author_name",
-      "email": "author@domain.com",
+      "name": "butschster",
+      "email": "butschster@gmail.com",
       "role": "Developer"
     }
   ],
@@ -28,13 +30,13 @@
   },
   "autoload": {
     "psr-4": {
-      "VendorName\\Skeleton\\": "src"
+      "Spiral\\TemporalBridge\\": "src"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "VendorName\\Skeleton\\Tests\\App\\": "tests/app",
-      "VendorName\\Skeleton\\Tests\\": "tests/src"
+      "Spiral\\TemporalBridge\\Tests\\App\\": "tests/app",
+      "Spiral\\TemporalBridge\\Tests\\": "tests/src"
     }
   },
   "scripts": {
@@ -47,7 +49,7 @@
   "extra": {
     "spiral": {
       "bootloaders": [
-        "VendorName\\Skeleton\\Bootloader\\SkeletonBootloader"
+        "Spiral\\TemporalBridge\\Bootloader\\TemporalBridgeBootloader"
       ]
     }
   },

@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\Skeleton\Tests;
+namespace Spiral\TemporalBridge\Tests;
 
 class TestCase extends \Spiral\Testing\TestCase
 {
@@ -13,7 +13,7 @@ class TestCase extends \Spiral\Testing\TestCase
     {
         return [
             \Spiral\Boot\Bootloader\ConfigurationBootloader::class,
-            \VendorName\Skeleton\SkeletonBootloader::class,
+            \Spiral\TemporalBridge\TemporalBridgeBootloader::class,
             // ...
         ];
     }
