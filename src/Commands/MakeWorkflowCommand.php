@@ -48,11 +48,11 @@ class MakeWorkflowCommand extends Command
         return $appDir.str_replace('\\', '/', $namespace).'/';
     }
 
-    private function getParametersInputWithType(array $params): array
+    private function getParametersInputWithType(array $parameters): array
     {
         $params = [];
 
-        foreach ($params as $param) {
+        foreach ($parameters as $param) {
             [$param, $type] = explode(':', $param, 2);
             $type ??= 'string';
             $params[$param] = $type;

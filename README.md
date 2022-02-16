@@ -49,6 +49,8 @@ temporal:
 
 You can run temporal server via docker by using the example below:
 
+> You can find official docker compose files here https://github.com/temporalio/docker-compose
+ 
 ```yaml
 version: '3.5'
 
@@ -106,7 +108,7 @@ services:
 You can create a new workflow via console command:
 
 ```bash
-`php app.php temporal:make-workflow MySuperWorkflow`
+php app.php temporal:make-workflow MySuperWorkflow
 ```
 
 The command will generate the following files with default namespace `App\Workflow`:
