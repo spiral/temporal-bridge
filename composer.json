@@ -1,0 +1,56 @@
+{
+  "name": ":vendor_slug/:package_slug",
+  "description": ":package_description",
+  "keywords": [
+    ":vendor_name",
+    "spiral",
+    ":package_slug"
+  ],
+  "homepage": "https://github.com/:vendor_slug/:package_slug",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": ":author_name",
+      "email": "author@domain.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^8.0",
+    "spiral/boot": "^2.9",
+    "spiral/console": "^2.9"
+  },
+  "require-dev": {
+    "mockery/mockery": "^1.5",
+    "phpunit/phpunit": "^9.5",
+    "spiral/testing": "^1.0",
+    "vimeo/psalm": "^4.9"
+  },
+  "autoload": {
+    "psr-4": {
+      "VendorName\\Skeleton\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "VendorName\\Skeleton\\Tests\\App\\": "tests/app",
+      "VendorName\\Skeleton\\Tests\\": "tests/src"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "psalm": "vendor/bin/psalm --config=psalm.xml ./src"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "extra": {
+    "spiral": {
+      "bootloaders": [
+        "VendorName\\Skeleton\\Bootloader\\SkeletonBootloader"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
