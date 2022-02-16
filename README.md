@@ -122,6 +122,8 @@ project/
         MySuperWorkflow
         MySuperWorkflowActivityInterface
         MySuperWorkflowActivity
+        MySuperWorkflowHandlerInterface
+        MySuperWorkflowHandler
 ```
 
 > You can redefine default namespace via `app/config/temporal.php` config file.
@@ -217,45 +219,14 @@ TEMPORAL_ADDRESS=127.0.0.1:7233
 ### Running workflow
 
 ```php
-use Spiral\TemporalBridge\WorkflowManagerInterface;
-use Temporal\Api\Enums\V1\WorkflowIdReusePolicy;
-
-class PingSchedulerService 
+class PingController 
 {
-    public function __construct(
-        private WorkflowManagerInterface $manager
-    )  {
-    }
-    
-    public function ping(Url $url)
+    public function ping(StoreRequest $request, PingSiteHandler $handler): void
     {
-        $run = $this->manager->createScheduled(
-            PingSiteWorkflowInterface::class,
-            (string) Generator::create()->everyTenMinutes(),
-        )
-            ->withWorkflowRunTimeout(\Carbon\CarbonInterval::minute())
-            ->assignId(
-                'ping-'.$url->name,
-                WorkflowIdReusePolicy::WORKFLOW_ID_REUSE_POLICY_REJECT_DUPLICATE
-            )
-            ->run($url->url, $url->name);
-        
-        // $run->terminate('Termination reason.');
-        
-        // $run->someSignal(...);
-        
-        // $run->someQuery(...);
-        
-        return [
-            'id' => $run->getExecution()->getID(),
-            'run_id' => $run->getExecution()->getRunID(),
-        ];
-    }
-    
-    public function stopPinging(Url $url, string $reason)
-    {
-        $this->manager->getById('ping-'.$url->name)
-            ->terminate($reason);
+        $this->hanlder->handle(
+            $request->url, 
+            $request->name
+        );
     }
 }
 ```

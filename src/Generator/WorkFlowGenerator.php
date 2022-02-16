@@ -10,7 +10,10 @@ use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpNamespace;
 use Psr\Log\LoggerInterface;
 use Spiral\Files\FilesInterface;
+use Spiral\TemporalBridge\WorkflowManagerInterface;
 use Temporal\Activity\ActivityOptions;
+use Temporal\Api\Enums\V1\WorkflowIdReusePolicy;
+use Temporal\Exception\Client\WorkflowExecutionAlreadyStartedException;
 use Temporal\Internal\Workflow\ActivityProxy;
 use Temporal\Workflow\QueryMethod;
 use Temporal\Workflow\SignalMethod;
@@ -18,6 +21,7 @@ use Temporal\Workflow\WorkflowMethod;
 
 class WorkFlowGenerator
 {
+    private bool $scheduled = false;
     private string $namespace;
     private string $baseClassName;
     private string $method = 'handle';
@@ -28,6 +32,13 @@ class WorkFlowGenerator
     public function __construct(
         private FilesInterface $files
     ) {
+    }
+
+    public function withCronSchedule()
+    {
+        $this->scheduled = true;
+
+        return $this;
     }
 
     public function withMethodParameters(array $parameters): self
@@ -74,6 +85,8 @@ class WorkFlowGenerator
             'Workflow',
             'ActivityInterface',
             'Activity',
+            'HandlerInterface',
+            'Handler',
         ];
 
         foreach ($types as $type) {
@@ -85,6 +98,137 @@ class WorkFlowGenerator
 
             $this->generateFile($namespace, $path.$class->getName().'.php');
         }
+    }
+
+    private function generateHandlerInterface(string $classPostfix, PhpNamespace $namespace): array
+    {
+        $className = $this->baseClassName.$classPostfix;
+
+        $class = ClassType::interface($className);
+        $class
+            ->addAttribute(\Temporal\Workflow\WorkflowInterface::class);
+
+        $method = $class->addMethod($this->method)
+            ->setPublic()
+            ->setReturnType('void');
+
+        $this->addParameters($method);
+
+        return [
+            $namespace
+                ->add($class)
+                ->addUse(WorkflowIdReusePolicy::class)
+                ->addUse(LoggerInterface::class)
+                ->addUse(WorkflowManagerInterface::class),
+            $class,
+        ];
+    }
+
+    private function generateHandler(string $classPostfix, PhpNamespace $namespace): array
+    {
+        $workflowClassName = str_replace('Workflow', '', $this->baseClassName).'WorkflowInterface';
+        $className = $this->baseClassName.$classPostfix;
+
+        $class = new ClassType($className);
+        $class->addImplement($namespace->getName().'\\'.$className.'Interface');
+
+        $method = $class
+            ->addMethod('__construct')
+            ->setPublic();
+
+        $method->addPromotedParameter('manager')
+            ->setPrivate()
+            ->setType(WorkflowManagerInterface::class);
+
+        $method->addPromotedParameter('logger')
+            ->setPrivate()
+            ->setType(LoggerInterface::class);
+
+        $method = $class->addMethod('handle')
+            ->setReturnType('void');
+        $this->addParameters($method);
+
+        $runArgs = implode(', ', array_map(fn($param) => '$'.$param, array_keys($this->parameters)));
+
+        if ($this->scheduled) {
+            $body = \sprintf(
+                <<<'BODY'
+$workflow = $this->manager
+    ->createScheduled(
+        %s::class, 
+        '%s'
+    );
+BODY
+                ,
+                $workflowClassName,
+                '* * * * *'
+            );
+        } else {
+            $body = \sprintf(
+                <<<'BODY'
+$workflow = $this->manager
+    ->create(%s::class);
+BODY
+                ,
+                $workflowClassName
+            );
+        }
+
+        $method->addBody($body);
+
+
+        $method->addBody(
+            \sprintf(
+                <<<'BODY'
+
+// $workflow->assignId(
+//     'operation-id', 
+//     WorkflowIdReusePolicy::WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY
+// );
+
+// $workflow->withWorkflowRunTimeout(\Carbon\CarbonInterval::minutes(10))
+//    ->withWorkflowTaskTimeout(\Carbon\CarbonInterval::minute())
+//    ->withWorkflowExecutionTimeout(\Carbon\CarbonInterval::minutes(5));
+
+// $workflow->maxRetryAttempts(5)
+//      ->backoffRetryCoefficient(1.5)
+//      ->initialRetryInterval(\Carbon\CarbonInterval::seconds(5))
+//      ->maxRetryInterval(\Carbon\CarbonInterval::seconds(20));
+
+try {
+    $run = $workflow->run(%s);
+} catch (WorkflowExecutionAlreadyStartedException $e) {
+    $this->logger->error('Workflow has been already started.', [
+        'name' => $workflow->getWorkflowType()
+    ]);
+}
+BODY,
+                $runArgs
+            )
+        );
+
+        $method->addBody(
+            \sprintf(
+                <<<'BODY'
+
+$this->logger->info('Workflow [%s] has been run', [
+    'id' => $run->getExecution()->getID(),
+    'run_id' => $run->getExecution()->getRunID()
+]);
+BODY,
+                $this->baseClassName
+            )
+        );
+
+        return [
+            $namespace
+                ->add($class)
+                ->addUse(WorkflowExecutionAlreadyStartedException::class)
+                ->addUse(WorkflowIdReusePolicy::class)
+                ->addUse(LoggerInterface::class)
+                ->addUse(WorkflowManagerInterface::class),
+            $class,
+        ];
     }
 
     private function generateActivity(string $classPostfix, PhpNamespace $namespace): array

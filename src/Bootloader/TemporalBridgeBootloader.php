@@ -8,8 +8,9 @@ use Spiral\Attributes\AttributeReader;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Boot\EnvironmentInterface;
-use Spiral\Core\Container;
 use Spiral\Config\ConfiguratorInterface;
+use Spiral\RoadRunner\Environment;
+use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\Dispatcher;
@@ -26,7 +27,6 @@ use Temporal\WorkerFactory;
 
 class TemporalBridgeBootloader extends Bootloader
 {
-    protected const BINDINGS = [];
     protected const SINGLETONS = [
         WorkflowManagerInterface::class => WorkflowManager::class,
         WorkerFactoryInterface::class => [self::class, 'initWorkerFactory'],
@@ -35,7 +35,8 @@ class TemporalBridgeBootloader extends Bootloader
     ];
 
     protected const DEPENDENCIES = [
-        ConsoleBootloader::class
+        ConsoleBootloader::class,
+        RoadRunnerBootloader::class,
     ];
 
     public function __construct(private ConfiguratorInterface $config)
@@ -52,10 +53,6 @@ class TemporalBridgeBootloader extends Bootloader
 
         $kernel->addDispatcher($dispatcher);
         $console->addCommand(Commands\MakeWorkflowCommand::class);
-    }
-
-    public function start(Container $container): void
-    {
     }
 
     private function initConfig(EnvironmentInterface $env): void

@@ -16,8 +16,11 @@ class MakeWorkflowCommand extends Command
     protected const NAME = 'temporal:make-workflow';
     protected const DESCRIPTION = 'Make a new Temporal workflow';
 
-    public function perform(TemporalConfig $config, WorkFlowGenerator $generator, DirectoriesInterface $dirs): int
-    {
+    public function perform(
+        TemporalConfig $config,
+        WorkFlowGenerator $generator,
+        DirectoriesInterface $dirs
+    ): int {
         $name = $this->getNameInput();
         $namespace = $this->getNamespaceFromClass($name) ?? $config->getDefaultNamespace();
         $className = $this->qualifyClass($name, $namespace);
@@ -29,6 +32,10 @@ class MakeWorkflowCommand extends Command
             ->withMethod($this->option('method'))
             ->withSignalMethods((array)$this->option('signal'))
             ->withQueryMethods($this->getParametersInputWithType((array)$this->option('query')));
+
+        if ($expression = $this->option('scheduled')) {
+            $generator->withCronSchedule($expression);
+        }
 
         $generator->generate(
             className: $className,
@@ -99,6 +106,7 @@ class MakeWorkflowCommand extends Command
     ];
 
     protected const OPTIONS = [
+        ['scheduled', null, InputOption::VALUE_NONE, 'With scheduling by cron'],
         ['method', 'm', InputOption::VALUE_OPTIONAL, 'With method name', 'handle'],
         ['query', 'r', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'With query methods'],
         ['signal', 's', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'With signal methods'],

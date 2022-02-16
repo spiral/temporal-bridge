@@ -19,15 +19,14 @@
   ],
   "require": {
     "php": "^8.0",
-    "spiral/tokenizer": "^2.9",
     "spiral/attributes": "^2.9",
-    "spiral/core": "^2.9",
-    "spiral/console": "^2.9",
-    "spiral/roadrunner": "^2.0",
+    "spiral/tokenizer": "^2.9",
+    "spiral/roadrunner-bridge": "^1.0",
     "nette/php-generator": "^3.6",
     "temporal/sdk": ">=1.0"
   },
   "require-dev": {
+    "spiral/framework": "^2.9",
     "mockery/mockery": "^1.5",
     "phpunit/phpunit": "^9.5",
     "spiral/testing": "^1.0",
@@ -49,7 +48,10 @@
     "psalm": "vendor/bin/psalm --config=psalm.xml ./src"
   },
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "spiral/composer-publish-plugin": true
+    }
   },
   "extra": {
     "spiral": {

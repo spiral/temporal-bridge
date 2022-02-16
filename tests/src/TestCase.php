@@ -13,7 +13,7 @@ class TestCase extends \Spiral\Testing\TestCase
     {
         return [
             \Spiral\Boot\Bootloader\ConfigurationBootloader::class,
-            \Spiral\TemporalBridge\TemporalBridgeBootloader::class,
+            \Spiral\TemporalBridge\Bootloader\TemporalBridgeBootloader::class,
             // ...
         ];
     }

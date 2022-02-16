@@ -6,7 +6,6 @@ build
 composer.lock
 coverage
 docs
-phpunit.xml
 vendor
 node_modules
 .php-cs-fixer.cache
