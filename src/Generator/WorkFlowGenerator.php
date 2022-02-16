@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Temporal;
+namespace Spiral\TemporalBridge\Generator;
 
 use Carbon\CarbonInterval;
 use Nette\PhpGenerator\ClassType;
