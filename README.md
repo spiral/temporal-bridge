@@ -75,11 +75,11 @@ services:
       - POSTGRES_USER=temporal
       - POSTGRES_PWD=temporal
       - POSTGRES_SEEDS=postgresql
-      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
+      - DYNAMIC_CONFIG_FILE_PATH=temporal/development.yaml
     ports:
       - 7233:7233
     volumes:
-      - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+      - ./temporal:/etc/temporal/config/dynamicconfig
 
   temporal-admin-tools:
     container_name: temporal-admin-tools
@@ -102,6 +102,9 @@ services:
     ports:
       - 8088:8088
 ```
+
+> Please make sure that you have configuration file for temporal server.
+> `mkdir temporal && touch temporal/development.yaml`
 
 ## Creating workflow
 

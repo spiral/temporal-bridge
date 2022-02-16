@@ -9,7 +9,6 @@ use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Boot\EnvironmentInterface;
 use Spiral\Config\ConfiguratorInterface;
-use Spiral\RoadRunner\Environment;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
 use Spiral\TemporalBridge\Config\TemporalConfig;

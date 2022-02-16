@@ -7,7 +7,16 @@ namespace Spiral\TemporalBridge\Commands;
 use Spiral\Boot\DirectoriesInterface;
 use Spiral\Console\Command;
 use Spiral\TemporalBridge\Config\TemporalConfig;
-use Spiral\TemporalBridge\Generator\WorkFlowGenerator;
+use Spiral\TemporalBridge\Generator\ActivityGenerator;
+use Spiral\TemporalBridge\Generator\ActivityInterfaceGenerator;
+use Spiral\TemporalBridge\Generator\Context;
+use Spiral\TemporalBridge\Generator\Generator;
+use Spiral\TemporalBridge\Generator\HandlerGenerator;
+use Spiral\TemporalBridge\Generator\HandlerInterfaceGenerator;
+use Spiral\TemporalBridge\Generator\SignalWorkflowGenerator;
+use Spiral\TemporalBridge\Generator\Utils;
+use Spiral\TemporalBridge\Generator\WorkflowGenerator;
+use Spiral\TemporalBridge\Generator\WorkflowInterfaceGenerator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -18,7 +27,7 @@ class MakeWorkflowCommand extends Command
 
     public function perform(
         TemporalConfig $config,
-        WorkFlowGenerator $generator,
+        Generator $generator,
         DirectoriesInterface $dirs
     ): int {
         $name = $this->getNameInput();
@@ -26,21 +35,20 @@ class MakeWorkflowCommand extends Command
         $className = $this->qualifyClass($name, $namespace);
         $namespace = $namespace.'\\'.$className;
 
-        $generator
+        $context = (new Context())
+            ->withClassBaseName($className)
+            ->withRootDirectory($this->getPath($namespace, $dirs->get('app')))
             ->withNamespace($namespace)
-            ->withMethodParameters($this->getParametersInputWithType((array)$this->option('param')))
+            ->withMethodParameters(Utils::parseParameters((array)$this->option('param')))
             ->withMethod($this->option('method'))
             ->withSignalMethods((array)$this->option('signal'))
-            ->withQueryMethods($this->getParametersInputWithType((array)$this->option('query')));
+            ->withQueryMethods(Utils::parseParameters((array)$this->option('query')));
 
-        if ($expression = $this->option('scheduled')) {
-            $generator->withCronSchedule($expression);
+        if ($this->option('scheduled')) {
+            $context = $context->withCronSchedule();
         }
 
-        $generator->generate(
-            className: $className,
-            path: $this->getPath($namespace, $dirs->get('app')),
-        );
+        $generator->generate($context, $this->defineGenerators());
 
         return self::SUCCESS;
     }
@@ -53,19 +61,6 @@ class MakeWorkflowCommand extends Command
         }
 
         return $appDir.str_replace('\\', '/', $namespace).'/';
-    }
-
-    private function getParametersInputWithType(array $parameters): array
-    {
-        $params = [];
-
-        foreach ($parameters as $param) {
-            [$param, $type] = explode(':', $param, 2);
-            $type ??= 'string';
-            $params[$param] = $type;
-        }
-
-        return $params;
     }
 
     private function getNameInput(): string
@@ -106,6 +101,7 @@ class MakeWorkflowCommand extends Command
     ];
 
     protected const OPTIONS = [
+        ['with-handler', null, InputOption::VALUE_NONE, 'Generate handler classes'],
         ['scheduled', null, InputOption::VALUE_NONE, 'With scheduling by cron'],
         ['method', 'm', InputOption::VALUE_OPTIONAL, 'With method name', 'handle'],
         ['query', 'r', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'With query methods'],
@@ -118,4 +114,29 @@ class MakeWorkflowCommand extends Command
             ['name:string'],
         ],
     ];
+
+    private function defineGenerators(): array
+    {
+        $generators = [
+            'WorkflowInterface' => new WorkflowInterfaceGenerator(),
+            'Workflow' => new SignalWorkflowGenerator(),
+        ];
+
+        if (\count($this->option('signal')) === 0) {
+            $generators = \array_merge($generators, [
+                'ActivityInterface' => new ActivityInterfaceGenerator(),
+                'Activity' => new ActivityGenerator(),
+                'Workflow' => new WorkflowGenerator(),
+            ]);
+        }
+
+        if ($this->option('with-handler')) {
+            $generators = \array_merge($generators, [
+                'HandlerInterface' => new HandlerInterfaceGenerator(),
+                'Handler' => new HandlerGenerator(),
+            ]);
+        }
+
+        return $generators;
+    }
 }
