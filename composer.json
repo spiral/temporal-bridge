@@ -19,8 +19,13 @@
   ],
   "require": {
     "php": "^8.0",
-    "spiral/boot": "^2.9",
-    "spiral/console": "^2.9"
+    "spiral/tokenizer": "^2.9",
+    "spiral/attributes": "^2.9",
+    "spiral/core": "^2.9",
+    "spiral/console": "^2.9",
+    "spiral/roadrunner": "^2.0",
+    "nette/php-generator": "^3.6",
+    "temporal/sdk": ">=1.0"
   },
   "require-dev": {
     "mockery/mockery": "^1.5",

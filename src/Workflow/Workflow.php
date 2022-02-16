@@ -1,0 +1,103 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Spiral\TemporalBridge\Workflow;
+
+use Temporal\Client\WorkflowClientInterface;
+use Temporal\Client\WorkflowOptions;
+use Temporal\Client\WorkflowStubInterface;
+use Temporal\Internal\Client\WorkflowProxy;
+
+/**
+ * @psalm-template T of object
+ */
+class Workflow
+{
+    private ?WorkflowSignal $signal = null;
+
+    /**
+     * @param class-string<T> $class
+     */
+    public function __construct(
+        private WorkflowClientInterface $client,
+        private WorkflowOptions $options,
+        private string $class,
+        private string $type,
+    ) {
+    }
+
+    /**
+     * Workflow id to use when starting. If not specified a UUID is generated.
+     * Note that it is dangerous as in case of client side retries no
+     * deduplication will happen based on the generated id. So prefer assigning
+     * business meaningful ids if possible.
+     */
+    public function assignId(string $id, ?int $policy = null): self
+    {
+        if ($policy !== null) {
+            $this->options = $this->options->withWorkflowIdReusePolicy($policy);
+        }
+
+        return $this->withWorkflowId($id);
+    }
+
+    /**
+     * Sends signal on start.
+     */
+    public function withSignal(string $name, ...$args): self
+    {
+        $this->signal = new WorkflowSignal($name, $args);
+
+        return $this;
+    }
+
+    /**
+     * Starts untyped and typed workflow stubs in async mode.
+     * @return RunningWorkflow|WorkflowStubInterface
+     */
+    public function run(...$args): RunningWorkflow
+    {
+        $workflow = $this->createStub();
+
+        if ($this->signal) {
+            $run = $this->client->startWithSignal(
+                workflow: $workflow,
+                signal: $this->signal->getName(),
+                signalArgs: $this->signal->getArgs(),
+                startArgs: $args
+            );
+        } else {
+            $run = $this->client->start($workflow, ...$args);
+        }
+
+        return new RunningWorkflow(
+            $this->client->newUntypedRunningWorkflowStub(
+                $run->getExecution()->getID(),
+                $run->getExecution()->getRunID(),
+                $this->type
+            )
+        );
+    }
+
+    public function __call(string $name, array $arguments)
+    {
+        if (str_starts_with($name, 'with') && method_exists($this->options, $name)) {
+            $this->options = call_user_func_array([$this->options, $name], $arguments);
+
+            return $this;
+        }
+
+        if (method_exists($this->class, $name)) {
+            return call_user_func_array([$this->createStub(), $name], $arguments);
+        }
+
+        throw new \BadMethodCallException(\sprintf('Method [%s] doesn\'t exist.', $name));
+    }
+
+
+    private function createStub(): WorkflowProxy
+    {
+        return $this->client->newWorkflowStub($this->class, $this->options);
+    }
+}
