@@ -75,7 +75,7 @@ services:
       - POSTGRES_USER=temporal
       - POSTGRES_PWD=temporal
       - POSTGRES_SEEDS=postgresql
-      - DYNAMIC_CONFIG_FILE_PATH=temporal/development.yaml
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
     ports:
       - 7233:7233
     volumes:
