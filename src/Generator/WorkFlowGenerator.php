@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Spiral\TemporalBridge\Generator;
+namespace App\Temporal;
 
 use Carbon\CarbonInterval;
 use Nette\PhpGenerator\ClassType;
@@ -11,15 +11,16 @@ use Nette\PhpGenerator\PhpNamespace;
 use Psr\Log\LoggerInterface;
 use Spiral\Files\FilesInterface;
 use Temporal\Activity\ActivityOptions;
-use Temporal\Internal\Workflow\ActivityProxy;
 use Temporal\Workflow\QueryMethod;
 use Temporal\Workflow\SignalMethod;
+use Temporal\Workflow\WorkflowContextInterface;
 use Temporal\Workflow\WorkflowMethod;
 
 class WorkFlowGenerator
 {
     private string $namespace;
     private string $baseClassName;
+    private string $name;
     private string $method = 'handle';
     private array $signalMethods = [];
     private array $queryMethods = [];
@@ -69,17 +70,17 @@ class WorkFlowGenerator
     {
         $this->baseClassName = $className;
 
-        $types = [
+        $files = [
             'WorkflowInterface',
             'Workflow',
             'ActivityInterface',
             'Activity',
         ];
 
-        foreach ($types as $type) {
-            $method = 'generate'.$type;
+        foreach ($files as $file) {
+            $method = 'generate'.$file;
             [$namespace, $class] = $this->{$method}(
-                $type,
+                $className.$file,
                 new PhpNamespace($this->namespace)
             );
 
@@ -87,9 +88,8 @@ class WorkFlowGenerator
         }
     }
 
-    private function generateActivity(string $classPostfix, PhpNamespace $namespace): array
+    private function generateActivity(string $className, PhpNamespace $namespace): array
     {
-        $className = $this->baseClassName.$classPostfix;
         $class = new ClassType($className);
         $class->addImplement($namespace->getName().'\\'.$className.'Interface');
 
@@ -106,13 +106,7 @@ class WorkFlowGenerator
             ->setReturnType('string');
 
         $this->addParameters($method);
-        $method->addBody('$this->logger->info(?, [%s]);', [
-            'Something special happens here.',
-            implode(
-                ', ',
-                array_map(fn($param) => \sprintf('\'%s\' => %s', $param, '$'.$param), array_keys($this->parameters))
-            ),
-        ]);
+        $method->addBody('$this->logger->info(?, [\'args\' => func_get_args()]);', ['Something special happens here.']);
         $method->addBody('return ?;', ['Success']);
 
         return [
@@ -124,10 +118,9 @@ class WorkFlowGenerator
     }
 
     private function generateActivityInterface(
-        string $classPostfix,
+        string $className,
         PhpNamespace $namespace
     ): array {
-        $className = $this->baseClassName.$classPostfix;
         $class = ClassType::interface($className);
         $class
             ->addAttribute(\Temporal\Activity\ActivityInterface::class);
@@ -149,11 +142,9 @@ class WorkFlowGenerator
     }
 
     private function generateWorkflowInterface(
-        string $classPostfix,
+        string $className,
         PhpNamespace $namespace
     ): array {
-        $className = str_replace('Workflow', '', $this->baseClassName).$classPostfix;
-
         $class = ClassType::interface($className);
         $class
             ->addAttribute(\Temporal\Workflow\WorkflowInterface::class);
@@ -178,9 +169,8 @@ class WorkFlowGenerator
         ];
     }
 
-    private function generateWorkflow(string $classPostfix, PhpNamespace $namespace): array
+    private function generateWorkflow(string $className, PhpNamespace $namespace): array
     {
-        $className = str_replace('Workflow', '', $this->baseClassName).$classPostfix;
         $activityClassName = $this->baseClassName.'ActivityInterface';
 
         $class = new ClassType($className);
@@ -188,8 +178,8 @@ class WorkFlowGenerator
 
         $class->addProperty('activity')
             ->setPrivate()
-            ->setType(ActivityProxy::class)
-            ->addComment(\sprintf('@var %s|%s', 'ActivityProxy', $activityClassName));
+            ->setType(WorkflowContextInterface::class)
+            ->addComment(\sprintf('@var %s|%s', 'WorkflowContextInterface', $activityClassName));
 
         $class->addMethod('__construct')
             ->setPublic()
@@ -217,7 +207,7 @@ BODY,
 
         $method->addBody(
             \sprintf(
-                'return yield $this->activity->%s(%s);',
+                'yield $this->activity->%s(%s);',
                 $this->method,
                 implode(', ', array_map(fn($param) => '$'.$param, array_keys($this->parameters)))
             )
@@ -229,7 +219,7 @@ BODY,
                 ->addUse(ActivityOptions::class)
                 ->addUse(CarbonInterval::class)
                 ->addUse(\Temporal\Workflow::class)
-                ->addUse(\Temporal\Internal\Workflow\ActivityProxy::class),
+                ->addUse(WorkflowContextInterface::class),
             $class,
         ];
     }
@@ -266,9 +256,9 @@ BODY,
 
     private function generateWorkflowQueryMethods(ClassType $class)
     {
-        foreach ($this->queryMethods as $method => $type) {
+        foreach ($this->queryMethods as $method) {
             $method = $class->addMethod($method)
-                ->setReturnType($type);
+                ->setReturnType('string');
 
             if ($class->isInterface()) {
                 $method->addAttribute(QueryMethod::class);
