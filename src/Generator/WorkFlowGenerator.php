@@ -11,9 +11,9 @@ use Nette\PhpGenerator\PhpNamespace;
 use Psr\Log\LoggerInterface;
 use Spiral\Files\FilesInterface;
 use Temporal\Activity\ActivityOptions;
+use Temporal\Internal\Workflow\ActivityProxy;
 use Temporal\Workflow\QueryMethod;
 use Temporal\Workflow\SignalMethod;
-use Temporal\Workflow\WorkflowContextInterface;
 use Temporal\Workflow\WorkflowMethod;
 
 class WorkFlowGenerator
@@ -106,7 +106,13 @@ class WorkFlowGenerator
             ->setReturnType('string');
 
         $this->addParameters($method);
-        $method->addBody('$this->logger->info(?, [\'args\' => func_get_args()]);', ['Something special happens here.']);
+        $method->addBody('$this->logger->info(?, [%s]);', [
+            'Something special happens here.',
+            implode(
+                ', ',
+                array_map(fn($param) => \sprintf('\'%s\' => %s', $param, '$'.$param), array_keys($this->parameters))
+            ),
+        ]);
         $method->addBody('return ?;', ['Success']);
 
         return [
@@ -182,8 +188,8 @@ class WorkFlowGenerator
 
         $class->addProperty('activity')
             ->setPrivate()
-            ->setType(WorkflowContextInterface::class)
-            ->addComment(\sprintf('@var %s|%s', 'WorkflowContextInterface', $activityClassName));
+            ->setType(ActivityProxy::class)
+            ->addComment(\sprintf('@var %s|%s', 'ActivityProxy', $activityClassName));
 
         $class->addMethod('__construct')
             ->setPublic()
@@ -211,7 +217,7 @@ BODY,
 
         $method->addBody(
             \sprintf(
-                'yield $this->activity->%s(%s);',
+                'return yield $this->activity->%s(%s);',
                 $this->method,
                 implode(', ', array_map(fn($param) => '$'.$param, array_keys($this->parameters)))
             )
@@ -223,7 +229,7 @@ BODY,
                 ->addUse(ActivityOptions::class)
                 ->addUse(CarbonInterval::class)
                 ->addUse(\Temporal\Workflow::class)
-                ->addUse(WorkflowContextInterface::class),
+                ->addUse(\Temporal\Internal\Workflow\ActivityProxy::class),
             $class,
         ];
     }
