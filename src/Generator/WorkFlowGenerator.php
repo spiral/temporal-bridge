@@ -108,7 +108,7 @@ class WorkFlowGenerator
         $this->addParameters($method);
         $method->addBody(
             \sprintf(
-                '$this->logger->info(%s, [%s]);',
+                '$this->logger->info(\'%s\', [%s]);',
                 'Something special happens here.',
                 implode(
                     ', ',
