@@ -13,7 +13,7 @@ class WorkflowTypesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->dir = $this->getDirectoryByAlias('app').'Workflow/';
+        $this->dir = $this->getDirectoryByAlias('app').'src/Workflow/';
     }
 
     public function testMakesWorkflowWithoutActivityAndHandler()

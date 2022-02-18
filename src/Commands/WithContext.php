@@ -70,7 +70,7 @@ trait WithContext
         $namespace = $namespace.'\\'.$className;
 
         $context = (new Context(
-            $dirs->get('app').'Workflow/'.$className.'/',
+            $dirs->get('app').'src/Workflow/'.$className.'/',
             $namespace,
             $className,
         ))
