@@ -41,7 +41,7 @@ trait WithContext
     public function verifyExistsWorkflow(Context $context): bool
     {
         if (! \is_dir($context->getPath())) {
-            return true;
+            return false;
         }
 
         $question = new QuestionHelper();
