@@ -70,14 +70,14 @@ trait WithContext
         $namespace = $namespace.'\\'.$className;
 
         $context = (new Context(
-            $this->getPath($namespace, $dirs->get('app')),
+            $dirs->get('app').'Workflow/'.$className.'/',
             $namespace,
             $className,
         ))
             ->withMethodParameters(Utils::parseParameters((array)$this->option('param')))
             ->withHandlerMethod($this->option('method') ?? 'handle')
-            ->withSignalMethods((array)$this->option('signal'))
-            ->withQueryMethods(Utils::parseParameters((array)$this->option('query')));
+            ->withSignalMethods(Utils::parseMethods((array)$this->option('signal')))
+            ->withQueryMethods(Utils::parseMethods((array)$this->option('query')));
 
         if ($this->option('with-handler') ?? false) {
             $context = $context->withHandler();

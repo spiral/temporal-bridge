@@ -31,14 +31,12 @@ final class HandlerGenerator implements FileGeneratorInterface
             ->setPrivate()
             ->setType(LoggerInterface::class);
 
-        $method = $class->addMethod($context->getHandlerMethodName())
-            ->setReturnType(RunningWorkflow::class);
+        $class->addMember($handlerMethod = $context->getHandlerMethod());
+        $handlerMethod->setReturnType(RunningWorkflow::class);
 
-        Utils::addParameters($context->getHandlerParameters(), $method);
-
-        $method->addBody($this->generateWorkflowInitialization($context));
-        $method->addBody($this->generateWorkflowSettingBody($context));
-        $method->addBody($this->generateRunScriptBody($context));
+        $handlerMethod->addBody($this->generateWorkflowInitialization($context));
+        $handlerMethod->addBody($this->generateWorkflowSettingBody($context));
+        $handlerMethod->addBody($this->generateRunScriptBody($context));
 
         return new PhpCodePrinter(
             $namespace
@@ -107,7 +105,7 @@ BODY
      */
     private function generateRunScriptBody(Context $context): string
     {
-        $runArgs = implode(', ', array_map(fn($param) => '$'.$param, array_keys($context->getHandlerParameters())));
+        $runArgs = Utils::buildMethodArgs($context->getHandlerMethod()->getParameters());
 
         return \sprintf(
             <<<'BODY'

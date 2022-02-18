@@ -21,6 +21,7 @@ final class PhpCodePrinter
     {
         $file = new PhpFile;
         $file->addNamespace($this->namespace);
+        $file->setStrictTypes();
 
         $printer = new PsrPrinter;
 

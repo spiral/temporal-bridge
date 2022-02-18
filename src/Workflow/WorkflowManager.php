@@ -21,20 +21,6 @@ class WorkflowManager implements WorkflowManagerInterface
     ) {
     }
 
-    public function getById(
-        string $id,
-        ?string $class = null,
-    ): RunningWorkflow {
-        $type = $class !== null ? $this->getTypeFromWorkflowClass($class) : null;
-
-        return new RunningWorkflow(
-            $this->client->newUntypedRunningWorkflowStub(
-                workflowID: $id,
-                workflowType: $type
-            )
-        );
-    }
-
     public function create(
         string $class,
         ?string $id = null
@@ -50,12 +36,27 @@ class WorkflowManager implements WorkflowManagerInterface
     public function createScheduled(string $class, string $expression, ?string $id = null): Workflow
     {
         return $this->create($class, $id)
-            ->withCronSchedule((string)$expression);
+            ->withCronSchedule($expression);
+    }
+
+    public function getById(
+        string $id,
+        ?string $class = null,
+    ): RunningWorkflow {
+        $type = $class !== null ? $this->getTypeFromWorkflowClass($class) : null;
+
+        return new RunningWorkflow(
+            $this->client->newUntypedRunningWorkflowStub(
+                workflowID: $id,
+                workflowType: $type
+            )
+        );
     }
 
     private function createOptions(?string $id): WorkflowOptions
     {
         $options = new WorkflowOptions();
+
         if ($id) {
             $options = $options->withWorkflowId($id);
         }

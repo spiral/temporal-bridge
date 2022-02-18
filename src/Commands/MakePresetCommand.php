@@ -27,13 +27,14 @@ final class MakePresetCommand extends Command
         }
 
         $context = $this->getContext();
-        $preset = $this->argument('preset');
+        $presetName = $this->argument('preset');
 
-        $generators = $registry->findByName($this->argument('preset'))->generators($context);
+        $preset = $registry->findByName($presetName);
+        $preset->init($context);
+        $generators = $preset->generators($context);
 
         if ($generators === []) {
-            $this->output->writeln(\sprintf('<error>Generators for preset [%s] are not found.</error>', $preset));
-
+            $this->output->writeln(\sprintf('<error>Generators for preset [%s] are not found.</error>', $presetName));
             return self::INVALID;
         }
 

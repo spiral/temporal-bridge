@@ -15,58 +15,67 @@ final class WorkflowGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter
     {
-        $activityClassName = $context->getBaseClassInterface('Activity');
+        $activityClass = $context->getBaseClassInterface('Activity');
+        $activityName = $context->getBaseClass().'.handle';
 
-        $class = new ClassType(
-            $context->getClass()
-        );
-
+        $class = new ClassType($context->getClass());
         $class->addImplement($context->getClassInterfaceWithNamespace());
 
         $class->addProperty('activity')
             ->setPrivate()
             ->setType(ActivityProxy::class)
-            ->addComment(\sprintf('@var %s|%s', 'ActivityProxy', $activityClassName));
+            ->addComment(
+                $context->hasActivity()
+                    ? \sprintf('@var %s|%s', 'ActivityProxy', $activityClass)
+                    : \sprintf('@var %s', 'ActivityProxy')
+            );
 
         $class->addMethod('__construct')
             ->setPublic()
-            ->addBody(
-                \sprintf(
-                    <<<'BODY'
+            ->addBody($this->generatePropertyInitialization(
+                $context->hasActivity() ? $activityClass.'::class' : "'$activityName'"
+            ));
+
+        $class->addMember($handlerMethod = $context->getHandlerMethod());
+
+        $handlerMethod->addBody(
+            \sprintf(
+                'return yield $this->activity->%s(%s);',
+                $context->getHandlerMethodName(),
+                Utils::buildMethodArgs($handlerMethod->getParameters())
+            )
+        );
+
+        foreach ($context->getSignalMethods() as $method) {
+            $class->addMember($method->addBody('// Signal about something special.'));
+        }
+
+        foreach ($context->getQueryMethods() as $method) {
+            $class->addMember($method->addBody('// Query something special.'));
+        }
+
+        return new PhpCodePrinter(
+            $namespace
+                ->add($class)
+                ->addUse(CarbonInterval::class)
+                ->addUse(ActivityOptions::class)
+                ->addUse(ActivityProxy::class)
+                ->addUse(Workflow::class),
+            $context
+        );
+    }
+
+    private function generatePropertyInitialization(string $activityName): string
+    {
+        return \sprintf(
+            <<<'BODY'
 $this->activity = Workflow::newActivityStub(
     %s,
     ActivityOptions::new()
         ->withScheduleToCloseTimeout(CarbonInterval::seconds(10))
 );
 BODY,
-                    $activityClassName.'::class'
-                )
-            );
-
-        $method = $class->addMethod($context->getHandlerMethodName())
-            ->setPublic()
-            ->setReturnType('\Generator');
-
-        Utils::generateWorkflowSignalMethods($context->getSignalMethods(), $class);
-        Utils::generateWorkflowQueryMethods($context->getQueryMethods(), $class);
-        Utils::addParameters($context->getHandlerParameters(), $method);
-
-        $method->addBody(
-            \sprintf(
-                'return yield $this->activity->%s(%s);',
-                $context->getHandlerMethodName(),
-                Utils::buildMethodArgs($context->getHandlerParameters())
-            )
-        );
-
-        return new PhpCodePrinter(
-            $namespace
-                ->add($class)
-                ->addUse(ActivityOptions::class)
-                ->addUse(CarbonInterval::class)
-                ->addUse(Workflow::class)
-                ->addUse(ActivityProxy::class),
-            $context
+            $activityName
         );
     }
 }

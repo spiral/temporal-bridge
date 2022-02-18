@@ -23,14 +23,16 @@ final class Generator
         $output->writeln('<info>Generating workflow files...</info>');
 
         foreach ($generators as $name => $generator) {
+            $c = clone $context;
+
             $generator->generate(
-                $context = $context->withClassPostfix($name),
-                new PhpNamespace($context->getNamespace())
+                $c->withClassPostfix($name),
+                new PhpNamespace($c->getNamespace())
             )->print($this->files);
 
             $output->writeln(\sprintf(
                 '<info>Class [%s] successfully generated.</info>',
-                $context->getClassWithNamespace()
+                $c->getClassWithNamespace()
             ));
         }
     }

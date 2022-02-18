@@ -6,6 +6,7 @@ namespace Spiral\TemporalBridge\Generator;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Method;
+use Nette\PhpGenerator\Parameter;
 use Temporal\Workflow\QueryMethod;
 use Temporal\Workflow\SignalMethod;
 
@@ -57,7 +58,39 @@ final class Utils
         }
     }
 
+    /**
+     * @param string[] $methods
+     * @return Method[]
+     */
+    public static function parseMethods(array $methods): array
+    {
+        $result = [];
 
+        foreach ($methods as $method) {
+            $params = '';
+            if (strpos($method, ',') !== false) {
+                [$method, $params] = explode(',', $method, 2);
+            }
+
+            if (strpos($method, ':') !== false) {
+                [$method, $type] = explode(':', $method, 2);
+            }
+
+            $type ??= 'void';
+
+            $result[$method] = (new Method($method))
+                ->setPublic()
+                ->setReturnType($type);
+            $result[$method]->setParameters(self::parseParameters(explode(',', $params)));
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string[] $parameters
+     * @return Parameter[]
+     */
     public static function parseParameters(array $parameters): array
     {
         $params = [];
@@ -68,8 +101,12 @@ final class Utils
                 [$param, $type] = explode(':', $param, 2);
             }
 
+            if (empty($param)) {
+                continue;
+            }
+
             $type ??= 'string';
-            $params[$param] = $type;
+            $params[$param] = (new Parameter($param))->setType($type);
         }
 
         return $params;

@@ -14,6 +14,8 @@ interface PresetInterface
      */
     public function getDescription(): ?string;
 
+    public function init(Context $context): void;
+
     /**
      * @return FileGeneratorInterface[]
      */

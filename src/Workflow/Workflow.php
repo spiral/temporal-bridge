@@ -29,6 +29,11 @@ class Workflow
     ) {
     }
 
+    public function getId(): ?string
+    {
+        return $this->options->workflowId;
+    }
+
     public function backoffRetryCoefficient(float $coefficient): self
     {
         $this->retryOptions = $this->getRetryOptions()
@@ -92,7 +97,7 @@ class Workflow
      */
     public function run(...$args): RunningWorkflow
     {
-        if ($this->retryOptions && !$this->options->retryOptions) {
+        if ($this->retryOptions && ! $this->options->retryOptions) {
             $this->withRetryOptions($this->retryOptions);
         }
 

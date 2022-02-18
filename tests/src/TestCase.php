@@ -4,6 +4,7 @@ namespace Spiral\TemporalBridge\Tests;
 
 class TestCase extends \Spiral\Testing\TestCase
 {
+
     public function rootDirectory(): string
     {
         return __DIR__.'/../';

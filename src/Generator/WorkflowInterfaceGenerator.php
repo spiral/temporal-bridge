@@ -18,17 +18,18 @@ final class WorkflowInterfaceGenerator implements FileGeneratorInterface
         $className = $context->getClass();
 
         $class = ClassType::interface($className);
-        $class
-            ->addAttribute(WorkflowInterface::class);
+        $class->addAttribute(WorkflowInterface::class);
 
-        $method = $class->addMethod($context->getHandlerMethodName())
-            ->setPublic()
-            ->setReturnType('\Generator')
-            ->addAttribute(WorkflowMethod::class);
+        $class->addMember($method = $context->getHandlerMethod());
+        $method->setBody(null)->addAttribute(WorkflowMethod::class);
 
-        Utils::generateWorkflowSignalMethods($context->getSignalMethods(), $class);
-        Utils::generateWorkflowQueryMethods($context->getQueryMethods(), $class);
-        Utils::addParameters($context->getHandlerParameters(), $method);
+        foreach ($context->getSignalMethods() as $method) {
+            $class->addMember($method->setBody(null)->addAttribute(SignalMethod::class));
+        }
+
+        foreach ($context->getQueryMethods() as $method) {
+            $class->addMember($method->setBody(null)->addAttribute(QueryMethod::class));
+        }
 
         return new PhpCodePrinter(
             $namespace

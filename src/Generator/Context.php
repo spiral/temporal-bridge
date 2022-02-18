@@ -4,17 +4,26 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Generator;
 
+use Nette\PhpGenerator\Method;
+use Nette\PhpGenerator\Parameter;
+
 final class Context
 {
     private const INTERFACE = 'Interface';
+    private const HANDLER_METHOD = 'handle';
 
     private bool $withActivity = false;
     private bool $withHandler = false;
     private bool $scheduled = false;
-    private string $handlerMethod = 'handle';
+    private string $handlerMethod = self::HANDLER_METHOD;
+    /** @var array<Method> */
+    private array $activityMethods = [];
+    /** @var array<Method> */
     private array $signalMethods = [];
+    /** @var array<Method> */
     private array $queryMethods = [];
-    private array $parameters = ['name' => 'string'];
+    /** @var array<Parameter> */
+    private array $handlerParameters = [];
     private string $classPostfix = '';
 
     public function __construct(
@@ -26,74 +35,79 @@ final class Context
 
     public function withClassPostfix(string $postfix): self
     {
-        $self = clone $this;
-        $self->classPostfix = $postfix;
+        $this->classPostfix = str_ends_with($this->baseClass, 'Workflow')
+            ? str_replace('Workflow', '', $postfix)
+            : $postfix;
 
-        return $self;
+        return $this;
     }
 
     public function withCronSchedule(): self
     {
-        $self = clone $this;
-        $self->scheduled = true;
+        $this->scheduled = true;
 
-        return $self;
+        return $this;
     }
 
+    /**
+     * @param array<Parameter> $parameters
+     */
     public function withMethodParameters(array $parameters): self
     {
-        $self = clone $this;
-        $self->parameters = $parameters;
+        $this->handlerParameters = $parameters;
 
-        return $self;
+        return $this;
     }
 
+    /**
+     * @param array<Method> $methods
+     */
     public function withSignalMethods(array $methods): self
     {
-        $self = clone $this;
-        $self->signalMethods = $methods;
+        $this->signalMethods = $methods;
 
-        return $self;
+        return $this;
     }
 
+    /**
+     * @param array<Method> $methods
+     */
     public function withQueryMethods(array $methods): self
     {
-        $self = clone $this;
-        $self->queryMethods = $methods;
+        $this->queryMethods = $methods;
 
-        return $self;
-    }
-
-    public function withNamespace(string $namespace): self
-    {
-        $self = clone $this;
-        $self->namespace = $namespace;
-
-        return $self;
+        return $this;
     }
 
     public function withHandlerMethod(string $name): self
     {
-        $self = clone $this;
-        $self->handlerMethod = $name;
+        $this->handlerMethod = $name;
 
-        return $self;
+        return $this;
     }
 
     public function withActivity(): self
     {
-        $self = clone $this;
-        $self->withActivity = true;
+        $this->withActivity = true;
 
-        return $self;
+        return $this;
+    }
+
+    /**
+     * @param array<Method> $methods
+     */
+    public function withActivityMethods(array $methods): self
+    {
+        $this->activityMethods = $methods;
+
+        return $this;
     }
 
     public function withHandler(): self
     {
-        $self = clone $this;
-        $self->withHandler = true;
+        $this->withHandler = true;
 
-        return $self;
+        return $this;
     }
 
     /**
@@ -186,7 +200,7 @@ final class Context
      */
     public function getSignalMethods(): array
     {
-        return $this->signalMethods;
+        return \array_map(fn($method) => clone $method, $this->signalMethods);
     }
 
     /**
@@ -195,7 +209,7 @@ final class Context
      */
     public function getQueryMethods(): array
     {
-        return $this->queryMethods;
+        return \array_map(fn($method) => clone $method, $this->queryMethods);
     }
 
     /**
@@ -215,6 +229,27 @@ final class Context
     }
 
     /**
+     * Check if activity has defined methods
+     */
+    public function hasActivityMethods(): bool
+    {
+        return $this->activityMethods !== [];
+    }
+
+    /**
+     * Get activity methods
+     * @return array<Method>
+     */
+    public function getActivityMethods(): array
+    {
+        if (! $this->hasActivityMethods()) {
+            return [$this->handlerMethod => $this->getHandlerMethod()];
+        }
+
+        return \array_map(fn($method) => clone $method, $this->activityMethods);
+    }
+
+    /**
      * Check if workflow should have handler classes
      */
     public function hasHandler(): bool
@@ -223,19 +258,30 @@ final class Context
     }
 
     /**
+     * Check if default handler method is changed
+     */
+    public function isHandlerMethodNameChanged(): bool
+    {
+        return $this->handlerMethod !== self::HANDLER_METHOD;
+    }
+
+    /**
+     * Get workflow handler method
+     */
+    public function getHandlerMethod(): Method
+    {
+        return (new Method($this->handlerMethod))
+            ->setPublic()
+            ->setReturnType('\Generator')
+            ->setParameters($this->handlerParameters);
+    }
+
+
+    /**
      * Get workflow handler method name
      */
     public function getHandlerMethodName(): string
     {
         return $this->handlerMethod;
-    }
-
-    /**
-     * Get workflow handler parameters
-     * @return array|string[]
-     */
-    public function getHandlerParameters(): array
-    {
-        return $this->parameters;
     }
 }
