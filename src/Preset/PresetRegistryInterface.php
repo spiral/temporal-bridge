@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Spiral\TemporalBridge\Generator\Preset;
+namespace Spiral\TemporalBridge\Preset;
 
 use Spiral\TemporalBridge\Exception\PresetNotFoundException;
 

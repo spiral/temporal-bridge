@@ -18,7 +18,6 @@ interface WorkflowManagerInterface
      */
     public function getById(
         string $id,
-        ?string $runID = null,
         ?string $class = null,
     ): RunningWorkflow;
 

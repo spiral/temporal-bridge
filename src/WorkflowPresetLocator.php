@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Spiral\TemporalBridge\Generator\Preset;
+namespace Spiral\TemporalBridge;
 
 use Spiral\Attributes\ReaderInterface;
 use Spiral\Core\FactoryInterface;
-use Spiral\TemporalBridge\Attribute\WorkflowPreset;
+use Spiral\TemporalBridge\Preset\PresetInterface;
+use Spiral\TemporalBridge\Preset\WorkflowPreset;
 use Spiral\Tokenizer\ClassesInterface;
 
 class WorkflowPresetLocator implements WorkflowPresetLocatorInterface

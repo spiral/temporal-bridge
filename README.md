@@ -225,8 +225,8 @@ A preset will create all necessary classes.
 
 #### Creating a preset
 
-A preset class should implement `Spiral\TemporalBridge\Generator\Preset\PresetInterface` and should have an
-attribute `Spiral\TemporalBridge\Attribute\WorkflowPreset`
+A preset class should implement `Spiral\TemporalBridge\Preset\PresetInterface` and should have an
+attribute `Spiral\TemporalBridge\Preset\WorkflowPreset`
 
 ```php
 use Spiral\TemporalBridge\Generator\WorkflowInterfaceGenerator;
@@ -235,6 +235,8 @@ use Spiral\TemporalBridge\Generator\ActivityInterfaceGenerator;
 use Spiral\TemporalBridge\Generator\ActivityGenerator;
 use Spiral\TemporalBridge\Generator\HandlerInterfaceGenerator;
 use Spiral\TemporalBridge\Generator\HandlerGenerator;
+use Spiral\TemporalBridge\Preset\PresetInterface;
+use Spiral\TemporalBridge\Preset\WorkflowPreset;
 
 #[WorkflowPreset('signal')]
 final class SignalWorkflow implements PresetInterface
@@ -291,8 +293,7 @@ class MyBootloader extends \Spiral\Boot\Bootloader\Bootloader
 You can omit `WorkflowPreset` attribute and register your preset via Bootloader
 
 ```php
-use Spiral\TemporalBridge\Generator\Preset\PresetRegistryInterface;
-use Spiral\TemporalBridge\Generator\Preset\SignalWorkflow;
+use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
 
 class MyBootloader extends \Spiral\Boot\Bootloader\Bootloader
 {

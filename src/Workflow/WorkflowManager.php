@@ -23,13 +23,15 @@ class WorkflowManager implements WorkflowManagerInterface
 
     public function getById(
         string $id,
-        ?string $runID = null,
         ?string $class = null,
     ): RunningWorkflow {
-        $type = $class !== null ? $this->reader->fromClass($class)->getID() : null;
+        $type = $class !== null ? $this->getTypeFromWorkflowClass($class) : null;
 
         return new RunningWorkflow(
-            $this->client->newUntypedRunningWorkflowStub($id, $runID, $type)
+            $this->client->newUntypedRunningWorkflowStub(
+                workflowID: $id,
+                workflowType: $type
+            )
         );
     }
 
@@ -37,13 +39,11 @@ class WorkflowManager implements WorkflowManagerInterface
         string $class,
         ?string $id = null
     ): Workflow {
-        $workflow = $this->reader->fromClass($class);
-
         return new Workflow(
             $this->client,
             $this->createOptions($id),
             $class,
-            $workflow->getID()
+            $this->getTypeFromWorkflowClass($class)
         );
     }
 
@@ -79,5 +79,10 @@ class WorkflowManager implements WorkflowManagerInterface
         }
 
         return $options;
+    }
+
+    private function getTypeFromWorkflowClass(string $class): string
+    {
+        return $this->reader->fromClass($class)->getID();
     }
 }

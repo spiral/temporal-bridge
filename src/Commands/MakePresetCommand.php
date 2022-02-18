@@ -6,8 +6,8 @@ namespace Spiral\TemporalBridge\Commands;
 
 use Spiral\Console\Command;
 use Spiral\TemporalBridge\Generator\Generator;
-use Spiral\TemporalBridge\Generator\Preset\PresetRegistryInterface;
-use Spiral\TemporalBridge\Generator\Preset\WorkflowPresetLocatorInterface;
+use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
+use Spiral\TemporalBridge\WorkflowPresetLocatorInterface;
 use Symfony\Component\Console\Input\InputArgument;
 
 final class MakePresetCommand extends Command

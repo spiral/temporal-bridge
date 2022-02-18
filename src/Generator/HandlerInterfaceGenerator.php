@@ -6,10 +6,7 @@ namespace Spiral\TemporalBridge\Generator;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
-use Psr\Log\LoggerInterface;
-use Spiral\TemporalBridge\WorkflowManagerInterface;
-use Temporal\Api\Enums\V1\WorkflowIdReusePolicy;
-use Temporal\Workflow\WorkflowInterface;
+use Spiral\TemporalBridge\Workflow\RunningWorkflow;
 
 class HandlerInterfaceGenerator implements FileGeneratorInterface
 {
@@ -21,13 +18,14 @@ class HandlerInterfaceGenerator implements FileGeneratorInterface
 
         $method = $class->addMethod($context->getHandlerMethodName())
             ->setPublic()
-            ->setReturnType('void');
+            ->setReturnType(RunningWorkflow::class);
 
         Utils::addParameters($context->getHandlerParameters(), $method);
 
         return new PhpCodePrinter(
             $namespace
-                ->add($class),
+                ->add($class)
+                ->addUse(RunningWorkflow::class),
             $context
         );
     }

@@ -35,12 +35,13 @@ trait WithContext
                 'With additional params',
                 ['name:string'],
             ],
+            ['force', null, InputOption::VALUE_NONE, 'Generate workflow with overwriting exist files'],
         ];
     }
 
     public function verifyExistsWorkflow(Context $context): bool
     {
-        if (! \is_dir($context->getPath())) {
+        if (! \is_dir($context->getPath()) || $this->option('force')) {
             return false;
         }
 

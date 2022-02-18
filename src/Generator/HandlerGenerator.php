@@ -7,6 +7,7 @@ namespace Spiral\TemporalBridge\Generator;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
 use Psr\Log\LoggerInterface;
+use Spiral\TemporalBridge\Workflow\RunningWorkflow;
 use Spiral\TemporalBridge\WorkflowManagerInterface;
 use Temporal\Api\Enums\V1\WorkflowIdReusePolicy;
 use Temporal\Exception\Client\WorkflowExecutionAlreadyStartedException;
@@ -31,7 +32,7 @@ final class HandlerGenerator implements FileGeneratorInterface
             ->setType(LoggerInterface::class);
 
         $method = $class->addMethod($context->getHandlerMethodName())
-            ->setReturnType('void');
+            ->setReturnType(RunningWorkflow::class);
 
         Utils::addParameters($context->getHandlerParameters(), $method);
 
@@ -42,6 +43,7 @@ final class HandlerGenerator implements FileGeneratorInterface
         return new PhpCodePrinter(
             $namespace
                 ->add($class)
+                ->addUse(RunningWorkflow::class)
                 ->addUse(WorkflowExecutionAlreadyStartedException::class)
                 ->addUse(WorkflowIdReusePolicy::class)
                 ->addUse(LoggerInterface::class)
@@ -113,13 +115,16 @@ try {
     $run = $workflow->run(%s);
     
     $this->logger->info('Workflow [%s] has been run', [
-        'id' => $run->getExecution()->getID(),
-        'run_id' => $run->getExecution()->getRunID()
+        'id' => $run->getExecution()->getID()
     ]);
+    
+    return $run;
 } catch (WorkflowExecutionAlreadyStartedException $e) {
     $this->logger->error('Workflow has been already started.', [
         'name' => $workflow->getWorkflowType()
     ]);
+    
+    throw $e;
 }
 BODY,
             $runArgs,

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Commands;
 
 use Spiral\Console\Command;
-use Spiral\TemporalBridge\Generator\Preset\PresetRegistryInterface;
-use Spiral\TemporalBridge\Generator\Preset\WorkflowPresetLocatorInterface;
+use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
+use Spiral\TemporalBridge\WorkflowPresetLocatorInterface;
 use Symfony\Component\Console\Helper\Table;
 
 final class PresetListCommand extends Command

@@ -18,13 +18,12 @@ use Spiral\TemporalBridge\Commands;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Dispatcher;
-use Spiral\TemporalBridge\Generator\Preset\PresetRegistry;
-use Spiral\TemporalBridge\Generator\Preset\PresetRegistryInterface;
-use Spiral\TemporalBridge\Generator\Preset\SignalWorkflow;
-use Spiral\TemporalBridge\Generator\Preset\WorkflowPresetLocator;
-use Spiral\TemporalBridge\Generator\Preset\WorkflowPresetLocatorInterface;
+use Spiral\TemporalBridge\Preset\PresetRegistry;
+use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
 use Spiral\TemporalBridge\Workflow\WorkflowManager;
 use Spiral\TemporalBridge\WorkflowManagerInterface;
+use Spiral\TemporalBridge\WorkflowPresetLocator;
+use Spiral\TemporalBridge\WorkflowPresetLocatorInterface;
 use Spiral\Tokenizer\ClassesInterface;
 use Temporal\Client\GRPC\ServiceClient;
 use Temporal\Client\WorkflowClient;
@@ -66,11 +65,6 @@ class TemporalBridgeBootloader extends Bootloader
         $console->addCommand(Commands\MakeWorkflowCommand::class);
         $console->addCommand(Commands\MakePresetCommand::class);
         $console->addCommand(Commands\PresetListCommand::class);
-    }
-
-    public function start(PresetRegistryInterface $registry)
-    {
-        $registry->register('signal', new SignalWorkflow());
     }
 
     private function initWorkflowPresetLocator(
