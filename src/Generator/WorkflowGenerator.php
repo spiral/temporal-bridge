@@ -32,19 +32,42 @@ final class WorkflowGenerator implements FileGeneratorInterface
 
         $class->addMethod('__construct')
             ->setPublic()
-            ->addBody($this->generatePropertyInitialization(
-                $context->hasActivity() ? $activityClass.'::class' : "'$activityName'"
-            ));
+            ->addBody(
+                $this->generatePropertyInitialization(
+                    $context->hasActivity() ? $activityClass.'::class' : "'$activityName'"
+                )
+            );
 
         $class->addMember($handlerMethod = $context->getHandlerMethod());
 
-        $handlerMethod->addBody(
-            \sprintf(
-                'return yield $this->activity->%s(%s);',
-                $context->getHandlerMethodName(),
-                Utils::buildMethodArgs($handlerMethod->getParameters())
-            )
-        );
+        foreach ($context->getActivityMethods() as $method) {
+        }
+        if (\count($context->getActivityMethods()) === 1) {
+            foreach ($context->getActivityMethods() as $method) {
+                $handlerMethod->addBody(
+                    \sprintf(
+                        'return yield $this->activity->%s(%s);',
+                        $method->getName(),
+                        Utils::buildMethodArgs($method->getParameters())
+                    )
+                );
+            }
+        } else {
+            foreach ($context->getActivityMethods() as $method) {
+                $handlerMethod->addBody('$result = [];');
+
+                $handlerMethod->addBody(
+                    \sprintf(
+                        '$result[] = yield $this->activity->%s(%s);',
+                        $method->getName(),
+                        Utils::buildMethodArgs($method->getParameters())
+                    )
+                );
+
+                $handlerMethod->addBody('return $result;');
+            }
+        }
+
 
         foreach ($context->getSignalMethods() as $method) {
             $class->addMember($method->addBody('// Signal about something special.'));

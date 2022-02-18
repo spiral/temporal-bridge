@@ -18,10 +18,16 @@ trait WithContext
     {
         return [
             ['with-handler', null, InputOption::VALUE_NONE, 'Generate handler classes'],
-            ['with-activity', 'a', InputOption::VALUE_NONE, 'Generate activity classes'],
+            ['with-activity', null, InputOption::VALUE_NONE, 'Generate activity classes'],
             ['scheduled', null, InputOption::VALUE_NONE, 'With scheduling by cron'],
             ['method', 'm', InputOption::VALUE_OPTIONAL, 'Set method name', 'handle'],
             ['query', 'r', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'With additional query methods'],
+            [
+                'activity',
+                'a',
+                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+                'With additional activity methods',
+            ],
             [
                 'signal',
                 's',
@@ -74,6 +80,7 @@ trait WithContext
             $namespace,
             $className,
         ))
+            ->withActivityMethods(Utils::parseParameters((array)$this->option('activity')))
             ->withMethodParameters(Utils::parseParameters((array)$this->option('param')))
             ->withHandlerMethod($this->option('method') ?? 'handle')
             ->withSignalMethods(Utils::parseMethods((array)$this->option('signal')))
