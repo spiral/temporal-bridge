@@ -25,7 +25,7 @@ final class PhpCodePrinter
         $printer = new PsrPrinter;
 
         $files->write(
-            filename: $this->context->getFilePath(),
+            filename: $this->context->getClassPath(),
             data: $printer->printFile($file),
             ensureDirectory: true
         );

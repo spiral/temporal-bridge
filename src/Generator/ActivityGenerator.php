@@ -13,9 +13,9 @@ final class ActivityGenerator implements FileGeneratorInterface
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter
     {
         $class = new ClassType(
-            $context->getClassName()
+            $context->getClass()
         );
-        $class->addImplement($context->getClassNameWithNamespace('Interface'));
+        $class->addImplement($context->getClassInterfaceWithNamespace());
 
         $method = $class
             ->addMethod('__construct')
@@ -29,7 +29,7 @@ final class ActivityGenerator implements FileGeneratorInterface
             ->setPublic()
             ->setReturnType('string');
 
-        Utils::addParameters($context->getParameters(), $method);
+        Utils::addParameters($context->getHandlerParameters(), $method);
 
         $method->addBody(
             \sprintf(
@@ -37,7 +37,7 @@ final class ActivityGenerator implements FileGeneratorInterface
                 'Something special happens here.',
                 implode(
                     ', ',
-                    array_map(fn($param) => \sprintf('\'%s\' => %s', $param, '$'.$param), array_keys($context->getParameters()))
+                    array_map(fn($param) => \sprintf('\'%s\' => %s', $param, '$'.$param), array_keys($context->getHandlerParameters()))
                 ),
             )
         );

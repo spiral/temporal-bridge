@@ -2,53 +2,30 @@
 
 declare(strict_types=1);
 
-namespace Spiral\TemporalBridge\Commands;
+namespace Spiral\TemporalBridge\Generator\Preset;
 
-use Spiral\Console\Command;
+use Spiral\TemporalBridge\Attribute\WorkflowPreset;
 use Spiral\TemporalBridge\Generator\ActivityGenerator;
 use Spiral\TemporalBridge\Generator\ActivityInterfaceGenerator;
 use Spiral\TemporalBridge\Generator\Context;
-use Spiral\TemporalBridge\Generator\Generator;
 use Spiral\TemporalBridge\Generator\HandlerGenerator;
 use Spiral\TemporalBridge\Generator\HandlerInterfaceGenerator;
-use Spiral\TemporalBridge\Generator\WorkflowGenerator;
+use Spiral\TemporalBridge\Generator\SignalWorkflowGenerator;
 use Spiral\TemporalBridge\Generator\WorkflowInterfaceGenerator;
-use Symfony\Component\Console\Input\InputArgument;
 
-final class MakeWorkflowCommand extends Command
+#[WorkflowPreset('signal')]
+final class SignalWorkflow implements PresetInterface
 {
-    use WithContext;
-
-    protected const NAME = 'temporal:make-workflow';
-    protected const DESCRIPTION = 'Make a new Temporal workflow';
-
-    public function perform(Generator $generator): int
+    public function getDescription(): ?string
     {
-        $context = $this->getContext();
-
-
-        if ($this->verifyExistsWorkflow($context)) {
-            return self::SUCCESS;
-        }
-
-        $generator->generate(
-            $this->output,
-            $context,
-            $this->defineGenerators($context)
-        );
-
-        return self::SUCCESS;
+        return 'Workflow with signals';
     }
 
-    protected const ARGUMENTS = [
-        ['name', InputArgument::REQUIRED, 'Workflow name'],
-    ];
-
-    private function defineGenerators(Context $context): array
+    public function generators(Context $context): array
     {
         $generators = [
             'WorkflowInterface' => new WorkflowInterfaceGenerator(),
-            'Workflow' => new WorkflowGenerator(),
+            'Workflow' => new SignalWorkflowGenerator(),
         ];
 
         if ($context->hasActivity()) {

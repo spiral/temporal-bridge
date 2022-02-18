@@ -5,7 +5,7 @@
 [![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/spiral/temporal-bridge/run-tests?label=tests&style=flat-square)](https://github.com/spiral/temporal-bridge/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/spiral/temporal-bridge.svg?style=flat-square)](https://packagist.org/packages/spiral/temporal-bridge)
 
-[Temporal](https://temporal.io/) is the simple, scalable open source way to write and run reliable cloud applications. 
+[Temporal](https://temporal.io/) is the simple, scalable open source way to write and run reliable cloud applications.
 
 ## Requirements
 
@@ -34,7 +34,7 @@ protected const LOAD = [
 > Note: if you are using [`spiral-packages/discoverer`](https://github.com/spiral-packages/discoverer),
 > you don't need to register bootloader by yourself.
 
-#### RoadRunner configuration 
+#### RoadRunner configuration
 
 Add `temporal` plugin section in your RoadRunner `rr.yaml` config:
 
@@ -50,7 +50,7 @@ temporal:
 You can run temporal server via docker by using the example below:
 
 > You can find official docker compose files here https://github.com/temporalio/docker-compose
- 
+
 ```yaml
 version: '3.5'
 
@@ -103,12 +103,12 @@ services:
       - 8088:8088
 ```
 
-> Please make sure that you have configuration file for temporal server.
+> Please make sure that a configuration file for temporal server exists.
 > `mkdir temporal && touch temporal/development.yaml`
 
 ## Creating workflow
 
-You can create a new workflow via console command:
+You are able to create a new workflow via console command:
 
 ```bash
 php app.php temporal:make-workflow MySuperWorkflow
@@ -123,13 +123,43 @@ project/
       MySuperWorkflow/
         MySuperWorkflowInterface
         MySuperWorkflow
-        MySuperWorkflowActivityInterface
-        MySuperWorkflowActivity
+```
+
+> You can redefine default namespace via `app/config/temporal.php` config file.
+
+#### Workflow with activity classes
+
+```bash
+php app.php temporal:make-workflow MySuperWorkflow --with-activity
+```
+
+```
+project/
+  src/
+    Workflow/
+      MySuperWorkflow/
+        ...
         MySuperWorkflowHandlerInterface
         MySuperWorkflowHandler
 ```
 
-> You can redefine default namespace via `app/config/temporal.php` config file.
+#### Workflow with handler classes
+
+```bash
+php app.php temporal:make-workflow MySuperWorkflow --with-handler
+```
+
+```
+project/
+  src/
+    Workflow/
+      MySuperWorkflow/
+        ...
+        MySuperWorkflowActivityInterface
+        MySuperWorkflowActivity
+```
+
+> You can mixin options `--with-activity --with-handler`
 
 #### Workflow method name definition
 
@@ -182,6 +212,107 @@ interface PingSiteWorkflowInterface
 }
 ```
 
+#### Workflow with namespace definition
+
+```bash
+temporal:make-workflow Domain\\MyPackage\\MoneyTransfer ... -s withdraw -s deposit
+```
+
+## Creating workflow from presets
+
+The package provides the ability to create predefined Workflows. Presets for the package can be provided via third-party
+packages.
+
+**Example of usage**
+
+```bash
+php app.php temporal:make-preset subscribtion-trial CustomerTrialSubscription 
+```
+
+A preset will create all necessary classes.
+
+> You can show list of available presets using the console command `php app.php temporal:presets`
+
+#### Creating a preset
+
+A preset class should implement `Spiral\TemporalBridge\Generator\Preset\PresetInterface` and should have an
+attribute `Spiral\TemporalBridge\Attribute\WorkflowPreset`
+
+```php
+use Spiral\TemporalBridge\Generator\WorkflowInterfaceGenerator;
+use Spiral\TemporalBridge\Generator\SignalWorkflowGenerator;
+use Spiral\TemporalBridge\Generator\ActivityInterfaceGenerator;
+use Spiral\TemporalBridge\Generator\ActivityGenerator;
+use Spiral\TemporalBridge\Generator\HandlerInterfaceGenerator;
+use Spiral\TemporalBridge\Generator\HandlerGenerator;
+
+#[WorkflowPreset('signal')]
+final class SignalWorkflow implements PresetInterface
+{
+    public function getDescription(): ?string
+    {
+        return 'Workflow with signals';
+    }
+    
+    public function generators(Context $context): array
+    {
+        $generators = [
+            'WorkflowInterface' => new WorkflowInterfaceGenerator(),
+            'Workflow' => new SignalWorkflowGenerator(),
+        ];
+
+        if ($context->hasActivity()) {
+            $generators = \array_merge($generators, [
+                'ActivityInterface' => new ActivityInterfaceGenerator(),
+                'Activity' => new ActivityGenerator(),
+            ]);
+        }
+
+        if ($context->hasHandler()) {
+            $generators = \array_merge($generators, [
+                'HandlerInterface' => new HandlerInterfaceGenerator(),
+                'Handler' => new HandlerGenerator(),
+            ]);
+        }
+
+        return $generators;
+    }
+}
+```
+
+**Please note: If you are using `WorkflowPreset` you have to add a directory with presets to tokenizer.**
+
+```php
+use Spiral\Tokenizer\Bootloader\TokenizerBootloader;
+
+class MyBootloader extends \Spiral\Boot\Bootloader\Bootloader
+{
+    protected const DEPENDENCIES = [
+        TokenizerBootloader::class
+    ];
+
+    public function start(TokenizerBootloader $tokenizer)
+    {
+        $tokenizer->addDirectory(__DIR__..'/presets');
+    }
+}
+```
+
+You can omit `WorkflowPreset` attribute and register your preset via Bootloader
+
+```php
+use Spiral\TemporalBridge\Generator\Preset\PresetRegistryInterface;
+use Spiral\TemporalBridge\Generator\Preset\SignalWorkflow;
+
+class MyBootloader extends \Spiral\Boot\Bootloader\Bootloader
+{
+    public function start(PresetRegistryInterface $registry)
+    {
+        $registry->register('signal', new SignalWorkflow());
+    }
+}
+```
+
 #### Workflow signal methods definition
 
 ```bash
@@ -201,12 +332,6 @@ interface MoneyTransferWorkflowInterface
     #[SignalMethod]
     function deposit(): void;
 }
-```
-
-#### Workflow with namespace definition
-
-```bash
-temporal:make-workflow Domain\\MyPackage\\MoneyTransfer ... -s withdraw -s deposit
 ```
 
 > You may discover available workflow samples [here](https://github.com/temporalio/samples-php)

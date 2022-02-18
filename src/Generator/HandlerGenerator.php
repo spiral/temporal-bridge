@@ -15,8 +15,8 @@ final class HandlerGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter
     {
-        $class = new ClassType($context->getClassName());
-        $class->addImplement($context->getClassNameWithNamespace('Interface'));
+        $class = new ClassType($context->getClass());
+        $class->addImplement($context->getClassInterfaceWithNamespace());
 
         $constructor = $class
             ->addMethod('__construct')
@@ -33,11 +33,11 @@ final class HandlerGenerator implements FileGeneratorInterface
         $method = $class->addMethod('handle')
             ->setReturnType('void');
 
-        Utils::addParameters($context->getParameters(), $method);
+        Utils::addParameters($context->getHandlerParameters(), $method);
 
         $method->addBody($this->generateWorkflowInitialization($context));
         $method->addBody($this->generateWorkflowSettingBody($context));
-        $method->addBody($this->generateLoggerInfoBody($context));
+        $method->addBody($this->generateRunScriptBody($context));
 
         return new PhpCodePrinter(
             $namespace
@@ -52,7 +52,7 @@ final class HandlerGenerator implements FileGeneratorInterface
 
     private function generateWorkflowInitialization(Context $context): string
     {
-        $workflowClassName = $context->getBaseClassName('WorkflowInterface');
+        $workflowClassName = $context->getBaseClass('WorkflowInterface');
 
         if ($context->isScheduled()) {
             return \sprintf(
@@ -81,11 +81,7 @@ BODY
 
     private function generateWorkflowSettingBody(Context $context): string
     {
-        $runArgs = implode(', ', array_map(fn($param) => '$'.$param, array_keys($context->getParameters())));
-
-        return \sprintf(
-            <<<'BODY'
-
+        return <<<'BODY'
 // $workflow->assignId(
 //     'operation-id', 
 //     WorkflowIdReusePolicy::WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY
@@ -99,34 +95,35 @@ BODY
 //      ->backoffRetryCoefficient(1.5)
 //      ->initialRetryInterval(\Carbon\CarbonInterval::seconds(5))
 //      ->maxRetryInterval(\Carbon\CarbonInterval::seconds(20));
-
-try {
-    $run = $workflow->run(%s);
-} catch (WorkflowExecutionAlreadyStartedException $e) {
-    $this->logger->error('Workflow has been already started.', [
-        'name' => $workflow->getWorkflowType()
-    ]);
-}
-BODY,
-            $runArgs
-        );
+BODY
+            ;
     }
 
     /**
      * @param Context $context
      * @return string
      */
-    private function generateLoggerInfoBody(Context $context): string
+    private function generateRunScriptBody(Context $context): string
     {
+        $runArgs = implode(', ', array_map(fn($param) => '$'.$param, array_keys($context->getHandlerParameters())));
+
         return \sprintf(
             <<<'BODY'
-
-$this->logger->info('Workflow [%s] has been run', [
-    'id' => $run->getExecution()->getID(),
-    'run_id' => $run->getExecution()->getRunID()
-]);
+try {
+    $run = $workflow->run(%s);
+    
+    $this->logger->info('Workflow [%s] has been run', [
+        'id' => $run->getExecution()->getID(),
+        'run_id' => $run->getExecution()->getRunID()
+    ]);
+} catch (WorkflowExecutionAlreadyStartedException $e) {
+    $this->logger->error('Workflow has been already started.', [
+        'name' => $workflow->getWorkflowType()
+    ]);
+}
 BODY,
-            $context->getBaseClassName()
+            $runArgs,
+            $context->getBaseClass()
         );
     }
 }

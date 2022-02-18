@@ -15,12 +15,13 @@ final class WorkflowGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter
     {
-        $activityClassName = $context->getBaseClassName('ActivityInterface');
+        $activityClassName = $context->getBaseClassInterface('Activity');
 
         $class = new ClassType(
-            $context->getClassName()
+            $context->getClass()
         );
-        $class->addImplement($context->getClassNameWithNamespace('Interface'));
+
+        $class->addImplement($context->getClassInterfaceWithNamespace());
 
         $class->addProperty('activity')
             ->setPrivate()
@@ -48,13 +49,13 @@ BODY,
 
         Utils::generateWorkflowSignalMethods($context->getSignalMethods(), $class);
         Utils::generateWorkflowQueryMethods($context->getQueryMethods(), $class);
-        Utils::addParameters($context->getParameters(), $method);
+        Utils::addParameters($context->getHandlerParameters(), $method);
 
         $method->addBody(
             \sprintf(
                 'return yield $this->activity->%s(%s);',
                 $context->getHandlerMethodName(),
-                implode(', ', array_map(fn($param) => '$'.$param, array_keys($context->getParameters())))
+                Utils::buildMethodArgs($context->getHandlerParameters())
             )
         );
 

@@ -11,7 +11,7 @@ final class TemporalConfig extends InjectableConfig
     public const CONFIG = 'temporal';
     protected $config = [
         'address' => null,
-        'namespace' => null,
+        'namespace' => null
     ];
 
     public function getDefaultNamespace(): string

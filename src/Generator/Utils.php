@@ -39,15 +39,6 @@ final class Utils
                 $method->addBody('// Do something special.');
             }
         }
-
-        $method = $class->addMethod('exit')
-            ->setReturnType('void');
-
-        if ($class->isInterface()) {
-            $method->addAttribute(SignalMethod::class);
-        } else {
-            $method->addBody('$this->exit = true;');
-        }
     }
 
     public static function generateWorkflowQueryMethods(array $queryMethods, ClassType $class): void
@@ -80,5 +71,10 @@ final class Utils
         }
 
         return $params;
+    }
+
+    public static function buildMethodArgs(array $args): string
+    {
+        return implode(', ', array_map(fn($param) => '$'.$param, array_keys($args)));
     }
 }

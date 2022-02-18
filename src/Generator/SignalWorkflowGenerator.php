@@ -15,11 +15,16 @@ final class SignalWorkflowGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter
     {
+        $signals = $context->getSignalMethods();
+        $signals[] = 'exit';
+
+        $context = $context->withSignalMethods($signals);
+
         $class = new ClassType(
-            $context->getClassName()
+            $context->getClass()
         );
 
-        $class->addImplement($context->getClassNameWithNamespace('Interface'));
+        $class->addImplement($context->getClassInterfaceWithNamespace());
 
         $class->addProperty('exit')
             ->setType('bool')
@@ -29,7 +34,8 @@ final class SignalWorkflowGenerator implements FileGeneratorInterface
             ->setPublic()
             ->setReturnType('\Generator');
 
-        $method->addBody(\sprintf(<<<'BODY'
+        $method->addBody(
+            <<<'BODY'
 $result = [];
 
 while (true) {
@@ -44,11 +50,17 @@ while (true) {
     $result[] = time();
 }
 BODY
-));
+        );
 
         Utils::generateWorkflowSignalMethods($context->getSignalMethods(), $class);
         Utils::generateWorkflowQueryMethods($context->getQueryMethods(), $class);
-        Utils::addParameters($context->getParameters(), $method);
+        Utils::addParameters($context->getHandlerParameters(), $method);
+
+        $class->getMethod('exit')
+            ->addBody(<<<'BODY'
+$this->exit = true;
+BODY
+);
 
         return new PhpCodePrinter(
             $namespace

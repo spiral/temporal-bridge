@@ -17,8 +17,7 @@ final class Dispatcher implements DispatcherInterface
 {
     public function __construct(
         private EnvironmentInterface $env,
-        private ContainerInterface $container,
-        private FinalizerInterface $finalizer
+        private ContainerInterface $container
     ) {
     }
 
@@ -41,18 +40,14 @@ final class Dispatcher implements DispatcherInterface
         foreach ($declarations->getDeclarations() as $type => $declaration) {
             if ($type === WorkflowInterface::class) {
                 // Workflows are stateful. So you need a type to create instances.
-                $worker->registerWorkflowTypes($declaration);
+                $worker->registerWorkflowTypes($declaration->getName());
             }
 
             if ($type === ActivityInterface::class) {
                 // Workflows are stateful. So you need a type to create instances.
-                $worker->registerActivityImplementations(
-                    $this->container->get($declaration)
-                );
+                $worker->registerActivity($declaration);
             }
         }
-
-        // TODO: finalizer should be fired
 
         // start primary loop
         $factory->run();
