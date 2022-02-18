@@ -30,7 +30,7 @@ final class HandlerGenerator implements FileGeneratorInterface
             ->setPrivate()
             ->setType(LoggerInterface::class);
 
-        $method = $class->addMethod('handle')
+        $method = $class->addMethod($context->getHandlerMethodName())
             ->setReturnType('void');
 
         Utils::addParameters($context->getHandlerParameters(), $method);
