@@ -27,6 +27,7 @@ final class Utils
             }
 
             $method = $class->addMethod($method)
+                ->setPublic()
                 ->setReturnType('void');
 
             if ($params) {
@@ -45,6 +46,7 @@ final class Utils
     {
         foreach ($queryMethods as $method => $type) {
             $method = $class->addMethod($method)
+                ->setPublic()
                 ->setReturnType($type);
 
             if ($class->isInterface()) {
