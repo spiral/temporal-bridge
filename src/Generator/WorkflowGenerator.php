@@ -15,33 +15,13 @@ final class WorkflowGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter
     {
-        $activityClass = $context->getBaseClassInterface('Activity');
-        $activityName = $context->getBaseClass().'.handle';
-
         $class = new ClassType($context->getClass());
         $class->addImplement($context->getClassInterfaceWithNamespace());
 
-        $class->addProperty('activity')
-            ->setPrivate()
-            ->setType(ActivityProxy::class)
-            ->addComment(
-                $context->hasActivity()
-                    ? \sprintf('@var %s|%s', 'ActivityProxy', $activityClass)
-                    : \sprintf('@var %s', 'ActivityProxy')
-            );
-
-        $class->addMethod('__construct')
-            ->setPublic()
-            ->addBody(
-                $this->generatePropertyInitialization(
-                    $context->hasActivity() ? $activityClass.'::class' : "'$activityName'"
-                )
-            );
+        Utils::initializeActivityProperty($class, $context);
 
         $class->addMember($handlerMethod = $context->getHandlerMethod());
 
-        foreach ($context->getActivityMethods() as $method) {
-        }
         if (\count($context->getActivityMethods()) === 1) {
             foreach ($context->getActivityMethods() as $method) {
                 $handlerMethod->addBody(
@@ -85,20 +65,6 @@ final class WorkflowGenerator implements FileGeneratorInterface
                 ->addUse(ActivityProxy::class)
                 ->addUse(Workflow::class),
             $context
-        );
-    }
-
-    private function generatePropertyInitialization(string $activityName): string
-    {
-        return \sprintf(
-            <<<'BODY'
-$this->activity = Workflow::newActivityStub(
-    %s,
-    ActivityOptions::new()
-        ->withScheduleToCloseTimeout(CarbonInterval::seconds(10))
-);
-BODY,
-            $activityName
         );
     }
 }

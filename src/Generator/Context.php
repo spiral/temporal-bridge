@@ -196,7 +196,7 @@ final class Context
 
     /**
      * Get required query methods
-     * @return array<non-empty-string, non-empty-string>
+     * @return array<Method>
      */
     public function getSignalMethods(): array
     {
@@ -205,7 +205,7 @@ final class Context
 
     /**
      * Get required query methods
-     * @return string[]
+     * @return array<Method>
      */
     public function getQueryMethods(): array
     {

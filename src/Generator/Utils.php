@@ -7,6 +7,7 @@ namespace Spiral\TemporalBridge\Generator;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\Parameter;
+use Temporal\Internal\Workflow\ActivityProxy;
 use Temporal\Workflow\QueryMethod;
 use Temporal\Workflow\SignalMethod;
 
@@ -115,5 +116,39 @@ final class Utils
     public static function buildMethodArgs(array $args): string
     {
         return implode(', ', array_map(fn($param) => '$'.$param, array_keys($args)));
+    }
+
+    public static function initializeActivityProperty(ClassType $class, Context $context): void
+    {
+        $activityClass = $context->getBaseClassInterface('Activity');
+        $activityName = $context->getBaseClass().'.handle';
+
+        $class->addProperty('activity')
+            ->setPrivate()
+            ->setType(ActivityProxy::class)
+            ->addComment(
+                $context->hasActivity()
+                    ? \sprintf('@var %s|%s', 'ActivityProxy', $activityClass)
+                    : \sprintf('@var %s', 'ActivityProxy')
+            );
+
+        if ($class->hasMethod('__construct')) {
+            $constructor = $class->getMethod('__construct');
+        } else {
+            $constructor = $class->addMethod('__construct')->setPublic();
+        }
+
+        $constructor->addBody(
+            \sprintf(
+                <<<'BODY'
+$this->activity = Workflow::newActivityStub(
+    %s,
+    ActivityOptions::new()
+        ->withScheduleToCloseTimeout(CarbonInterval::seconds(10))
+);
+BODY,
+                $context->hasActivity() ? $activityClass.'::class' : "'$activityName'"
+            )
+        );
     }
 }
