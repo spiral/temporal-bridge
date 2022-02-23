@@ -26,7 +26,7 @@ final class Dispatcher implements DispatcherInterface
         return \PHP_SAPI === 'cli' && $this->env->getMode() === Mode::MODE_TEMPORAL;
     }
 
-    public function serve()
+    public function serve(): void
     {
         // finds all available workflows, activity types and commands in a given directory
         $declarations = $this->container->get(DeclarationLocatorInterface::class);

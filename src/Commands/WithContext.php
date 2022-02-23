@@ -80,7 +80,7 @@ trait WithContext
             $namespace,
             $className,
         ))
-            ->withActivityMethods(Utils::parseParameters((array)$this->option('activity')))
+            ->withActivityMethods(Utils::parseMethods((array)$this->option('activity')))
             ->withMethodParameters(Utils::parseParameters((array)$this->option('param')))
             ->withHandlerMethod($this->option('method') ?? 'handle')
             ->withSignalMethods(Utils::parseMethods((array)$this->option('signal')))
