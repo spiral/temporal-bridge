@@ -8,6 +8,8 @@
     <projectFiles>
         <directory name="src" />
         <ignoreFiles>
+            <file name="src/WorkerFactory.php" />
+            <file name="src/InvokeActivityRouter.php" />
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
@@ -17,5 +19,11 @@
                 <referencedClass name="JetBrains\PhpStorm\ExpectedValues" />
             </errorLevel>
         </UndefinedAttributeClass>
+        <MismatchingDocblockReturnType>
+            <errorLevel type="suppress">
+                <file name="src/WorkflowManagerInterface.php" />
+                <file name="src/Workflow/Workflow.php" />
+            </errorLevel>
+        </MismatchingDocblockReturnType>
     </issueHandlers>
 </psalm>

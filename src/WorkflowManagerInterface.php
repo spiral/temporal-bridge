@@ -14,7 +14,7 @@ interface WorkflowManagerInterface
     /**
      * @psalm-template T of object
      * @param class-string<T> $class
-     * @return T|WorkflowStubInterface
+     * @return RunningWorkflow|T|WorkflowStubInterface
      */
     public function getById(
         string $id,

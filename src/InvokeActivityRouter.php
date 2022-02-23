@@ -99,7 +99,7 @@ class InvokeActivityRouter extends Route
     {
         try {
             $this->container->get(SnapshotterInterface::class)->register($e);
-        } catch (\Throwable|ContainerExceptionInterface $se) {
+        } catch (\Throwable $se) {
             // nothing to report
         }
     }
