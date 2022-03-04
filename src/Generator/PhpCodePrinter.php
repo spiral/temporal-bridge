@@ -9,7 +9,7 @@ use Nette\PhpGenerator\PhpNamespace;
 use Nette\PhpGenerator\PsrPrinter;
 use Spiral\Files\FilesInterface;
 
-final class PhpCodePrinter
+class PhpCodePrinter
 {
     public function __construct(
         private PhpNamespace $namespace,
