@@ -37,6 +37,9 @@ final class Dispatcher implements DispatcherInterface
         // Worker that listens on a task queue and hosts both workflow and activity implementations.
         $worker = $factory->newWorker();
 
+        $finalizer = $this->container->get(FinalizerInterface::class);
+        $worker->registerActivityFinalizer(fn() => $finalizer->finalize());
+
         foreach ($declarations->getDeclarations() as $type => $declaration) {
             if ($type === WorkflowInterface::class) {
                 // Workflows are stateful. So you need a type to create instances.
@@ -45,7 +48,10 @@ final class Dispatcher implements DispatcherInterface
 
             if ($type === ActivityInterface::class) {
                 // Workflows are stateful. So you need a type to create instances.
-                $worker->registerActivity($declaration);
+                $worker->registerActivity(
+                    $declaration,
+                    fn(\ReflectionClass $class) => $this->container->get($class->getName())
+                );
             }
         }
 
