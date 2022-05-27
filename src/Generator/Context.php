@@ -27,16 +27,16 @@ final class Context
     private string $classPostfix = '';
 
     public function __construct(
-        private string $directory,
-        private string $namespace,
-        private string $baseClass,
+        private readonly string $directory,
+        private readonly string $namespace,
+        private readonly string $baseClass,
     ) {
     }
 
     public function withClassPostfix(string $postfix): self
     {
-        $this->classPostfix = str_ends_with($this->baseClass, 'Workflow')
-            ? str_replace('Workflow', '', $postfix)
+        $this->classPostfix = \str_ends_with($this->baseClass, 'Workflow')
+            ? \str_replace('Workflow', '', $postfix)
             : $postfix;
 
         return $this;
@@ -50,7 +50,7 @@ final class Context
     }
 
     /**
-     * @param array<Parameter> $parameters
+     * @param Parameter[] $parameters
      */
     public function withMethodParameters(array $parameters): self
     {
@@ -60,7 +60,7 @@ final class Context
     }
 
     /**
-     * @param array<Method> $methods
+     * @param Method[] $methods
      */
     public function withSignalMethods(array $methods): self
     {
@@ -70,7 +70,7 @@ final class Context
     }
 
     /**
-     * @param array<Method> $methods
+     * @param Method[] $methods
      */
     public function withQueryMethods(array $methods): self
     {
@@ -79,6 +79,9 @@ final class Context
         return $this;
     }
 
+    /**
+     * @param non-empty-string $name
+     */
     public function withHandlerMethod(string $name): self
     {
         $this->handlerMethod = $name;
@@ -94,7 +97,7 @@ final class Context
     }
 
     /**
-     * @param array<Method> $methods
+     * @param Method[] $methods
      */
     public function withActivityMethods(array $methods): self
     {
@@ -120,6 +123,8 @@ final class Context
 
     /**
      * Get base class name without the namespace
+     *
+     * @return class-string
      */
     public function getBaseClass(string $postfix = ''): string
     {
@@ -128,6 +133,8 @@ final class Context
 
     /**
      * Get base class interface without the namespace
+     *
+     * @return class-string
      */
     public function getBaseClassInterface(string $postfix = ''): string
     {
@@ -136,6 +143,8 @@ final class Context
 
     /**
      * Get base class interface with the namespace
+     *
+     * @return class-string
      */
     public function getBaseClassInterfaceWithNamespace(string $postfix = ''): string
     {
@@ -144,6 +153,8 @@ final class Context
 
     /**
      * Get current class name without the namespace
+     *
+     * @return class-string
      */
     public function getClass(string $postfix = ''): string
     {
@@ -156,6 +167,8 @@ final class Context
 
     /**
      * Get current class name with the namespace
+     *
+     * @return class-string
      */
     public function getClassWithNamespace(string $postfix = ''): string
     {
@@ -164,6 +177,8 @@ final class Context
 
     /**
      * Get current class interface without the namespace
+     *
+     * @return class-string
      */
     public function getClassInterface(string $postfix = ''): string
     {
@@ -172,15 +187,14 @@ final class Context
 
     /**
      * Get current class interface with the namespace
+     *
+     * @return class-string
      */
     public function getClassInterfaceWithNamespace(string $postfix = ''): string
     {
         return $this->getNamespace().'\\'.$this->getClassInterface($postfix);
     }
 
-    /**
-     * @return string
-     */
     public function getPath(): string
     {
         return $this->directory;
@@ -196,7 +210,7 @@ final class Context
 
     /**
      * Get required query methods
-     * @return array<Method>
+     * @return Method[]
      */
     public function getSignalMethods(): array
     {
@@ -205,7 +219,7 @@ final class Context
 
     /**
      * Get required query methods
-     * @return array<Method>
+     * @return Method[]
      */
     public function getQueryMethods(): array
     {
@@ -238,7 +252,7 @@ final class Context
 
     /**
      * Get activity methods
-     * @return array<Method>
+     * @return Method[]
      */
     public function getActivityMethods(): array
     {

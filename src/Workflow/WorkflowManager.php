@@ -13,11 +13,11 @@ use Temporal\Internal\Declaration\Reader\WorkflowReader;
 class WorkflowManager implements WorkflowManagerInterface
 {
     public function __construct(
-        private WorkflowClientInterface $client,
-        private WorkflowReader $reader,
-        private ?DateInterval $defaultWorkflowExecutionTimeout = null,
-        private ?DateInterval $defaultWorkflowRunTimeout = null,
-        private ?DateInterval $defaultWorkflowTaskTimeout = null,
+        private readonly WorkflowClientInterface $client,
+        private readonly WorkflowReader $reader,
+        private readonly ?DateInterval $defaultWorkflowExecutionTimeout = null,
+        private readonly ?DateInterval $defaultWorkflowRunTimeout = null,
+        private readonly ?DateInterval $defaultWorkflowTaskTimeout = null,
     ) {
     }
 

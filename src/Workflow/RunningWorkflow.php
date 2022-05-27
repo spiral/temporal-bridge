@@ -9,12 +9,12 @@ use Temporal\Client\WorkflowStubInterface;
 class RunningWorkflow
 {
     public function __construct(
-        private WorkflowStubInterface $workflow
+        private readonly WorkflowStubInterface $workflow
     ) {
     }
 
     public function __call(string $name, array $arguments)
     {
-        return call_user_func_array([$this->workflow, $name], $arguments);
+        return \call_user_func_array([$this->workflow, $name], $arguments);
     }
 }

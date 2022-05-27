@@ -63,10 +63,10 @@ final class WorkerFactory implements WorkerFactoryInterface, LoopInterface
     private EnvironmentInterface $env;
 
     public function __construct(
-        private DataConverterInterface $converter,
-        private RPCConnectionInterface $rpc,
-        private Container $container,
-        private FinalizerInterface $finalizer,
+        private readonly DataConverterInterface $converter,
+        private readonly RPCConnectionInterface $rpc,
+        private readonly Container $container,
+        private readonly FinalizerInterface $finalizer,
     ) {
         $this->boot();
     }

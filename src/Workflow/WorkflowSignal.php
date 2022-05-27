@@ -7,8 +7,8 @@ namespace Spiral\TemporalBridge\Workflow;
 class WorkflowSignal
 {
     public function __construct(
-        private string $name,
-        private array $args = [],
+        private readonly string $name,
+        private readonly array $args = [],
     ) {
     }
 

@@ -48,11 +48,12 @@ class TemporalBridgeBootloader extends Bootloader
         RoadRunnerBootloader::class,
     ];
 
-    public function __construct(private ConfiguratorInterface $config)
-    {
+    public function __construct(
+        private readonly ConfiguratorInterface $config
+    ) {
     }
 
-    public function boot(
+    public function init(
         AbstractKernel $kernel,
         EnvironmentInterface $env,
         ConsoleBootloader $console,

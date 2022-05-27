@@ -17,10 +17,10 @@ class Worker extends \Temporal\Worker\Worker
     public function __construct(
         string $taskQueue,
         WorkerOptions $options,
-        private ServiceContainer $services,
-        private RPCConnectionInterface $rpc,
-        private FinalizerInterface $finalizer,
-        private Container $container
+        private readonly ServiceContainer $services,
+        private readonly RPCConnectionInterface $rpc,
+        private readonly FinalizerInterface $finalizer,
+        private readonly Container $container
     ) {
         parent::__construct($taskQueue, $options, $services, $rpc);
     }

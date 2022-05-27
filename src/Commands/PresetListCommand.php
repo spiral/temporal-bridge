@@ -25,7 +25,7 @@ final class PresetListCommand extends Command
 
         $list = $registry->getList();
         if ($list === []) {
-            $this->output->writeln('<info>No available Workflow presets found.</info>');
+            $this->info('No available Workflow presets found.');
 
             return self::SUCCESS;
         }
@@ -40,10 +40,10 @@ final class PresetListCommand extends Command
 
         $table->render();
 
-        $this->output->writeln('');
-        $this->output->writeln('<info>Use the command below to make a workflow: </info>');
-        $this->output->writeln('<question> php app.php temporal:make-preset preset-name MySuperWorkflow </question>');
-        $this->output->writeln('');
+        $this->newLine();
+        $this->info('Use the command below to make a workflow: ');
+        $this->comment('php app.php temporal:make-preset preset-name MySuperWorkflow');
+        $this->newLine();
 
         return self::SUCCESS;
     }

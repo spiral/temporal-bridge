@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class Generator
 {
     public function __construct(
-        private FilesInterface $files
+        private readonly FilesInterface $files
     ) {
     }
 

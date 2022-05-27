@@ -16,8 +16,8 @@ use Temporal\Workflow\WorkflowInterface;
 final class Dispatcher implements DispatcherInterface
 {
     public function __construct(
-        private EnvironmentInterface $env,
-        private ContainerInterface $container
+        private readonly EnvironmentInterface $env,
+        private readonly ContainerInterface $container
     ) {
     }
 

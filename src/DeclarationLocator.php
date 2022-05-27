@@ -12,8 +12,8 @@ use Temporal\Workflow\WorkflowInterface;
 final class DeclarationLocator implements DeclarationLocatorInterface
 {
     public function __construct(
-        private ClassesInterface $classes,
-        private ReaderInterface $reader
+        private readonly ClassesInterface $classes,
+        private readonly ReaderInterface $reader
     ) {
     }
 

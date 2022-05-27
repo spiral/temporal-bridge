@@ -19,7 +19,7 @@ final class ActivityInterfaceGenerator implements FileGeneratorInterface
         foreach ($context->getActivityMethods() as $method) {
             $class->addMember($method);
             $method
-                ->setBody(null)
+                ->setBody('')
                 ->addAttribute(ActivityMethod::class);
         }
 

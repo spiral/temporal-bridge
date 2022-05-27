@@ -22,10 +22,10 @@ class Workflow
      * @param class-string<T> $class
      */
     public function __construct(
-        private WorkflowClientInterface $client,
+        private readonly WorkflowClientInterface $client,
         private WorkflowOptions $options,
-        private string $class,
-        private string $type,
+        private readonly string $class,
+        private readonly string $type,
     ) {
     }
 

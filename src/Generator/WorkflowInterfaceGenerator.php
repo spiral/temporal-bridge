@@ -21,14 +21,14 @@ final class WorkflowInterfaceGenerator implements FileGeneratorInterface
         $class->addAttribute(WorkflowInterface::class);
 
         $class->addMember($method = $context->getHandlerMethod());
-        $method->setBody(null)->addAttribute(WorkflowMethod::class);
+        $method->setBody('')->addAttribute(WorkflowMethod::class);
 
         foreach ($context->getSignalMethods() as $method) {
-            $class->addMember($method->setBody(null)->addAttribute(SignalMethod::class));
+            $class->addMember($method->setBody('')->addAttribute(SignalMethod::class));
         }
 
         foreach ($context->getQueryMethods() as $method) {
-            $class->addMember($method->setBody(null)->addAttribute(QueryMethod::class));
+            $class->addMember($method->setBody('')->addAttribute(QueryMethod::class));
         }
 
         return new PhpCodePrinter(

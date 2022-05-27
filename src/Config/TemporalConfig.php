@@ -9,7 +9,7 @@ use Spiral\Core\InjectableConfig;
 final class TemporalConfig extends InjectableConfig
 {
     public const CONFIG = 'temporal';
-    protected $config = [
+    protected array $config = [
         'address' => null,
         'namespace' => null
     ];

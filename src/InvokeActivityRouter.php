@@ -26,10 +26,10 @@ class InvokeActivityRouter extends Route
     private const ERROR_NOT_FOUND = 'Activity with the specified name "%s" was not registered';
 
     public function __construct(
-        private ServiceContainer $services,
-        private RPCConnectionInterface $rpc,
-        private FinalizerInterface $finalizer,
-        private Container $container
+        private readonly ServiceContainer $services,
+        private readonly RPCConnectionInterface $rpc,
+        private readonly FinalizerInterface $finalizer,
+        private readonly Container $container
     ) {
     }
 
