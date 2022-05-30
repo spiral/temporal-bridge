@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge;
 
-use Psr\Container\ContainerInterface;
+use ReflectionClass;
 use Spiral\Boot\DispatcherInterface;
 use Spiral\Boot\FinalizerInterface;
+use Spiral\Core\Container;
 use Spiral\RoadRunner\Environment\Mode;
 use Spiral\RoadRunner\EnvironmentInterface;
 use Temporal\Activity\ActivityInterface;
@@ -17,7 +18,7 @@ final class Dispatcher implements DispatcherInterface
 {
     public function __construct(
         private EnvironmentInterface $env,
-        private ContainerInterface $container
+        private Container $container
     ) {
     }
 
@@ -29,7 +30,8 @@ final class Dispatcher implements DispatcherInterface
     public function serve(): void
     {
         // finds all available workflows, activity types and commands in a given directory
-        $declarations = $this->container->get(DeclarationLocatorInterface::class);
+        /** @var array<class-string<WorkflowInterface|ActivityInterface>, ReflectionClass> $declarations */
+        $declarations = $this->container->get(DeclarationLocatorInterface::class)->getDeclarations();
 
         // factory initiates and runs task queue specific activity and workflow workers
         $factory = $this->container->get(WorkerFactoryInterface::class);
@@ -40,7 +42,7 @@ final class Dispatcher implements DispatcherInterface
         $finalizer = $this->container->get(FinalizerInterface::class);
         $worker->registerActivityFinalizer(fn() => $finalizer->finalize());
 
-        foreach ($declarations->getDeclarations() as $type => $declaration) {
+        foreach ($declarations as $type => $declaration) {
             if ($type === WorkflowInterface::class) {
                 // Workflows are stateful. So you need a type to create instances.
                 $worker->registerWorkflowTypes($declaration->getName());
@@ -49,8 +51,8 @@ final class Dispatcher implements DispatcherInterface
             if ($type === ActivityInterface::class) {
                 // Workflows are stateful. So you need a type to create instances.
                 $worker->registerActivity(
-                    $declaration,
-                    fn(\ReflectionClass $class) => $this->container->get($class->getName())
+                    $declaration->getName(),
+                    fn(ReflectionClass $class) => $this->container->make($class->getName())
                 );
             }
         }
