@@ -9,7 +9,7 @@ use Spiral\Boot\DispatcherInterface;
 use Spiral\Boot\FinalizerInterface;
 use Spiral\Core\Container;
 use Spiral\RoadRunner\Environment\Mode;
-use Spiral\RoadRunner\EnvironmentInterface;
+use Spiral\Boot\EnvironmentInterface;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Workflow\WorkflowInterface;
@@ -24,7 +24,7 @@ final class Dispatcher implements DispatcherInterface
 
     public function canServe(): bool
     {
-        return \PHP_SAPI === 'cli' && $this->env->getMode() === Mode::MODE_TEMPORAL;
+        return \PHP_SAPI === 'cli' && $this->env->get('RR_MODE', '') === Mode::MODE_TEMPORAL;
     }
 
     public function serve(): void
@@ -37,7 +37,7 @@ final class Dispatcher implements DispatcherInterface
         $factory = $this->container->get(WorkerFactoryInterface::class);
 
         // Worker that listens on a task queue and hosts both workflow and activity implementations.
-        $worker = $factory->newWorker();
+        $worker = $factory->newWorker((string)$this->env->get('TEMPORAL_TASK_QUEUE', WorkerFactoryInterface::DEFAULT_TASK_QUEUE));
 
         $finalizer = $this->container->get(FinalizerInterface::class);
         $worker->registerActivityFinalizer(fn() => $finalizer->finalize());
