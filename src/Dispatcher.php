@@ -30,7 +30,7 @@ final class Dispatcher implements DispatcherInterface
     public function serve(): void
     {
         // finds all available workflows, activity types and commands in a given directory
-        /** @var array<class-string<WorkflowInterface|ActivityInterface>, ReflectionClass> $declarations */
+        /** @var array<class-string<WorkflowInterface>|class-string<ActivityInterface>, ReflectionClass> $declarations */
         $declarations = $this->container->get(DeclarationLocatorInterface::class)->getDeclarations();
 
         // factory initiates and runs task queue specific activity and workflow workers
