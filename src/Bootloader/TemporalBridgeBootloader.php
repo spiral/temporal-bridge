@@ -31,6 +31,7 @@ use Temporal\Client\WorkflowClientInterface;
 use Temporal\DataConverter\DataConverter;
 use Temporal\Worker\Transport\Goridge;
 use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\WorkerFactory;
 
 class TemporalBridgeBootloader extends Bootloader
 {
@@ -97,14 +98,11 @@ class TemporalBridgeBootloader extends Bootloader
         );
     }
 
-    private function initWorkerFactory(
-        Container $container,
-        FinalizerInterface $finalizer
-    ): WorkerFactoryInterface {
-        return new \Spiral\TemporalBridge\WorkerFactory(
+    private function initWorkerFactory(): WorkerFactoryInterface
+    {
+        return new WorkerFactory(
             DataConverter::createDefault(),
-            Goridge::create(),
-            $container, $finalizer
+            Goridge::create()
         );
     }
 

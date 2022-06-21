@@ -10,7 +10,6 @@ use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Preset\PresetRegistry;
 use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
 use Spiral\TemporalBridge\Tests\TestCase;
-use Spiral\TemporalBridge\WorkerFactory;
 use Spiral\TemporalBridge\Workflow\WorkflowManager;
 use Spiral\TemporalBridge\WorkflowManagerInterface;
 use Spiral\TemporalBridge\WorkflowPresetLocator;
@@ -18,6 +17,7 @@ use Spiral\TemporalBridge\WorkflowPresetLocatorInterface;
 use Temporal\Client\WorkflowClient;
 use Temporal\Client\WorkflowClientInterface;
 use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\WorkerFactory;
 
 class TemporalBridgeBootloaderTest extends TestCase
 {

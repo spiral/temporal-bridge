@@ -24,10 +24,10 @@ final class DeclarationLocator implements DeclarationLocatorInterface
                 continue;
             }
 
-            foreach ($class->getInterfaces() as $interface) {
-                if ($this->reader->firstClassMetadata($interface, WorkflowInterface::class)) {
+            foreach (array_merge($class->getInterfaces(), [$class]) as $type) {
+                if ($this->reader->firstClassMetadata($type, WorkflowInterface::class)) {
                     yield WorkflowInterface::class => $class;
-                } else if ($this->reader->firstClassMetadata($interface, ActivityInterface::class)) {
+                } else if ($this->reader->firstClassMetadata($type, ActivityInterface::class)) {
                     yield ActivityInterface::class => $class;
                 }
             }
