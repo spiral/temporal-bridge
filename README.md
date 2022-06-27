@@ -350,6 +350,35 @@ class PingController
 }
 ```
 
+## Running workers with different task queue
+
+RoadRunner doesn't support running several task queues out of the box, but you may run several RoadRunner instances with passing task queue name through the env variable `TEMPORAL_TASK_QUEUE`
+
+### Example
+
+**.rr.temporal.yaml config**
+```yaml
+version: '2.7'
+
+rpc:
+  listen: tcp://127.0.0.1:6001
+
+server:
+  command: "php app.php"
+  relay: pipes
+
+temporal:
+  address: localhost:7233
+  activities:
+    num_workers: 10
+```
+
+
+**Running RoadRunenr instance**
+```bash
+TEMPORAL_TASK_QUEUE=orders ./rr serve -c ./.rr.temporal.yaml
+```
+
 ## Testing
 
 ```bash
