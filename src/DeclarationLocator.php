@@ -24,7 +24,7 @@ final class DeclarationLocator implements DeclarationLocatorInterface
                 continue;
             }
 
-            foreach (array_merge($class->getInterfaces(), [$class]) as $type) {
+            foreach (\array_merge($class->getInterfaces(), [$class]) as $type) {
                 if ($this->reader->firstClassMetadata($type, WorkflowInterface::class)) {
                     yield WorkflowInterface::class => $class;
                 } else if ($this->reader->firstClassMetadata($type, ActivityInterface::class)) {
