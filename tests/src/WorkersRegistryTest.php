@@ -41,6 +41,7 @@ final class WorkersRegistryTest extends TestCase
     {
         $registry = new WorkersRegistry($this->createMock(WorkerFactoryInterface::class));
         $method = new \ReflectionMethod($registry, 'hasWorker');
+        $method->setAccessible(true);
 
         $this->assertFalse($method->invoke($registry, 'test'));
 
