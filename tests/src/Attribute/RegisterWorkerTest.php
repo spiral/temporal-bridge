@@ -6,9 +6,9 @@ namespace Spiral\TemporalBridge\Tests\Attribute;
 
 use Spiral\Attributes\Factory;
 use Spiral\TemporalBridge\Attribute\RegisterWorker;
-use Spiral\TemporalBridge\Tests\Attribute\Fixture\SomeActivity;
-use Spiral\TemporalBridge\Tests\Attribute\Fixture\SomeWorkflow;
-use Spiral\TemporalBridge\Tests\Attribute\Fixture\WithoutAttribute;
+use Spiral\TemporalBridge\Tests\App\SomeActivity;
+use Spiral\TemporalBridge\Tests\App\SomeWorkflow;
+use Spiral\TemporalBridge\Tests\App\WithoutAttribute;
 use Spiral\TemporalBridge\Tests\TestCase;
 
 final class RegisterWorkerTest extends TestCase

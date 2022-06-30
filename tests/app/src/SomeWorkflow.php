@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Spiral\TemporalBridge\Tests\Attribute\Fixture;
+namespace Spiral\TemporalBridge\Tests\App;
 
 use Spiral\TemporalBridge\Attribute\RegisterWorker;
 

@@ -5,14 +5,10 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge;
 
 use ReflectionClass;
-use Spiral\Attributes\ReaderInterface;
 use Spiral\Boot\DispatcherInterface;
-use Spiral\Boot\FinalizerInterface;
 use Spiral\Core\Container;
 use Spiral\RoadRunner\Environment\Mode;
 use Spiral\Boot\EnvironmentInterface;
-use Spiral\TemporalBridge\Attribute\RegisterWorker;
-use Spiral\TemporalBridge\Config\TemporalConfig;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Workflow\WorkflowInterface;
@@ -39,18 +35,11 @@ final class Dispatcher implements DispatcherInterface
         // factory initiates and runs task queue specific activity and workflow workers
         $factory = $this->container->get(WorkerFactoryInterface::class);
 
-        $finalizer = $this->container->get(FinalizerInterface::class);
         $registry = $this->container->get(WorkersRegistryInterface::class);
-        $defaultWorker = $this->container->get(TemporalConfig::class)->getDefaultWorker();
-        $reader = $this->container->get(ReaderInterface::class);
 
         foreach ($declarations as $type => $declaration) {
-            $registerWorker = $reader->firstClassMetadata($declaration, RegisterWorker::class);
-
             // Worker that listens on a task queue and hosts both workflow and activity implementations.
-            $worker = $registry->get($registerWorker === null ? $defaultWorker : $registerWorker->name);
-
-            $worker->registerActivityFinalizer(fn() => $finalizer->finalize());
+            $worker = $registry->get($declaration);
 
             if ($type === WorkflowInterface::class) {
                 // Workflows are stateful. So you need a type to create instances.

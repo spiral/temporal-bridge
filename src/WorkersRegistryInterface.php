@@ -8,5 +8,5 @@ use Temporal\Worker\WorkerInterface;
 
 interface WorkersRegistryInterface
 {
-    public function get(string $name): WorkerInterface;
+    public function get(\ReflectionClass $declaration): WorkerInterface;
 }

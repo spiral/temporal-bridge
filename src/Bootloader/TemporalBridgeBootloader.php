@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Bootloader;
 
 use Spiral\Attributes\AttributeReader;
+use Spiral\Attributes\ReaderInterface;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Boot\EnvironmentInterface;
+use Spiral\Boot\FinalizerInterface;
 use Spiral\Bootloader\AttributesBootloader;
 use Spiral\Config\ConfiguratorInterface;
+use Spiral\Config\Patch\Append;
 use Spiral\Console\Bootloader\ConsoleBootloader;
 use Spiral\Core\FactoryInterface;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
@@ -32,6 +35,7 @@ use Temporal\Client\WorkflowClientInterface;
 use Temporal\DataConverter\DataConverter;
 use Temporal\Worker\Transport\Goridge;
 use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Worker\WorkerOptions;
 use Temporal\WorkerFactory;
 
 class TemporalBridgeBootloader extends Bootloader
@@ -69,6 +73,11 @@ class TemporalBridgeBootloader extends Bootloader
         $console->addCommand(Commands\MakeWorkflowCommand::class);
         $console->addCommand(Commands\MakePresetCommand::class);
         $console->addCommand(Commands\PresetListCommand::class);
+    }
+
+    public function addWorkerOptions(string $worker, WorkerOptions $options): void
+    {
+        $this->config->modify(TemporalConfig::CONFIG, new Append('workers', $worker, $options));
     }
 
     private function initWorkflowPresetLocator(
@@ -120,8 +129,10 @@ class TemporalBridgeBootloader extends Bootloader
 
     private function initWorkersRegistry(
         WorkerFactoryInterface $workerFactory,
+        ReaderInterface $reader,
+        FinalizerInterface $finalizer,
         TemporalConfig $config
     ): WorkersRegistryInterface {
-        return new WorkersRegistry($workerFactory, $config->getWorkers());
+        return new WorkersRegistry($workerFactory, $reader, $finalizer, $config);
     }
 }
