@@ -10,6 +10,8 @@ use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Preset\PresetRegistry;
 use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
 use Spiral\TemporalBridge\Tests\TestCase;
+use Spiral\TemporalBridge\WorkersRegistry;
+use Spiral\TemporalBridge\WorkersRegistryInterface;
 use Spiral\TemporalBridge\Workflow\WorkflowManager;
 use Spiral\TemporalBridge\WorkflowManagerInterface;
 use Spiral\TemporalBridge\WorkflowPresetLocator;
@@ -68,6 +70,14 @@ class TemporalBridgeBootloaderTest extends TestCase
         $this->assertContainerBoundAsSingleton(
             PresetRegistryInterface::class,
             PresetRegistry::class
+        );
+    }
+
+    public function testWorkersRegistry()
+    {
+        $this->assertContainerBoundAsSingleton(
+            WorkersRegistryInterface::class,
+            WorkersRegistry::class
         );
     }
 }

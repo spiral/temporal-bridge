@@ -8,10 +8,9 @@ use Spiral\Attributes\AttributeReader;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Boot\EnvironmentInterface;
-use Spiral\Boot\FinalizerInterface;
+use Spiral\Bootloader\AttributesBootloader;
 use Spiral\Config\ConfiguratorInterface;
 use Spiral\Console\Bootloader\ConsoleBootloader;
-use Spiral\Core\Container;
 use Spiral\Core\FactoryInterface;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
@@ -20,6 +19,8 @@ use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Dispatcher;
 use Spiral\TemporalBridge\Preset\PresetRegistry;
 use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
+use Spiral\TemporalBridge\WorkersRegistry;
+use Spiral\TemporalBridge\WorkersRegistryInterface;
 use Spiral\TemporalBridge\Workflow\WorkflowManager;
 use Spiral\TemporalBridge\WorkflowManagerInterface;
 use Spiral\TemporalBridge\WorkflowPresetLocator;
@@ -41,12 +42,14 @@ class TemporalBridgeBootloader extends Bootloader
         WorkerFactoryInterface::class => [self::class, 'initWorkerFactory'],
         DeclarationLocatorInterface::class => [self::class, 'initDeclarationLocator'],
         WorkflowClientInterface::class => [self::class, 'initWorkflowClient'],
+        WorkersRegistryInterface::class => [self::class, 'initWorkersRegistry'],
         PresetRegistryInterface::class => PresetRegistry::class,
     ];
 
     protected const DEPENDENCIES = [
         ConsoleBootloader::class,
         RoadRunnerBootloader::class,
+        AttributesBootloader::class,
     ];
 
     public function __construct(private ConfiguratorInterface $config)
@@ -86,6 +89,8 @@ class TemporalBridgeBootloader extends Bootloader
             [
                 'address' => $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
                 'namespace' => 'App\\Workflow',
+                'defaultWorker' => (string)$env->get('TEMPORAL_TASK_QUEUE', WorkerFactoryInterface::DEFAULT_TASK_QUEUE),
+                'workers' => [],
             ]
         );
     }
@@ -111,5 +116,12 @@ class TemporalBridgeBootloader extends Bootloader
             $classes,
             new AttributeReader()
         );
+    }
+
+    private function initWorkersRegistry(
+        WorkerFactoryInterface $workerFactory,
+        TemporalConfig $config
+    ): WorkersRegistryInterface {
+        return new WorkersRegistry($workerFactory, $config->getWorkers());
     }
 }
