@@ -34,6 +34,27 @@ protected const LOAD = [
 > Note: if you are using [`spiral-packages/discoverer`](https://github.com/spiral-packages/discoverer),
 > you don't need to register bootloader by yourself.
 
+#### Configuration
+The package is already configured by default, use these features only if you need to change the default configuration.
+The package provides the ability to configure `address`, `namespace`, `defaultWorker`, `workers` parameters.
+Create file `app/config/temporal.php` and configure options. For example:
+
+```php
+declare(strict_types=1);
+
+use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Worker\WorkerOptions;
+
+return [
+    'address' => 'localhost:7233', 
+    'namespace' => 'App\\Workflow',
+    'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
+    'workers' => [
+        'workerName' => WorkerOptions::new()
+    ],
+];
+```
+
 #### RoadRunner configuration
 
 Add `temporal` plugin section in your RoadRunner `rr.yaml` config:
@@ -352,31 +373,33 @@ class PingController
 
 ## Running workers with different task queue
 
-RoadRunner doesn't support running several task queues out of the box, but you may run several RoadRunner instances with passing task queue name through the env variable `TEMPORAL_TASK_QUEUE`
+Add a `Spiral\TemporalBridge\Attribute\AssignWorker` attribute to your Workflow or Activity with the `name` of the worker. 
+This Workflow or Activity will be processed by the specified worker.
+Example:
 
-### Example
+```php
+<?php
 
-**.rr.temporal.yaml config**
-```yaml
-version: '2.7'
+declare(strict_types=1);
 
-rpc:
-  listen: tcp://127.0.0.1:6001
+namespace App\Workflow;
 
-server:
-  command: "php app.php"
-  relay: pipes
+use Spiral\TemporalBridge\Attribute\AssignWorker;
+use Temporal\Workflow\WorkflowInterface;
 
-temporal:
-  address: localhost:7233
-  activities:
-    num_workers: 10
-```
+#[AssignWorker(name: 'worker1')]
+#[WorkflowInterface]
+interface MoneyTransferWorkflowInterface
+{
+    #[WorkflowMethod]
+    public function ping(...): \Generator;
 
+    #[SignalMethod]
+    function withdraw(): void;
 
-**Running RoadRunenr instance**
-```bash
-TEMPORAL_TASK_QUEUE=orders ./rr serve -c ./.rr.temporal.yaml
+    #[SignalMethod]
+    function deposit(): void;
+}
 ```
 
 ## Testing

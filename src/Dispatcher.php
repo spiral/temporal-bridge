@@ -6,7 +6,6 @@ namespace Spiral\TemporalBridge;
 
 use ReflectionClass;
 use Spiral\Boot\DispatcherInterface;
-use Spiral\Boot\FinalizerInterface;
 use Spiral\Core\Container;
 use Spiral\RoadRunner\Environment\Mode;
 use Spiral\Boot\EnvironmentInterface;
@@ -36,13 +35,12 @@ final class Dispatcher implements DispatcherInterface
         // factory initiates and runs task queue specific activity and workflow workers
         $factory = $this->container->get(WorkerFactoryInterface::class);
 
-        // Worker that listens on a task queue and hosts both workflow and activity implementations.
-        $worker = $factory->newWorker((string)$this->env->get('TEMPORAL_TASK_QUEUE', WorkerFactoryInterface::DEFAULT_TASK_QUEUE));
-
-        $finalizer = $this->container->get(FinalizerInterface::class);
-        $worker->registerActivityFinalizer(fn() => $finalizer->finalize());
+        $registry = $this->container->get(WorkersRegistryInterface::class);
 
         foreach ($declarations as $type => $declaration) {
+            // Worker that listens on a task queue and hosts both workflow and activity implementations.
+            $worker = $registry->get($declaration);
+
             if ($type === WorkflowInterface::class) {
                 // Workflows are stateful. So you need a type to create instances.
                 $worker->registerWorkflowTypes($declaration->getName());

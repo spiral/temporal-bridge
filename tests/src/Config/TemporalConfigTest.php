@@ -6,6 +6,8 @@ namespace Spiral\TemporalBridge\Tests\Config;
 
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\Tests\TestCase;
+use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Worker\WorkerOptions;
 
 final class TemporalConfigTest extends TestCase
 {
@@ -41,4 +43,40 @@ final class TemporalConfigTest extends TestCase
         $this->assertSame('localhost:7233', $config->getAddress());
     }
 
+    public function testGetsDefaultWorker(): void
+    {
+        $config = new TemporalConfig([
+            'defaultWorker' => 'some-worker'
+        ]);
+
+        $this->assertSame('some-worker', $config->getDefaultWorker());
+    }
+
+    public function testGetsDefaultWorkerIfItNotSet(): void
+    {
+        $config = new TemporalConfig([]);
+
+        $this->assertSame(WorkerFactoryInterface::DEFAULT_TASK_QUEUE, $config->getDefaultWorker());
+    }
+
+    public function testGetsWorkers(): void
+    {
+        $workers = [
+            'first' => WorkerOptions::new(),
+            'second' => WorkerOptions::new()
+        ];
+
+        $config = new TemporalConfig([
+            'workers' => $workers
+        ]);
+
+        $this->assertSame($workers, $config->getWorkers());
+    }
+
+    public function testGetsWorkersIfItNotSet(): void
+    {
+        $config = new TemporalConfig([]);
+
+        $this->assertSame([], $config->getWorkers());
+    }
 }
