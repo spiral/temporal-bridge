@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Tests\App;
 
-use Spiral\TemporalBridge\Attribute\RegisterWorker;
+use Spiral\TemporalBridge\Attribute\AssignWorker;
 
-#[RegisterWorker(name: 'worker2')]
+#[AssignWorker(name: 'worker2')]
 class SomeWorkflow
 {
 }

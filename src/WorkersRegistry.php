@@ -6,7 +6,7 @@ namespace Spiral\TemporalBridge;
 
 use Spiral\Attributes\ReaderInterface;
 use Spiral\Boot\FinalizerInterface;
-use Spiral\TemporalBridge\Attribute\RegisterWorker;
+use Spiral\TemporalBridge\Attribute\AssignWorker;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerInterface;
@@ -46,12 +46,12 @@ final class WorkersRegistry implements WorkersRegistryInterface
 
     private function resolveName(\ReflectionClass $declaration): string
     {
-        $registerWorker = $this->reader->firstClassMetadata($declaration, RegisterWorker::class);
+        $assignWorker = $this->reader->firstClassMetadata($declaration, AssignWorker::class);
 
-        if ($registerWorker === null) {
+        if ($assignWorker === null) {
             return $this->config->getDefaultWorker();
         }
 
-        return $registerWorker->name;
+        return $assignWorker->name;
     }
 }

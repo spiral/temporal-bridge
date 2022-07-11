@@ -373,7 +373,7 @@ class PingController
 
 ## Running workers with different task queue
 
-Add a `Spiral\TemporalBridge\Attribute\RegisterWorker` attribute to your Workflow or Activity with the `name` of the worker. 
+Add a `Spiral\TemporalBridge\Attribute\AssignWorker` attribute to your Workflow or Activity with the `name` of the worker. 
 This Workflow or Activity will be processed by the specified worker.
 Example:
 
@@ -384,10 +384,10 @@ declare(strict_types=1);
 
 namespace App\Workflow;
 
-use Spiral\TemporalBridge\Attribute\RegisterWorker;
+use Spiral\TemporalBridge\Attribute\AssignWorker;
 use Temporal\Workflow\WorkflowInterface;
 
-#[RegisterWorker(name: 'worker1')]
+#[AssignWorker(name: 'worker1')]
 #[WorkflowInterface]
 interface MoneyTransferWorkflowInterface
 {

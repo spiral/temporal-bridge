@@ -7,7 +7,7 @@ namespace Spiral\TemporalBridge\Attribute;
 use Spiral\Attributes\NamedArgumentConstructor;
 
 #[\Attribute(\Attribute::TARGET_CLASS), NamedArgumentConstructor]
-final class RegisterWorker
+final class AssignWorker
 {
     public function __construct(
         public string $name
