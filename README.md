@@ -11,8 +11,8 @@
 
 Make sure that your server is configured with following PHP version and extensions:
 
-- PHP 8.0+
-- Spiral framework 2.9+
+- PHP 8.1+
+- Spiral framework 3.0+
 
 ## Installation
 
@@ -33,6 +33,28 @@ protected const LOAD = [
 
 > Note: if you are using [`spiral-packages/discoverer`](https://github.com/spiral-packages/discoverer),
 > you don't need to register bootloader by yourself.
+
+#### Configuration
+
+The package is already configured by default, use these features only if you need to change the default configuration.
+The package provides the ability to configure `address`, `namespace`, `defaultWorker`, `workers` parameters.
+Create file `app/config/temporal.php` and configure options. For example:
+
+```php
+declare(strict_types=1);
+
+use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Worker\WorkerOptions;
+
+return [
+    'address' => env('TEMPORAL_ADDRESS', 'localhost:7233'), 
+    'namespace' => 'App\\Workflow',
+    'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
+    'workers' => [
+        'workerName' => WorkerOptions::new()
+    ],
+];
+```
 
 #### RoadRunner configuration
 
@@ -347,6 +369,37 @@ class PingController
             $request->name
         );
     }
+}
+```
+
+## Running workers with different task queue
+
+Add a `Spiral\TemporalBridge\Attribute\AssignWorker` attribute to your Workflow or Activity with the `name` of the worker.
+This Workflow or Activity will be processed by the specified worker.
+Example:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Workflow;
+
+use Spiral\TemporalBridge\Attribute\AssignWorker;
+use Temporal\Workflow\WorkflowInterface;
+
+#[AssignWorker(name: 'worker1')]
+#[WorkflowInterface]
+interface MoneyTransferWorkflowInterface
+{
+    #[WorkflowMethod]
+    public function ping(...): \Generator;
+    
+    #[SignalMethod]
+    function withdraw(): void;
+    
+    #[SignalMethod]
+    function deposit(): void;
 }
 ```
 
