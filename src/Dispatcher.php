@@ -19,9 +19,9 @@ use Temporal\Workflow\WorkflowInterface;
 final class Dispatcher implements DispatcherInterface
 {
     public function __construct(
+        private readonly RoadRunnerMode $mode,
         private readonly ReaderInterface $reader,
         private readonly TemporalConfig $config,
-        private readonly RoadRunnerMode $mode,
         private readonly Container $container
     ) {
     }

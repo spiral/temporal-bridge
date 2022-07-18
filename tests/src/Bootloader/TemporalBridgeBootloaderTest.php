@@ -9,8 +9,6 @@ use Spiral\TemporalBridge\Bootloader\TemporalBridgeBootloader;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\Config\ConfigManager;
 use Spiral\Config\LoaderInterface;
-use Spiral\TemporalBridge\Bootloader\TemporalBridgeBootloader;
-use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Preset\PresetRegistry;
