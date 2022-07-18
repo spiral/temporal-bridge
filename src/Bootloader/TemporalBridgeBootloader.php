@@ -129,10 +129,9 @@ class TemporalBridgeBootloader extends Bootloader
 
     private function initWorkersRegistry(
         WorkerFactoryInterface $workerFactory,
-        ReaderInterface $reader,
         FinalizerInterface $finalizer,
         TemporalConfig $config
     ): WorkersRegistryInterface {
-        return new WorkersRegistry($workerFactory, $reader, $finalizer, $config);
+        return new WorkersRegistry($workerFactory, $finalizer, $config);
     }
 }
