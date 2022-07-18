@@ -10,10 +10,11 @@ use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Boot\EnvironmentInterface;
 use Spiral\Boot\FinalizerInterface;
-use Spiral\Bootloader\Attributes\AttributesBootloader;
+use Spiral\Bootloader\AttributesBootloader;
 use Spiral\Config\ConfiguratorInterface;
 use Spiral\Config\Patch\Append;
 use Spiral\Console\Bootloader\ConsoleBootloader;
+use Spiral\Core\Container;
 use Spiral\Core\FactoryInterface;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
@@ -53,7 +54,6 @@ class TemporalBridgeBootloader extends Bootloader
     protected const DEPENDENCIES = [
         ConsoleBootloader::class,
         RoadRunnerBootloader::class,
-        AttributesBootloader::class,
     ];
 
     public function __construct(
@@ -65,11 +65,11 @@ class TemporalBridgeBootloader extends Bootloader
         AbstractKernel $kernel,
         EnvironmentInterface $env,
         ConsoleBootloader $console,
-        Dispatcher $dispatcher
+        FactoryInterface $factory
     ): void {
         $this->initConfig($env);
 
-        $kernel->addDispatcher($dispatcher);
+        $kernel->addDispatcher($factory->make(Dispatcher::class));
 
         $console->addCommand(Commands\MakeWorkflowCommand::class);
         $console->addCommand(Commands\MakePresetCommand::class);
@@ -130,10 +130,9 @@ class TemporalBridgeBootloader extends Bootloader
 
     private function initWorkersRegistry(
         WorkerFactoryInterface $workerFactory,
-        ReaderInterface $reader,
         FinalizerInterface $finalizer,
         TemporalConfig $config
     ): WorkersRegistryInterface {
-        return new WorkersRegistry($workerFactory, $reader, $finalizer, $config);
+        return new WorkersRegistry($workerFactory, $finalizer, $config);
     }
 }

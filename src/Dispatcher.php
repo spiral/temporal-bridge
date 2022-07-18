@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge;
 
 use ReflectionClass;
+use Spiral\Attributes\ReaderInterface;
 use Spiral\Boot\DispatcherInterface;
 use Spiral\Core\Container;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
+use Spiral\RoadRunner\Environment\Mode;
+use Spiral\TemporalBridge\Attribute\AssignWorker;
+use Spiral\TemporalBridge\Config\TemporalConfig;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Workflow\WorkflowInterface;
@@ -15,6 +19,8 @@ use Temporal\Workflow\WorkflowInterface;
 final class Dispatcher implements DispatcherInterface
 {
     public function __construct(
+        private readonly ReaderInterface $reader,
+        private readonly TemporalConfig $config,
         private readonly RoadRunnerMode $mode,
         private readonly Container $container
     ) {
@@ -35,12 +41,11 @@ final class Dispatcher implements DispatcherInterface
 
         // factory initiates and runs task queue specific activity and workflow workers
         $factory = $this->container->get(WorkerFactoryInterface::class);
-
         $registry = $this->container->get(WorkersRegistryInterface::class);
 
         foreach ($declarations as $type => $declaration) {
             // Worker that listens on a task queue and hosts both workflow and activity implementations.
-            $worker = $registry->get($declaration);
+            $worker = $registry->get($this->resolveQueueName($declaration));
 
             if ($type === WorkflowInterface::class) {
                 // Workflows are stateful. So you need a type to create instances.
@@ -58,5 +63,16 @@ final class Dispatcher implements DispatcherInterface
 
         // start primary loop
         $factory->run();
+    }
+
+    private function resolveQueueName(\ReflectionClass $declaration): string
+    {
+        $assignWorker = $this->reader->firstClassMetadata($declaration, AssignWorker::class);
+
+        if ($assignWorker === null) {
+            return $this->config->getDefaultWorker();
+        }
+
+        return $assignWorker->name;
     }
 }

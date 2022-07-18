@@ -7,6 +7,10 @@ namespace Spiral\TemporalBridge\Tests\Bootloader;
 use Spiral\Attributes\ReaderInterface;
 use Spiral\TemporalBridge\Bootloader\TemporalBridgeBootloader;
 use Spiral\TemporalBridge\Config\TemporalConfig;
+use Spiral\Config\ConfigManager;
+use Spiral\Config\LoaderInterface;
+use Spiral\TemporalBridge\Bootloader\TemporalBridgeBootloader;
+use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Preset\PresetRegistry;
@@ -86,14 +90,16 @@ class TemporalBridgeBootloaderTest extends TestCase
 
     public function testAddWorkerOptions(): void
     {
-        $bootloader = $this->getContainer()->get(TemporalBridgeBootloader::class);
+        $configs = new ConfigManager($this->createMock(LoaderInterface::class));
+        $configs->setDefaults(TemporalConfig::CONFIG, ['workers' => []]);
 
-        $bootloader->addWorkerOptions('first', WorkerOptions::new());
-        $bootloader->addWorkerOptions('second', WorkerOptions::new());
+        $bootloader = new TemporalBridgeBootloader($configs);
+        $bootloader->addWorkerOptions('first', $first = WorkerOptions::new());
+        $bootloader->addWorkerOptions('second', $second = WorkerOptions::new());
 
-        $this->assertEquals(
-            ['first' => WorkerOptions::new(), 'second' => WorkerOptions::new()],
-            $this->getConfig(TemporalConfig::CONFIG)['workers']
+        $this->assertSame(
+            ['first' => $first, 'second' => $second],
+            $configs->getConfig(TemporalConfig::CONFIG)['workers']
         );
     }
 }
