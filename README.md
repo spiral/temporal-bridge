@@ -371,11 +371,12 @@ class PingController
 }
 ```
 
-## Running workers with different task queue
+## Running workflows and activities with different task queue
 
 Add a `Spiral\TemporalBridge\Attribute\AssignWorker` attribute to your Workflow or Activity with the `name` of the worker. 
 This Workflow or Activity will be processed by the specified worker.
-Example:
+
+**Workflow example:**
 
 ```php
 <?php
@@ -392,13 +393,77 @@ use Temporal\Workflow\WorkflowInterface;
 interface MoneyTransferWorkflowInterface
 {
     #[WorkflowMethod]
-    public function ping(...): \Generator;
+    public function transfer(...): \Generator;
 
     #[SignalMethod]
     function withdraw(): void;
 
     #[SignalMethod]
     function deposit(): void;
+}
+```
+**Activity example:**
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Workflow;
+
+use Spiral\TemporalBridge\Attribute\AssignWorker;
+use Temporal\Activity\ActivityInterface;
+use Temporal\Activity\ActivityMethod;
+
+#[AssignWorker(name: 'worker1')]
+#[ActivityInterface(...)]
+interface MoneyTransferActivityInterface
+{
+    #[ActivityMethod]
+    public function transfer(...): int;
+
+    #[ActivityMethod]
+    public function cancel(...): bool;
+}
+```
+
+You can configure worker options via config file `app/config/temporal.php`
+
+```php
+declare(strict_types=1);
+
+use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Worker\WorkerOptions;
+
+return [
+    //...
+    'workers' => [
+        'worker1' => WorkerOptions::new()
+    ],
+];
+```
+
+Or via application bootloader
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Bootloader;
+
+use Spiral\Bootloader\DomainBootloader;
+use Spiral\TemporalBridge\WorkersRegistryInterface;use Temporal\Worker\WorkerOptions;
+
+class AppBootloader extends DomainBootloader
+{
+    public function init(WorkersRegistryInterface $workersRegistry): void
+    {
+        $workersRegistry->register(
+            'worker1', 
+            WorkerOptions::new()->...
+        );
+    }
 }
 ```
 

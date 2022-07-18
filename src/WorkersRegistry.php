@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge;
 
-use Spiral\Attributes\ReaderInterface;
 use Spiral\Boot\FinalizerInterface;
-use Spiral\TemporalBridge\Attribute\AssignWorker;
 use Spiral\TemporalBridge\Config\TemporalConfig;
+use Spiral\TemporalBridge\Exception\WorkersRegistryException;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerInterface;
 use Temporal\Worker\WorkerOptions;
@@ -20,38 +19,36 @@ final class WorkersRegistry implements WorkersRegistryInterface
     /** @psalm-param array<non-empty-string, WorkerOptions> $options */
     public function __construct(
         private WorkerFactoryInterface $workerFactory,
-        private ReaderInterface $reader,
         private FinalizerInterface $finalizer,
         private TemporalConfig $config
     ) {
     }
 
-    public function get(\ReflectionClass $declaration): WorkerInterface
+    public function register(string $name, ?WorkerOptions $options): void
     {
-        $name = $this->resolveName($declaration);
+        if ($this->has($name)) {
+            throw new WorkersRegistryException(
+                \sprintf('Temporal worker with given name `%s` has already been registered.', $name)
+            );
+        }
+
+        $this->workers[$name] = $this->workerFactory->newWorker($name, $options);
+        $this->workers[$name]->registerActivityFinalizer(fn() => $this->finalizer->finalize());
+    }
+
+    public function get(string $name): WorkerInterface
+    {
         $options = $this->config->getWorkers();
 
-        if (!$this->hasWorker($name)) {
-            $this->workers[$name] = $this->workerFactory->newWorker($name, $options[$name] ?? null);
-            $this->workers[$name]->registerActivityFinalizer(fn() => $this->finalizer->finalize());
+        if (! $this->has($name)) {
+            $this->register($name, $options[$name] ?? null);
         }
 
         return $this->workers[$name];
     }
 
-    private function hasWorker(string $name): bool
+    public function has(string $name): bool
     {
         return isset($this->workers[$name]);
-    }
-
-    private function resolveName(\ReflectionClass $declaration): string
-    {
-        $assignWorker = $this->reader->firstClassMetadata($declaration, AssignWorker::class);
-
-        if ($assignWorker === null) {
-            return $this->config->getDefaultWorker();
-        }
-
-        return $assignWorker->name;
     }
 }

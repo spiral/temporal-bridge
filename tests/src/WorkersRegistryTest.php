@@ -2,15 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Spiral\TemporalBridge\Tests\Preset;
+namespace Spiral\TemporalBridge\Tests;
 
-use Spiral\Attributes\AttributeReader;
 use Spiral\Boot\FinalizerInterface;
 use Spiral\TemporalBridge\Config\TemporalConfig;
-use Spiral\TemporalBridge\Tests\App\SomeActivity;
-use Spiral\TemporalBridge\Tests\App\SomeWorkflow;
-use Spiral\TemporalBridge\Tests\App\WithoutAttribute;
-use Spiral\TemporalBridge\Tests\TestCase;
+use Spiral\TemporalBridge\Exception\WorkersRegistryException;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Temporal\DataConverter\DataConverterInterface;
 use Temporal\Worker\Transport\RPCConnectionInterface;
@@ -21,27 +17,63 @@ use Temporal\WorkerFactory;
 
 final class WorkersRegistryTest extends TestCase
 {
+    public function testRegisterWorker(): void
+    {
+        $registry = new WorkersRegistry(
+            $factory = $this->createMock(WorkerFactoryInterface::class),
+            $this->createMock(FinalizerInterface::class),
+            new TemporalConfig(['workers' => []])
+        );
+        $factory
+            ->expects($this->exactly(1))
+            ->method('newWorker')
+            ->with('foo', null)
+            ->willReturn($worker = $this->createMock(WorkerInterface::class));
+
+        $worker
+            ->expects($this->exactly(1))
+            ->method('registerActivityFinalizer');
+
+        $registry->register('foo', null);
+    }
+
+    public function testRegisterWorkerWithExistsName(): void
+    {
+        $this->expectException(WorkersRegistryException::class);
+        $this->expectErrorMessage('Temporal worker with given name `foo` has already been registered.');
+
+        $registry = new WorkersRegistry(
+            $this->createMock(WorkerFactoryInterface::class),
+            $this->createMock(FinalizerInterface::class),
+            new TemporalConfig(['workers' => []])
+        );
+
+        $registry->register('foo', null);
+        $registry->register('foo', null);
+    }
+
     public function testGetWorker(): void
     {
         $options = WorkerOptions::new();
         $options->enableSessionWorker = true;
-        $factory =  new WorkerFactory(
+        $factory = new WorkerFactory(
             $this->createMock(DataConverterInterface::class),
             $this->createMock(RPCConnectionInterface::class)
         );
 
         $registry = new WorkersRegistry(
             $factory,
-            new AttributeReader(),
             $this->createMock(FinalizerInterface::class),
             new TemporalConfig(['workers' => ['worker1' => $options]])
         );
 
-        $worker = $registry->get(new \ReflectionClass(SomeActivity::class));
+        $worker = $registry->get('worker1');
         $this->assertInstanceOf(WorkerInterface::class, $worker);
         $this->assertTrue($worker->getOptions()->enableSessionWorker);
 
-        $worker = $registry->get(new \ReflectionClass(SomeWorkflow::class));
+        $this->assertSame($worker, $registry->get('worker1'));
+
+        $worker = $registry->get('worker2');
         $this->assertInstanceOf(WorkerInterface::class, $worker);
         $this->assertFalse($worker->getOptions()->enableSessionWorker);
     }
@@ -50,38 +82,14 @@ final class WorkersRegistryTest extends TestCase
     {
         $registry = new WorkersRegistry(
             $this->createMock(WorkerFactoryInterface::class),
-            new AttributeReader(),
             $this->createMock(FinalizerInterface::class),
             new TemporalConfig()
         );
-        $method = new \ReflectionMethod($registry, 'hasWorker');
-        $method->setAccessible(true);
 
-        $this->assertFalse($method->invoke($registry, 'default'));
+        $registry->get('foo');
+        $this->assertFalse($registry->has('default'));
 
-        $registry->get(new \ReflectionClass(WithoutAttribute::class));
-        $this->assertTrue($method->invoke($registry, 'default'));
-    }
-
-    /** @dataProvider resolveNameDataProvider */
-    public function testResolveName(\ReflectionClass $class, string $expectedName): void
-    {
-        $registry = new WorkersRegistry(
-            $this->createMock(WorkerFactoryInterface::class),
-            new AttributeReader(),
-            $this->createMock(FinalizerInterface::class),
-            new TemporalConfig()
-        );
-        $method = new \ReflectionMethod($registry, 'resolveName');
-        $method->setAccessible(true);
-
-        $this->assertSame($expectedName, $method->invoke($registry, $class));
-    }
-
-    public function resolveNameDataProvider(): \Traversable
-    {
-        yield [new \ReflectionClass(SomeActivity::class), 'worker1'];
-        yield [new \ReflectionClass(SomeWorkflow::class), 'worker2'];
-        yield [new \ReflectionClass(WithoutAttribute::class), WorkerFactoryInterface::DEFAULT_TASK_QUEUE];
+        $registry->get('default');
+        $this->assertTrue($registry->has('default'));
     }
 }
