@@ -20,6 +20,7 @@ trait WithContext
             ['with-handler', null, InputOption::VALUE_NONE, 'Generate handler classes'],
             ['with-activity', null, InputOption::VALUE_NONE, 'Generate activity classes'],
             ['scheduled', null, InputOption::VALUE_NONE, 'With scheduling by cron'],
+            ['queue', 't', InputOption::VALUE_OPTIONAL, 'Set task queue'],
             ['method', 'm', InputOption::VALUE_OPTIONAL, 'Set method name', 'handle'],
             ['query', 'r', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'With additional query methods'],
             [
@@ -86,16 +87,20 @@ trait WithContext
             ->withSignalMethods(Utils::parseMethods((array)$this->option('signal')))
             ->withQueryMethods(Utils::parseMethods((array)$this->option('query')));
 
+        if ($this->option('scheduled') ?? false) {
+            $context->withCronSchedule();
+        }
+
         if ($this->option('with-handler') ?? false) {
-            $context = $context->withHandler();
+            $context->withHandler();
         }
 
         if ($this->option('with-activity') ?? false) {
-            $context = $context->withActivity();
+            $context->withActivity();
         }
 
-        if ($this->option('scheduled') ?? false) {
-            $context = $context->withCronSchedule();
+        if ($this->option('queue') ?? false) {
+            $context->withTaskQueue($this->option('queue'));
         }
 
         return $context;
