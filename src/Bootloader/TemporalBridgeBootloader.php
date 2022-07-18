@@ -64,11 +64,11 @@ class TemporalBridgeBootloader extends Bootloader
         AbstractKernel $kernel,
         EnvironmentInterface $env,
         ConsoleBootloader $console,
-        Dispatcher $dispatcher
+        FactoryInterface $factory
     ): void {
         $this->initConfig($env);
 
-        $kernel->addDispatcher($dispatcher);
+        $kernel->addDispatcher($factory->make(Dispatcher::class));
 
         $console->addCommand(Commands\MakeWorkflowCommand::class);
         $console->addCommand(Commands\MakePresetCommand::class);
