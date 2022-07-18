@@ -39,7 +39,6 @@ final class Dispatcher implements DispatcherInterface
 
         // factory initiates and runs task queue specific activity and workflow workers
         $factory = $this->container->get(WorkerFactoryInterface::class);
-
         $registry = $this->container->get(WorkersRegistryInterface::class);
 
         foreach ($declarations as $type => $declaration) {
