@@ -20,7 +20,7 @@ final class DeclarationLocator implements DeclarationLocatorInterface
     public function getDeclarations(): iterable
     {
         foreach ($this->classes->getClasses() as $class) {
-            if ($class->isAbstract() || $class->isInterface()) {
+            if ($class->isAbstract() || $class->isInterface() || $class->isEnum()) {
                 continue;
             }
 
