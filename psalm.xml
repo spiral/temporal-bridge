@@ -8,8 +8,6 @@
     <projectFiles>
         <directory name="src" />
         <ignoreFiles>
-            <file name="src/WorkerFactory.php" />
-            <file name="src/InvokeActivityRouter.php" />
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>

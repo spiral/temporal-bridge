@@ -34,6 +34,27 @@ protected const LOAD = [
 > Note: if you are using [`spiral-packages/discoverer`](https://github.com/spiral-packages/discoverer),
 > you don't need to register bootloader by yourself.
 
+#### Configuration
+The package is already configured by default, use these features only if you need to change the default configuration.
+The package provides the ability to configure `address`, `namespace`, `defaultWorker`, `workers` parameters.
+Create file `app/config/temporal.php` and configure options. For example:
+
+```php
+declare(strict_types=1);
+
+use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Worker\WorkerOptions;
+
+return [
+    'address' => 'localhost:7233', 
+    'namespace' => 'App\\Workflow',
+    'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
+    'workers' => [
+        'workerName' => WorkerOptions::new()
+    ],
+];
+```
+
 #### RoadRunner configuration
 
 Add `temporal` plugin section in your RoadRunner `rr.yaml` config:
@@ -342,9 +363,105 @@ class PingController
 {
     public function ping(StoreRequest $request, PingSiteHandler $handler): void
     {
-        $this->hanlder->handle(
+        $this->handler->handle(
             $request->url, 
             $request->name
+        );
+    }
+}
+```
+
+## Running workflows and activities with different task queue
+
+Add a `Spiral\TemporalBridge\Attribute\AssignWorker` attribute to your Workflow or Activity with the `name` of the worker. 
+This Workflow or Activity will be processed by the specified worker.
+
+**Workflow example:**
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Workflow;
+
+use Spiral\TemporalBridge\Attribute\AssignWorker;
+use Temporal\Workflow\WorkflowInterface;
+
+#[AssignWorker(name: 'worker1')]
+#[WorkflowInterface]
+interface MoneyTransferWorkflowInterface
+{
+    #[WorkflowMethod]
+    public function transfer(...): \Generator;
+
+    #[SignalMethod]
+    function withdraw(): void;
+
+    #[SignalMethod]
+    function deposit(): void;
+}
+```
+**Activity example:**
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Workflow;
+
+use Spiral\TemporalBridge\Attribute\AssignWorker;
+use Temporal\Activity\ActivityInterface;
+use Temporal\Activity\ActivityMethod;
+
+#[AssignWorker(name: 'worker1')]
+#[ActivityInterface(...)]
+interface MoneyTransferActivityInterface
+{
+    #[ActivityMethod]
+    public function transfer(...): int;
+
+    #[ActivityMethod]
+    public function cancel(...): bool;
+}
+```
+
+You can configure worker options via config file `app/config/temporal.php`
+
+```php
+declare(strict_types=1);
+
+use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Worker\WorkerOptions;
+
+return [
+    //...
+    'workers' => [
+        'worker1' => WorkerOptions::new()
+    ],
+];
+```
+
+Or via application bootloader
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Bootloader;
+
+use Spiral\Bootloader\DomainBootloader;
+use Spiral\TemporalBridge\WorkersRegistryInterface;use Temporal\Worker\WorkerOptions;
+
+class AppBootloader extends DomainBootloader
+{
+    public function init(WorkersRegistryInterface $workersRegistry): void
+    {
+        $workersRegistry->register(
+            'worker1', 
+            WorkerOptions::new()->...
         );
     }
 }
