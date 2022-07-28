@@ -15,6 +15,7 @@ final class Context
     private bool $withActivity = false;
     private bool $withHandler = false;
     private bool $scheduled = false;
+    private ?string $taskQueue = null;
     private string $handlerMethod = self::HANDLER_METHOD;
     /** @var array<Method> */
     private array $activityMethods = [];
@@ -272,10 +273,9 @@ final class Context
     {
         return (new Method($this->handlerMethod))
             ->setPublic()
-            ->setReturnType('\Generator')
+            ->setReturnType('mixed')
             ->setParameters($this->handlerParameters);
     }
-
 
     /**
      * Get workflow handler method name
@@ -283,5 +283,23 @@ final class Context
     public function getHandlerMethodName(): string
     {
         return $this->handlerMethod;
+    }
+
+    /**
+     * Get activity task queue
+     */
+    public function getTaskQueue(): ?string
+    {
+        return $this->taskQueue;
+    }
+
+    /**
+     * Set activity task queue
+     */
+    public function withTaskQueue(string $name): self
+    {
+        $this->taskQueue = $name;
+
+        return $this;
     }
 }

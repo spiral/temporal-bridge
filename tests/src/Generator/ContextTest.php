@@ -217,7 +217,7 @@ final class ContextTest extends TestCase
         $this->assertTrue($method->isPublic());
 
         $this->assertSame(
-            '\Generator',
+            'mixed',
             $method->getReturnType()
         );
 
