@@ -183,7 +183,7 @@ temporal:make-workflow PingSite -m ping
 interface PingSiteWorkflowInterface
 {
     #[WorkflowMethod]
-    public function ping(string $name): \Generator;
+    public function ping(string $name): mixed;
 }
 ```
 
@@ -198,7 +198,7 @@ temporal:make-workflow PingSite ... -p url:string -p name:string
 interface PingSiteWorkflowInterface
 {
     #[WorkflowMethod]
-    public function ping(string $url, string $name): \Generator;
+    public function ping(string $url, string $name): mixed;
 }
 ```
 
@@ -213,7 +213,7 @@ temporal:make-workflow PingSite ... -r getStatusCode -r getHeaders:array
 interface PingSiteWorkflowInterface
 {
     #[WorkflowMethod]
-    public function ping(...): \Generator;
+    public function ping(...): mixed;
 
     #[QueryMethod]
     function getStatusCode(): string;
@@ -223,10 +223,94 @@ interface PingSiteWorkflowInterface
 }
 ```
 
+#### Workflow with specific task queue
+
+```bash
+temporal:make-workflow Domain\\MyPackage\\MoneyTransfer ... --queue foo
+```
+
+```php
+#[AssignWorker(name: 'foo')]
+class PingSiteWorkflow implements PingSiteWorkflowInterface
+{
+    // ...
+}
+```
+
 #### Workflow with namespace definition
 
 ```bash
 temporal:make-workflow Domain\\MyPackage\\MoneyTransfer ... -s withdraw -s deposit
+```
+
+## Creating activity
+
+You are able to create a new workflow activity via console command:
+
+```bash
+php app.php temporal:make-activity MySuperActivity
+```
+
+The command will generate the following files with default namespace `App\Workflow`:
+
+```
+project/
+  src/
+    Workflow/
+      MySuperWorkflow/
+        MySuperActivityInterface
+        MySuperActivity
+```
+
+> You can redefine default namespace via `app/config/temporal.php` config file.
+
+#### Activity method name definition
+
+```bash
+temporal:make-activity PingSite -m ping
+```
+
+```php
+#[ActivityInterface]
+interface PingSiteActivityInterface
+{
+    #[ActivityMethod]
+    public function ping(string $name): mixed;
+}
+```
+
+#### Activity method parameters definition
+
+```bash
+temporal:make-activity PingSite ... -p url:string -p name:string
+```
+
+```php
+#[ActivityInterface]
+interface PingSiteActivityInterface
+{
+    #[ActivityMethod]
+    public function ping(string $url, string $name): mixed;
+}
+```
+
+#### Activity with specific task queue
+
+```bash
+temporal:make-activity Domain\\MyPackage\\MoneyTransfer ... --queue foo
+```
+```php
+#[AssignWorker(name: 'foo')]
+class PingSiteActivity implements PingSiteActivityInterface
+{
+    // ...
+}
+```
+
+#### Activity with namespace definition
+
+```bash
+temporal:make-activity Domain\\MyPackage\\MoneyTransfer ... -s withdraw -s deposit
 ```
 
 ## Creating workflow from presets
