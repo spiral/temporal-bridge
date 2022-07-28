@@ -15,6 +15,7 @@ use Spiral\Config\ConfiguratorInterface;
 use Spiral\Config\Patch\Append;
 use Spiral\Console\Bootloader\ConsoleBootloader;
 use Spiral\Core\FactoryInterface;
+use Spiral\Prototype\Bootloader\PrototypeBootloader;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
 use Spiral\TemporalBridge\Config\TemporalConfig;
@@ -40,6 +41,13 @@ use Temporal\WorkerFactory;
 
 class TemporalBridgeBootloader extends Bootloader
 {
+    protected const DEPENDENCIES = [
+        ConsoleBootloader::class,
+        RoadRunnerBootloader::class,
+        AttributesBootloader::class,
+        PrototypeBootloader::class,
+    ];
+
     protected const SINGLETONS = [
         WorkflowPresetLocatorInterface::class => [self::class, 'initWorkflowPresetLocator'],
         WorkflowManagerInterface::class => WorkflowManager::class,
@@ -50,23 +58,21 @@ class TemporalBridgeBootloader extends Bootloader
         PresetRegistryInterface::class => PresetRegistry::class,
     ];
 
-    protected const DEPENDENCIES = [
-        ConsoleBootloader::class,
-        RoadRunnerBootloader::class,
-        AttributesBootloader::class,
-    ];
-
-    public function __construct(private ConfiguratorInterface $config)
-    {
+    public function __construct(
+        private ConfiguratorInterface $config
+    ) {
     }
 
     public function boot(
         AbstractKernel $kernel,
         EnvironmentInterface $env,
         ConsoleBootloader $console,
+        PrototypeBootloader $prototype,
         FactoryInterface $factory
     ): void {
         $this->initConfig($env);
+
+        $prototype->bindProperty('workflow', WorkflowClientInterface::class);
 
         $kernel->addDispatcher($factory->make(Dispatcher::class));
 

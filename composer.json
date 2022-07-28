@@ -21,6 +21,7 @@
     "php": "^8.0",
     "spiral/attributes": "^2.9",
     "spiral/tokenizer": "^2.9",
+    "spiral/prototype": "^2.9",
     "spiral/roadrunner-bridge": "^1.0",
     "nette/php-generator": "^3.6",
     "temporal/sdk": "^1.3"
