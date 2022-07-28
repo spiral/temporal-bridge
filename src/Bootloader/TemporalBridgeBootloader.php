@@ -25,6 +25,7 @@ use Spiral\TemporalBridge\WorkflowManagerInterface;
 use Spiral\TemporalBridge\WorkflowPresetLocator;
 use Spiral\TemporalBridge\WorkflowPresetLocatorInterface;
 use Spiral\Tokenizer\ClassesInterface;
+use Temporal\Client\ClientOptions;
 use Temporal\Client\GRPC\ServiceClient;
 use Temporal\Client\WorkflowClient;
 use Temporal\Client\WorkflowClientInterface;
@@ -93,7 +94,8 @@ class TemporalBridgeBootloader extends Bootloader
     private function initWorkflowClient(TemporalConfig $config): WorkflowClientInterface
     {
         return WorkflowClient::create(
-            ServiceClient::create($config->getAddress())
+            ServiceClient::create($config->getAddress()),
+            (new ClientOptions())->withNamespace($config->getTemporalNamespace()),
         );
     }
 

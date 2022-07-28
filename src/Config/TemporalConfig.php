@@ -11,12 +11,18 @@ final class TemporalConfig extends InjectableConfig
     public const CONFIG = 'temporal';
     protected $config = [
         'address' => null,
-        'namespace' => null
+        'namespace' => null,
+        'temporalNamespace' => null,
     ];
 
     public function getDefaultNamespace(): string
     {
         return $this->config['namespace'] ?? 'App\\Workflow';
+    }
+
+    public function getTemporalNamespace(): string
+    {
+        return $this->config['temporalNamespace'] ?? 'default';
     }
 
     public function getAddress(): string
