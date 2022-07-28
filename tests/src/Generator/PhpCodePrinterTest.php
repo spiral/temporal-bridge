@@ -27,7 +27,6 @@ final class PhpCodePrinterTest extends TestCase
 declare(strict_types=1);
 
 namespace Foo\Bar;
-
 CODE
 , null, true);
 

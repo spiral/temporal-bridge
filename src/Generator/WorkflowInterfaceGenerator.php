@@ -6,7 +6,6 @@ namespace Spiral\TemporalBridge\Generator;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
-use Spiral\TemporalBridge\Attribute\AssignWorker;
 use Temporal\Workflow\QueryMethod;
 use Temporal\Workflow\SignalMethod;
 use Temporal\Workflow\WorkflowInterface;
@@ -20,10 +19,6 @@ final class WorkflowInterfaceGenerator implements FileGeneratorInterface
 
         $class = ClassType::interface($className);
         $class->addAttribute(WorkflowInterface::class);
-
-        if (($queue = $context->getTaskQueue()) !== null) {
-            $class->addAttribute(AssignWorker::class, ['name' => $queue]);
-        }
 
         $class->addMember($method = $context->getHandlerMethod());
         $method->setBody(null)->addAttribute(WorkflowMethod::class);

@@ -20,6 +20,13 @@ final class MakeActivityCommand extends Command
 {
     use WithContext;
 
+    protected const NAME = 'temporal:make-activity';
+    protected const DESCRIPTION = 'Make a new Temporal activity class';
+
+    protected const ARGUMENTS = [
+        ['name', InputArgument::REQUIRED, 'Activity name'],
+    ];
+
     protected function defineOptions(): array
     {
         return [
@@ -42,9 +49,6 @@ final class MakeActivityCommand extends Command
         ];
     }
 
-    protected const NAME = 'temporal:make-activity';
-    protected const DESCRIPTION = 'Make a new Temporal activity class';
-
     public function perform(Generator $generator): int
     {
         $context = $this->getContext();
@@ -61,10 +65,6 @@ final class MakeActivityCommand extends Command
 
         return self::SUCCESS;
     }
-
-    protected const ARGUMENTS = [
-        ['name', InputArgument::REQUIRED, 'Activity name'],
-    ];
 
     private function defineGenerators(Context $context): array
     {

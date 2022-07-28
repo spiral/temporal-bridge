@@ -273,7 +273,7 @@ final class Context
     {
         return (new Method($this->handlerMethod))
             ->setPublic()
-            ->setReturnType('\Generator')
+            ->setReturnType('mixed')
             ->setParameters($this->handlerParameters);
     }
 
