@@ -14,6 +14,7 @@ final class TemporalConfig extends InjectableConfig
     protected array $config = [
         'address' => null,
         'namespace' => null,
+        'temporalNamespace' => null,
         'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
         'workers' => [],
     ];
@@ -21,6 +22,11 @@ final class TemporalConfig extends InjectableConfig
     public function getDefaultNamespace(): string
     {
         return $this->config['namespace'] ?? 'App\\Workflow';
+    }
+
+    public function getTemporalNamespace(): string
+    {
+        return $this->config['temporalNamespace'] ?? 'default';
     }
 
     public function getAddress(): string

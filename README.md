@@ -364,7 +364,7 @@ class PingController
 {
     public function ping(StoreRequest $request, PingSiteHandler $handler): void
     {
-        $this->hanlder->handle(
+        $this->handler->handle(
             $request->url, 
             $request->name
         );
