@@ -81,7 +81,7 @@ class TemporalBridgeBootloader extends Bootloader
         $this->config->modify(TemporalConfig::CONFIG, new Append('workers', $worker, $options));
     }
 
-    private function initWorkflowPresetLocator(
+    protected function initWorkflowPresetLocator(
         FactoryInterface $factory,
         ClassesInterface $classes
     ): WorkflowPresetLocatorInterface {
@@ -92,7 +92,7 @@ class TemporalBridgeBootloader extends Bootloader
         );
     }
 
-    private function initConfig(EnvironmentInterface $env): void
+    protected function initConfig(EnvironmentInterface $env): void
     {
         $this->config->setDefaults(
             TemporalConfig::CONFIG,
@@ -105,7 +105,7 @@ class TemporalBridgeBootloader extends Bootloader
         );
     }
 
-    private function initWorkflowClient(TemporalConfig $config): WorkflowClientInterface
+    protected function initWorkflowClient(TemporalConfig $config): WorkflowClientInterface
     {
         return WorkflowClient::create(
             ServiceClient::create($config->getAddress()),
@@ -113,7 +113,7 @@ class TemporalBridgeBootloader extends Bootloader
         );
     }
 
-    private function initWorkerFactory(): WorkerFactoryInterface
+    protected function initWorkerFactory(): WorkerFactoryInterface
     {
         return new WorkerFactory(
             DataConverter::createDefault(),
@@ -121,7 +121,7 @@ class TemporalBridgeBootloader extends Bootloader
         );
     }
 
-    private function initDeclarationLocator(ClassesInterface $classes): DeclarationLocatorInterface
+    protected function initDeclarationLocator(ClassesInterface $classes): DeclarationLocatorInterface
     {
         return new \Spiral\TemporalBridge\DeclarationLocator(
             $classes,
@@ -129,7 +129,7 @@ class TemporalBridgeBootloader extends Bootloader
         );
     }
 
-    private function initWorkersRegistry(
+    protected function initWorkersRegistry(
         WorkerFactoryInterface $workerFactory,
         FinalizerInterface $finalizer,
         TemporalConfig $config
