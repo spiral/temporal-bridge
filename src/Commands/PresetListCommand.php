@@ -8,6 +8,7 @@ use Spiral\Console\Command;
 use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
 use Spiral\TemporalBridge\WorkflowPresetLocatorInterface;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\OutputInterface;
 
 final class PresetListCommand extends Command
 {
@@ -30,12 +31,16 @@ final class PresetListCommand extends Command
             return self::SUCCESS;
         }
 
+        \assert($this->output instanceof OutputInterface);
+
         $table = new Table($this->output);
 
         $table->setHeaders(['name', 'description']);
 
         foreach ($list as $name => $preset) {
-            $table->addRow([$name, \implode("\n", \str_split($preset->getDescription(), self::DESCRIPTION_LENGTH))]);
+            $table->addRow([$name, \implode("\n", \str_split(
+                (string) $preset->getDescription(), self::DESCRIPTION_LENGTH)
+            )]);
         }
 
         $table->render();

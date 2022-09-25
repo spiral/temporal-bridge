@@ -13,7 +13,7 @@ final class ActivityInterfaceGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter
     {
-        $class = ClassType::interface($context->getClass());
+        $class = \Nette\PhpGenerator\InterfaceType::from($context->getClass());
         $class->addAttribute(ActivityInterface::class, ['prefix' => $context->getBaseClass('.')]);
 
         foreach ($context->getActivityMethods() as $method) {

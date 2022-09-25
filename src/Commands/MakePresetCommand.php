@@ -8,6 +8,7 @@ use Spiral\Console\Command;
 use Spiral\TemporalBridge\Generator\Generator;
 use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
 use Spiral\TemporalBridge\WorkflowPresetLocatorInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 final class MakePresetCommand extends Command
 {
@@ -40,6 +41,8 @@ final class MakePresetCommand extends Command
         if ($this->verifyExistsWorkflow($context)) {
             return self::SUCCESS;
         }
+
+        \assert($this->output instanceof OutputInterface);
 
         $generator->generate(
             $this->output,

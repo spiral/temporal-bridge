@@ -9,9 +9,11 @@ use Temporal\Client\WorkflowOptions;
 use Temporal\Client\WorkflowStubInterface;
 use Temporal\Common\RetryOptions;
 use Temporal\Internal\Client\WorkflowProxy;
+use Temporal\Internal\Support\DateInterval;
 
 /**
  * @psalm-template T of object
+ * @psalm-import-type DateIntervalValue from DateInterval
  */
 class Workflow
 {
@@ -50,6 +52,9 @@ class Workflow
         return $this;
     }
 
+    /**
+     * @param DateIntervalValue|null $interval
+     */
     public function maxRetryInterval($interval): self
     {
         $this->retryOptions = $this->getRetryOptions()
@@ -58,6 +63,9 @@ class Workflow
         return $this;
     }
 
+    /**
+     * @param DateIntervalValue|null $interval
+     */
     public function initialRetryInterval($interval): self
     {
         $this->retryOptions = $this->getRetryOptions()
@@ -83,6 +91,7 @@ class Workflow
 
     /**
      * Sends signal on start.
+     * @param mixed ...$args
      */
     public function withSignal(string $name, ...$args): self
     {
@@ -93,7 +102,7 @@ class Workflow
 
     /**
      * Starts untyped and typed workflow stubs in async mode.
-     * @return RunningWorkflow|WorkflowStubInterface
+     * @param mixed ...$args
      */
     public function run(...$args): RunningWorkflow
     {
@@ -140,7 +149,9 @@ class Workflow
         throw new \BadMethodCallException(\sprintf('Method [%s] doesn\'t exist.', $name));
     }
 
-
+    /**
+     * @return T
+     */
     private function createStub(): WorkflowProxy
     {
         return $this->client->newWorkflowStub($this->class, $this->options);

@@ -123,8 +123,6 @@ final class Context
 
     /**
      * Get base class name without the namespace
-     *
-     * @return class-string
      */
     public function getBaseClass(string $postfix = ''): string
     {
@@ -133,8 +131,6 @@ final class Context
 
     /**
      * Get base class interface without the namespace
-     *
-     * @return class-string
      */
     public function getBaseClassInterface(string $postfix = ''): string
     {
@@ -143,8 +139,6 @@ final class Context
 
     /**
      * Get base class interface with the namespace
-     *
-     * @return class-string
      */
     public function getBaseClassInterfaceWithNamespace(string $postfix = ''): string
     {
@@ -153,8 +147,6 @@ final class Context
 
     /**
      * Get current class name without the namespace
-     *
-     * @return class-string
      */
     public function getClass(string $postfix = ''): string
     {
@@ -167,8 +159,6 @@ final class Context
 
     /**
      * Get current class name with the namespace
-     *
-     * @return class-string
      */
     public function getClassWithNamespace(string $postfix = ''): string
     {
@@ -177,8 +167,6 @@ final class Context
 
     /**
      * Get current class interface without the namespace
-     *
-     * @return class-string
      */
     public function getClassInterface(string $postfix = ''): string
     {
@@ -187,8 +175,6 @@ final class Context
 
     /**
      * Get current class interface with the namespace
-     *
-     * @return class-string
      */
     public function getClassInterfaceWithNamespace(string $postfix = ''): string
     {

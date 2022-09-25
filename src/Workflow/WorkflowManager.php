@@ -57,31 +57,35 @@ class WorkflowManager implements WorkflowManagerInterface
     {
         $options = new WorkflowOptions();
 
-        if ($id) {
+        if ($id !== null) {
             $options = $options->withWorkflowId($id);
         }
 
-        if ($this->defaultWorkflowExecutionTimeout) {
+        if ($this->defaultWorkflowExecutionTimeout !== null) {
             $options = $options->withWorkflowExecutionTimeout(
                 $this->defaultWorkflowExecutionTimeout
             );
         }
 
-        if ($this->defaultWorkflowRunTimeout) {
+        if ($this->defaultWorkflowRunTimeout !== null) {
             $options = $options->withWorkflowRunTimeout(
-                $this->defaultWorkflowExecutionTimeout
+                $this->defaultWorkflowRunTimeout
             );
         }
 
-        if ($this->defaultWorkflowTaskTimeout) {
+        if ($this->defaultWorkflowTaskTimeout !== null) {
             $options = $options->withWorkflowTaskTimeout(
-                $this->defaultWorkflowExecutionTimeout
+                $this->defaultWorkflowTaskTimeout
             );
         }
 
         return $options;
     }
 
+    /**
+     * @param class-string $class
+     * @throws \ReflectionException
+     */
     private function getTypeFromWorkflowClass(string $class): string
     {
         return $this->reader->fromClass($class)->getID();

@@ -10,7 +10,7 @@ interface WorkflowPresetLocatorInterface
 {
     /**
      * Get list of available presets
-     * @return array<non-empty-string, PresetInterface>
+     * @return array<string, PresetInterface>
      */
     public function getPresets(): array;
 }
