@@ -1,9 +1,10 @@
 # Temporal integration package for Spiral Framework
 
-[![PHP](https://img.shields.io/packagist/php-v/spiral/temporal-bridge.svg?style=flat-square)](https://packagist.org/packages/spiral/temporal-bridge)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/spiral/temporal-bridge.svg?style=flat-square)](https://packagist.org/packages/spiral/temporal-bridge)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/spiral/temporal-bridge/run-tests?label=tests&style=flat-square)](https://github.com/spiral/temporal-bridge/actions?query=workflow%3Arun-tests)
-[![Total Downloads](https://img.shields.io/packagist/dt/spiral/temporal-bridge.svg?style=flat-square)](https://packagist.org/packages/spiral/temporal-bridge)
+[![PHP Version Require](https://poser.pugx.org/spiral/temporal-bridge/require/php)](https://packagist.org/packages/spiral/temporal-bridge)
+[![Latest Stable Version](https://poser.pugx.org/spiral/temporal-bridge/v/stable)](https://packagist.org/packages/spiral/temporal-bridge)
+[![phpunit](https://github.com/spiral/temporal-bridge/actions/workflows/phpunit.yml/badge.svg)](https://github.com/spiral/temporal-bridge/actions)
+[![psalm](https://github.com/spiral/temporal-bridge/actions/workflows/psalm.yml/badge.svg)](https://github.com/spiral/temporal-bridge/actions)
+[![Total Downloads](https://poser.pugx.org/spiral/temporal-bridge/downloads)](https://packagist.org/spiral/temporal-bridge/phpunit)
 
 [Temporal](https://temporal.io/) is the simple, scalable open source way to write and run reliable cloud applications.
 
