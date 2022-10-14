@@ -13,9 +13,9 @@ use Spiral\Tokenizer\ClassesInterface;
 class WorkflowPresetLocator implements WorkflowPresetLocatorInterface
 {
     public function __construct(
-        private FactoryInterface $factory,
-        private ClassesInterface $classes,
-        private ReaderInterface $reader,
+        private readonly FactoryInterface $factory,
+        private readonly ClassesInterface $classes,
+        private readonly ReaderInterface $reader,
     ) {
     }
 
@@ -29,7 +29,10 @@ class WorkflowPresetLocator implements WorkflowPresetLocatorInterface
                     continue;
                 }
 
-                $presets[$attr->name] = $this->factory->make($class->getName());
+                $preset = $this->factory->make($class->getName());
+                \assert($preset instanceof PresetInterface);
+
+                $presets[$attr->name] = $preset;
             }
         }
 

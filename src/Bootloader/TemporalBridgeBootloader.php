@@ -5,16 +5,13 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Bootloader;
 
 use Spiral\Attributes\AttributeReader;
-use Spiral\Attributes\ReaderInterface;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Boot\EnvironmentInterface;
 use Spiral\Boot\FinalizerInterface;
-use Spiral\Bootloader\AttributesBootloader;
 use Spiral\Config\ConfiguratorInterface;
 use Spiral\Config\Patch\Append;
 use Spiral\Console\Bootloader\ConsoleBootloader;
-use Spiral\Core\Container;
 use Spiral\Core\FactoryInterface;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
@@ -35,6 +32,7 @@ use Temporal\Client\GRPC\ServiceClient;
 use Temporal\Client\WorkflowClient;
 use Temporal\Client\WorkflowClientInterface;
 use Temporal\DataConverter\DataConverter;
+use Temporal\DataConverter\DataConverterInterface;
 use Temporal\Worker\Transport\Goridge;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
@@ -50,6 +48,7 @@ class TemporalBridgeBootloader extends Bootloader
         WorkflowClientInterface::class => [self::class, 'initWorkflowClient'],
         WorkersRegistryInterface::class => [self::class, 'initWorkersRegistry'],
         PresetRegistryInterface::class => PresetRegistry::class,
+        DataConverterInterface::class => [self::class, 'initDataConverter'],
     ];
 
     protected const DEPENDENCIES = [
@@ -87,9 +86,9 @@ class TemporalBridgeBootloader extends Bootloader
         ClassesInterface $classes
     ): WorkflowPresetLocatorInterface {
         return new WorkflowPresetLocator(
-            $factory,
-            $classes,
-            new AttributeReader()
+            factory: $factory,
+            classes: $classes,
+            reader: new AttributeReader()
         );
     }
 
@@ -106,27 +105,37 @@ class TemporalBridgeBootloader extends Bootloader
         );
     }
 
-    protected function initWorkflowClient(TemporalConfig $config): WorkflowClientInterface
-    {
+    protected function initWorkflowClient(
+        TemporalConfig $config,
+        DataConverterInterface $dataConverter
+    ): WorkflowClientInterface {
         return WorkflowClient::create(
-            ServiceClient::create($config->getAddress()),
-            (new ClientOptions())->withNamespace($config->getTemporalNamespace()),
+            serviceClient: ServiceClient::create($config->getAddress()),
+            options: (new ClientOptions())->withNamespace($config->getTemporalNamespace()),
+            converter: $dataConverter
         );
     }
 
-    protected function initWorkerFactory(): WorkerFactoryInterface
+    protected function initDataConverter(): DataConverterInterface
     {
+        return DataConverter::createDefault();
+    }
+
+    protected function initWorkerFactory(
+        DataConverterInterface $dataConverter
+    ): WorkerFactoryInterface {
         return new WorkerFactory(
-            DataConverter::createDefault(),
-            Goridge::create()
+            dataConverter: $dataConverter,
+            rpc: Goridge::create()
         );
     }
 
-    protected function initDeclarationLocator(ClassesInterface $classes): DeclarationLocatorInterface
-    {
+    protected function initDeclarationLocator(
+        ClassesInterface $classes
+    ): DeclarationLocatorInterface {
         return new \Spiral\TemporalBridge\DeclarationLocator(
-            $classes,
-            new AttributeReader()
+            classes: $classes,
+            reader: new AttributeReader()
         );
     }
 

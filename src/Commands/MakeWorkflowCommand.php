@@ -13,6 +13,7 @@ use Spiral\TemporalBridge\Generator\HandlerGenerator;
 use Spiral\TemporalBridge\Generator\HandlerInterfaceGenerator;
 use Spiral\TemporalBridge\Generator\WorkflowGenerator;
 use Spiral\TemporalBridge\Generator\WorkflowInterfaceGenerator;
+use Symfony\Component\Console\Output\OutputInterface;
 
 final class MakeWorkflowCommand extends Command
 {
@@ -28,6 +29,8 @@ final class MakeWorkflowCommand extends Command
         if ($this->verifyExistsWorkflow($context)) {
             return self::SUCCESS;
         }
+
+        \assert($this->output instanceof OutputInterface);
 
         $generator->generate(
             $this->output,

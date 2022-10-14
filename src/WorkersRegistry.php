@@ -26,6 +26,8 @@ final class WorkersRegistry implements WorkersRegistryInterface
 
     public function register(string $name, ?WorkerOptions $options): void
     {
+        \assert($name !== '');
+
         if ($this->has($name)) {
             throw new WorkersRegistryException(
                 \sprintf('Temporal worker with given name `%s` has already been registered.', $name)
@@ -38,6 +40,8 @@ final class WorkersRegistry implements WorkersRegistryInterface
 
     public function get(string $name): WorkerInterface
     {
+        \assert($name !== '');
+
         $options = $this->config->getWorkers();
 
         if (! $this->has($name)) {
@@ -49,6 +53,8 @@ final class WorkersRegistry implements WorkersRegistryInterface
 
     public function has(string $name): bool
     {
+        \assert($name !== '');
+
         return isset($this->workers[$name]);
     }
 }

@@ -22,6 +22,8 @@ use Spiral\TemporalBridge\WorkflowPresetLocator;
 use Spiral\TemporalBridge\WorkflowPresetLocatorInterface;
 use Temporal\Client\WorkflowClient;
 use Temporal\Client\WorkflowClientInterface;
+use Temporal\DataConverter\DataConverter;
+use Temporal\DataConverter\DataConverterInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
 use Temporal\WorkerFactory;
@@ -51,6 +53,14 @@ class TemporalBridgeBootloaderTest extends TestCase
         $this->assertContainerBoundAsSingleton(
             WorkerFactoryInterface::class,
             WorkerFactory::class
+        );
+    }
+
+    public function testDataConverter()
+    {
+        $this->assertContainerBoundAsSingleton(
+            DataConverterInterface::class,
+            DataConverter::class
         );
     }
 

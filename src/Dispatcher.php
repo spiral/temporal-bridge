@@ -9,7 +9,6 @@ use Spiral\Attributes\ReaderInterface;
 use Spiral\Boot\DispatcherInterface;
 use Spiral\Core\Container;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
-use Spiral\RoadRunner\Environment\Mode;
 use Spiral\TemporalBridge\Attribute\AssignWorker;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Temporal\Activity\ActivityInterface;
@@ -56,7 +55,7 @@ final class Dispatcher implements DispatcherInterface
                 // Workflows are stateful. So you need a type to create instances.
                 $worker->registerActivity(
                     $declaration->getName(),
-                    fn(ReflectionClass $class) => $this->container->make($class->getName())
+                    fn(ReflectionClass $class): object => $this->container->make($class->getName())
                 );
             }
         }

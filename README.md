@@ -1,9 +1,10 @@
 # Temporal integration package for Spiral Framework
 
-[![PHP](https://img.shields.io/packagist/php-v/spiral/temporal-bridge.svg?style=flat-square)](https://packagist.org/packages/spiral/temporal-bridge)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/spiral/temporal-bridge.svg?style=flat-square)](https://packagist.org/packages/spiral/temporal-bridge)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/spiral/temporal-bridge/run-tests?label=tests&style=flat-square)](https://github.com/spiral/temporal-bridge/actions?query=workflow%3Arun-tests)
-[![Total Downloads](https://img.shields.io/packagist/dt/spiral/temporal-bridge.svg?style=flat-square)](https://packagist.org/packages/spiral/temporal-bridge)
+[![PHP Version Require](https://poser.pugx.org/spiral/temporal-bridge/require/php)](https://packagist.org/packages/spiral/temporal-bridge)
+[![Latest Stable Version](https://poser.pugx.org/spiral/temporal-bridge/v/stable)](https://packagist.org/packages/spiral/temporal-bridge)
+[![phpunit](https://github.com/spiral/temporal-bridge/actions/workflows/phpunit.yml/badge.svg)](https://github.com/spiral/temporal-bridge/actions)
+[![psalm](https://github.com/spiral/temporal-bridge/actions/workflows/psalm.yml/badge.svg)](https://github.com/spiral/temporal-bridge/actions)
+[![Total Downloads](https://poser.pugx.org/spiral/temporal-bridge/downloads)](https://packagist.org/spiral/temporal-bridge/phpunit)
 
 [Temporal](https://temporal.io/) is the simple, scalable open source way to write and run reliable cloud applications.
 
@@ -47,7 +48,7 @@ use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
 
 return [
-    'address' => env('TEMPORAL_ADDRESS', 'localhost:7233'), 
+    'address' => env('TEMPORAL_ADDRESS', 'localhost:7233'),
     'namespace' => 'App\\Workflow',
     'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
     'workers' => [
@@ -238,7 +239,7 @@ packages.
 **Example of usage**
 
 ```bash
-php app.php temporal:make-preset subscribtion-trial CustomerTrialSubscription 
+php app.php temporal:make-preset subscribtion-trial CustomerTrialSubscription
 ```
 
 A preset will create all necessary classes.
@@ -267,7 +268,7 @@ final class SignalWorkflow implements PresetInterface
     {
         return 'Workflow with signals';
     }
-    
+
     public function generators(Context $context): array
     {
         $generators = [
@@ -360,12 +361,12 @@ TEMPORAL_ADDRESS=127.0.0.1:7233
 ### Running workflow
 
 ```php
-class PingController 
+class PingController
 {
     public function ping(StoreRequest $request, PingSiteHandler $handler): void
     {
         $this->handler->handle(
-            $request->url, 
+            $request->url,
             $request->name
         );
     }
@@ -374,7 +375,7 @@ class PingController
 
 ## Running workflows and activities with different task queue
 
-Add a `Spiral\TemporalBridge\Attribute\AssignWorker` attribute to your Workflow or Activity with the `name` of the worker. 
+Add a `Spiral\TemporalBridge\Attribute\AssignWorker` attribute to your Workflow or Activity with the `name` of the worker.
 This Workflow or Activity will be processed by the specified worker.
 
 **Workflow example:**
@@ -461,8 +462,46 @@ class AppBootloader extends DomainBootloader
     public function init(WorkersRegistryInterface $workersRegistry): void
     {
         $workersRegistry->register(
-            'worker1', 
+            'worker1',
             WorkerOptions::new()->...
+        );
+    }
+}
+```
+
+### Custom data converters
+
+Temporal SDK hsa an ability to define custom data converters
+
+By default it uses the following list of data converters:
+
+ - `Temporal\DataConverter\NullConverter`
+ - `Temporal\DataConverter\BinaryConverter`
+ - `Temporal\DataConverter\ProtoJsonConverter`
+ - `Temporal\DataConverter\JsonConverter`
+
+If you want to specify custom list of data converters you need to bind your own implementation for
+`Temporal\DataConverter\DataConverterInterface` via container.
+
+```php
+use Spiral\Boot\Bootloader\Bootloader;
+use Temporal\DataConverter\DataConverter;
+use Temporal\DataConverter\DataConverterInterface;
+
+class AppBootloader extends Bootloader
+{
+    protected const SINGLETONS = [
+        DataConverterInterface::class => [self::class, 'initDataConverter'],
+    ];
+
+    protected function initDataConverter(): DataConverterInterface
+    {
+        return new DataConverter(
+            new \Temporal\DataConverter\NullConverter(),
+            new \Temporal\DataConverter\BinaryConverter(),
+            new \App\DataConverter\JmsSerializerConverter(),
+            new \Temporal\DataConverter\ProtoJsonConverter(),
+            new \Temporal\DataConverter\JsonConverter(),
         );
     }
 }
