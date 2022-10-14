@@ -12,9 +12,8 @@ use Temporal\Client\WorkflowStubInterface;
 interface WorkflowManagerInterface
 {
     /**
-     * @psalm-template T of object
-     * @param class-string<T> $class
-     * @return RunningWorkflow|T|WorkflowStubInterface
+     * @param class-string $class
+     * @return RunningWorkflow|WorkflowStubInterface
      */
     public function getById(
         string $id,
@@ -22,9 +21,8 @@ interface WorkflowManagerInterface
     ): RunningWorkflow;
 
     /**
-     * @psalm-template T of object
-     * @param class-string<T> $class
-     * @return T|Workflow|WorkflowOptions
+     * @param class-string $class
+     * @return Workflow|WorkflowOptions
      */
     public function create(
         string $class,

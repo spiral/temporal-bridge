@@ -12,6 +12,9 @@ use Spiral\TemporalBridge\WorkflowManagerInterface;
 use Temporal\Api\Enums\V1\WorkflowIdReusePolicy;
 use Temporal\Exception\Client\WorkflowExecutionAlreadyStartedException;
 
+/**
+ * @internal
+ */
 final class HandlerGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter
@@ -59,7 +62,7 @@ final class HandlerGenerator implements FileGeneratorInterface
                 <<<'BODY'
 $workflow = $this->manager
     ->createScheduled(
-        %s::class, 
+        %s::class,
         '%s'
     );
 BODY
@@ -83,7 +86,7 @@ BODY
     {
         return <<<'BODY'
 // $workflow->assignId(
-//     'operation-id', 
+//     'operation-id',
 //     WorkflowIdReusePolicy::WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY
 // );
 
@@ -111,17 +114,17 @@ BODY
             <<<'BODY'
 try {
     $run = $workflow->run(%s);
-    
+
     $this->logger->info('Workflow [%s] has been run', [
         'id' => $run->getExecution()->getID()
     ]);
-    
+
     return $run;
 } catch (WorkflowExecutionAlreadyStartedException $e) {
     $this->logger->error('Workflow has been already started.', [
         'name' => $workflow->getWorkflowType()
     ]);
-    
+
     throw $e;
 }
 BODY,

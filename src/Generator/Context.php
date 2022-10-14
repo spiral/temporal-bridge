@@ -7,6 +7,9 @@ namespace Spiral\TemporalBridge\Generator;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\Parameter;
 
+/**
+ * @internal
+ */
 final class Context
 {
     private const INTERFACE = 'Interface';

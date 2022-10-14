@@ -8,6 +8,9 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @internal
+ */
 final class ActivityGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter

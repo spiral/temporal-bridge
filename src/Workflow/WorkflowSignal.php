@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Workflow;
 
-class WorkflowSignal
+/**
+ * @internal
+ */
+final class WorkflowSignal
 {
     public function __construct(
         private string $name,
