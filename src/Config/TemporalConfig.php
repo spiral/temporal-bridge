@@ -16,7 +16,7 @@ final class TemporalConfig extends InjectableConfig
         'namespace' => null,
         'temporalNamespace' => null,
         'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
-        'workers' => [],
+        'workers' => []
     ];
 
     public function getDefaultNamespace(): string

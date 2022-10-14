@@ -52,7 +52,7 @@ final class HandlerGenerator implements FileGeneratorInterface
 
     private function generateWorkflowInitialization(Context $context): string
     {
-        $workflowClassName = $context->getBaseClass('WorkflowInterface');
+        $workflowClassName = $context->getBaseClassInterface('Workflow');
 
         if ($context->isScheduled()) {
             return \sprintf(

@@ -72,6 +72,7 @@ class TemporalBridgeBootloader extends Bootloader
         $kernel->addDispatcher($factory->make(Dispatcher::class));
 
         $console->addCommand(Commands\MakeWorkflowCommand::class);
+        $console->addCommand(Commands\MakeActivityCommand::class);
         $console->addCommand(Commands\MakePresetCommand::class);
         $console->addCommand(Commands\PresetListCommand::class);
     }

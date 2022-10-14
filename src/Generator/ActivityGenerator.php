@@ -7,6 +7,7 @@ namespace Spiral\TemporalBridge\Generator;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
 use Psr\Log\LoggerInterface;
+use Spiral\TemporalBridge\Attribute\AssignWorker;
 
 final class ActivityGenerator implements FileGeneratorInterface
 {
@@ -14,6 +15,11 @@ final class ActivityGenerator implements FileGeneratorInterface
     {
         $class = new ClassType($context->getClass());
         $class->addImplement($context->getClassInterfaceWithNamespace());
+
+        $taskQueue = $context->getTaskQueue();
+        if ($taskQueue !== null) {
+            $class->addAttribute(AssignWorker::class, ['name' => $taskQueue]);
+        }
 
         $method = $class->addMethod('__construct')->setPublic();
 
@@ -30,13 +36,14 @@ final class ActivityGenerator implements FileGeneratorInterface
                         'Something special happens here.',
                     )
                 )
-                ->addBody("\nreturn 'Success';");
+                ->addBody("\nyield 'Success';");
         }
 
         return new PhpCodePrinter(
             $namespace
                 ->add($class)
-                ->addUse(LoggerInterface::class),
+                ->addUse(LoggerInterface::class)
+                ->addUse(AssignWorker::class),
             $context
         );
     }

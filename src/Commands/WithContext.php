@@ -20,8 +20,9 @@ trait WithContext
             ['with-handler', null, InputOption::VALUE_NONE, 'Generate handler classes'],
             ['with-activity', null, InputOption::VALUE_NONE, 'Generate activity classes'],
             ['scheduled', null, InputOption::VALUE_NONE, 'With scheduling by cron'],
+            ['queue', null, InputOption::VALUE_OPTIONAL, 'Set task queue'],
             ['method', 'm', InputOption::VALUE_OPTIONAL, 'Set method name', 'handle'],
-            ['query', 'r', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'With additional query methods'],
+            ['query', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'With additional query methods'],
             [
                 'activity',
                 'a',
@@ -82,20 +83,26 @@ trait WithContext
         ))
             ->withActivityMethods(Utils::parseMethods((array)$this->option('activity')))
             ->withMethodParameters(Utils::parseParameters((array)$this->option('param')))
-            ->withHandlerMethod($this->option('method') ?? 'handle')
-            ->withSignalMethods(Utils::parseMethods((array)$this->option('signal')))
-            ->withQueryMethods(Utils::parseMethods((array)$this->option('query')));
+                ->withHandlerMethod($this->option('method') ?? 'handle');
 
-        if ($this->option('with-handler') ?? false) {
-            $context = $context->withHandler();
-        }
-
-        if ($this->option('with-activity') ?? false) {
-            $context = $context->withActivity();
+        if ($this->input->hasOption('query') && $this->option('query')) {
+            $context->withQueryMethods(Utils::parseMethods((array)$this->option('query')));
         }
 
         if ($this->option('scheduled') ?? false) {
-            $context = $context->withCronSchedule();
+            $context->withCronSchedule();
+        }
+
+        if ($this->option('with-handler') ?? false) {
+            $context->withHandler();
+        }
+
+        if ($this->option('with-activity') ?? false) {
+            $context->withActivity();
+        }
+
+        if ($this->option('queue') ?? false) {
+            $context->withTaskQueue($this->option('queue'));
         }
 
         return $context;
