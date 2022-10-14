@@ -14,8 +14,10 @@ use Spiral\Config\Patch\Append;
 use Spiral\Console\Bootloader\ConsoleBootloader;
 use Spiral\Core\FactoryInterface;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
+use Spiral\TemporalBridge\ActivityFactoryInterface;
 use Spiral\TemporalBridge\Commands;
 use Spiral\TemporalBridge\Config\TemporalConfig;
+use Spiral\TemporalBridge\ContainerActivityFactory;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Dispatcher;
 use Spiral\TemporalBridge\Preset\PresetRegistry;
@@ -49,6 +51,7 @@ class TemporalBridgeBootloader extends Bootloader
         WorkersRegistryInterface::class => [self::class, 'initWorkersRegistry'],
         PresetRegistryInterface::class => PresetRegistry::class,
         DataConverterInterface::class => [self::class, 'initDataConverter'],
+        ActivityFactoryInterface::class => ContainerActivityFactory::class,
     ];
 
     protected const DEPENDENCIES = [

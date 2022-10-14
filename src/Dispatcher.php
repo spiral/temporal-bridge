@@ -37,6 +37,7 @@ final class Dispatcher implements DispatcherInterface
          * @var array<class-string<WorkflowInterface>|class-string<ActivityInterface>, ReflectionClass> $declarations
          */
         $declarations = $this->container->get(DeclarationLocatorInterface::class)->getDeclarations();
+        $activityFactory = $this->container->get(ActivityFactoryInterface::class);
 
         // factory initiates and runs task queue specific activity and workflow workers
         $factory = $this->container->get(WorkerFactoryInterface::class);
@@ -55,7 +56,7 @@ final class Dispatcher implements DispatcherInterface
                 // Workflows are stateful. So you need a type to create instances.
                 $worker->registerActivity(
                     $declaration->getName(),
-                    fn(ReflectionClass $class): object => $this->container->make($class->getName())
+                    fn(ReflectionClass $class): object => $activityFactory->make($class)
                 );
             }
         }
