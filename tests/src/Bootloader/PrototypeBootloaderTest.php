@@ -25,6 +25,6 @@ class PrototypeBootloaderTest extends TestCase
     public function propertiesDataProvider(): \Traversable
     {
         yield [WorkflowClientInterface::class, 'workflow'];
-        yield [WorkflowManagerInterface::class, 'workflow-manager'];
+        yield [WorkflowManagerInterface::class, 'workflowManager'];
     }
 }
