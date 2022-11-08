@@ -4,7 +4,7 @@
 [![Latest Stable Version](https://poser.pugx.org/spiral/temporal-bridge/v/stable)](https://packagist.org/packages/spiral/temporal-bridge)
 [![phpunit](https://github.com/spiral/temporal-bridge/actions/workflows/phpunit.yml/badge.svg)](https://github.com/spiral/temporal-bridge/actions)
 [![psalm](https://github.com/spiral/temporal-bridge/actions/workflows/psalm.yml/badge.svg)](https://github.com/spiral/temporal-bridge/actions)
-[![Total Downloads](https://poser.pugx.org/spiral/temporal-bridge/downloads)](https://packagist.org/spiral/temporal-bridge/phpunit)
+[![Total Downloads](https://poser.pugx.org/spiral/temporal-bridge/downloads)](https://packagist.org/packages/spiral/temporal-bridge)
 
 [Temporal](https://temporal.io/) is the simple, scalable open source way to write and run reliable cloud applications.
 
