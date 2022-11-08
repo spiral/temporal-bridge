@@ -18,6 +18,6 @@ class PrototypeBootloader extends Bootloader
     public function boot(BasePrototypeBootloader $prototype): void
     {
         $prototype->bindProperty('workflow', WorkflowClientInterface::class);
-        $prototype->bindProperty('workflow-manager', WorkflowManagerInterface::class);
+        $prototype->bindProperty('workflowManager', WorkflowManagerInterface::class);
     }
 }
