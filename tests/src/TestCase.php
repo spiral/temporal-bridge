@@ -16,6 +16,7 @@ class TestCase extends \Spiral\Testing\TestCase
             \Spiral\Boot\Bootloader\ConfigurationBootloader::class,
             \Spiral\Bootloader\Attributes\AttributesBootloader::class,
             \Spiral\TemporalBridge\Bootloader\TemporalBridgeBootloader::class,
+            \Spiral\TemporalBridge\Bootloader\PrototypeBootloader::class,
             // ...
         ];
     }
