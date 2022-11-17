@@ -5,6 +5,7 @@
 [![phpunit](https://github.com/spiral/temporal-bridge/actions/workflows/phpunit.yml/badge.svg)](https://github.com/spiral/temporal-bridge/actions)
 [![psalm](https://github.com/spiral/temporal-bridge/actions/workflows/psalm.yml/badge.svg)](https://github.com/spiral/temporal-bridge/actions)
 [![Total Downloads](https://poser.pugx.org/spiral/temporal-bridge/downloads)](https://packagist.org/spiral/temporal-bridge/phpunit)
+<a href="https://discord.gg/8bZsjYhVVk"><img src="https://img.shields.io/badge/discord-chat-magenta.svg"></a>
 
 [Temporal](https://temporal.io/) is the simple, scalable open source way to write and run reliable cloud applications.
 
