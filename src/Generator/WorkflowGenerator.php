@@ -51,7 +51,6 @@ final class WorkflowGenerator implements FileGeneratorInterface
             }
         }
 
-
         foreach ($context->getSignalMethods() as $method) {
             $class->addMember($method->addBody('// Signal about something special.'));
         }

@@ -11,37 +11,38 @@ use Temporal\Worker\WorkerOptions;
 final class TemporalConfig extends InjectableConfig
 {
     public const CONFIG = 'temporal';
-    protected $config = [
-        'address' => null,
-        'namespace' => null,
-        'temporalNamespace' => null,
+
+    protected array $config = [
+        'address' => 'localhost:7233',
+        'namespace' => 'App\\Workflow',
+        'temporalNamespace' => 'default',
         'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
         'workers' => [],
     ];
 
     public function getDefaultNamespace(): string
     {
-        return $this->config['namespace'] ?? 'App\\Workflow';
+        return $this->config['namespace'];
     }
 
     public function getTemporalNamespace(): string
     {
-        return $this->config['temporalNamespace'] ?? 'default';
+        return $this->config['temporalNamespace'];
     }
 
     public function getAddress(): string
     {
-        return $this->config['address'] ?? 'localhost:7233';
+        return $this->config['address'];
     }
 
     public function getDefaultWorker(): string
     {
-        return $this->config['defaultWorker'] ?? WorkerFactoryInterface::DEFAULT_TASK_QUEUE;
+        return $this->config['defaultWorker'];
     }
 
     /** @psalm-return array<non-empty-string, WorkerOptions> */
     public function getWorkers(): array
     {
-        return $this->config['workers'] ?? [];
+        return (array) $this->config['workers'];
     }
 }

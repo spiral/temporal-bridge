@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Tests;
 
 use Spiral\Attributes\AttributeReader;
-use Spiral\Boot\EnvironmentInterface;
+use Spiral\RoadRunnerBridge\RoadRunnerMode;
 use Spiral\TemporalBridge\Attribute\AssignWorker;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\Dispatcher;
@@ -15,7 +15,7 @@ final class DispatcherTest extends TestCase
     public function testResolvingQueueName(): void
     {
         $dispatcher = new Dispatcher(
-            $this->createMock(EnvironmentInterface::class),
+            RoadRunnerMode::Temporal,
             new AttributeReader(),
             new TemporalConfig(['defaultWorker' => 'foo']),
             $this->getContainer(),

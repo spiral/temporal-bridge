@@ -27,8 +27,8 @@ final class Utils
     {
         foreach ($signalMethods as $method) {
             $params = null;
-            if (strpos($method, ',') !== false) {
-                [$method, $params] = explode(',', $method, 2);
+            if (\str_contains($method, ',')) {
+                [$method, $params] = \explode(',', $method, 2);
             }
 
             $method = $class->addMethod($method)
@@ -72,12 +72,12 @@ final class Utils
 
         foreach ($methods as $method) {
             $params = '';
-            if (strpos($method, ',') !== false) {
-                [$method, $params] = explode(',', $method, 2);
+            if (\str_contains($method, ',')) {
+                [$method, $params] = \explode(',', $method, 2);
             }
 
-            if (strpos($method, ':') !== false) {
-                [$method, $type] = explode(':', $method, 2);
+            if (\str_contains($method, ':')) {
+                [$method, $type] = \explode(':', $method, 2);
             }
 
             $type ??= 'void';
@@ -85,7 +85,8 @@ final class Utils
             $result[$method] = (new Method($method))
                 ->setPublic()
                 ->setReturnType($type);
-            $result[$method]->setParameters(self::parseParameters(explode(',', $params)));
+
+            $result[$method]->setParameters(self::parseParameters(\explode(',', $params)));
         }
 
         return $result;
@@ -101,8 +102,8 @@ final class Utils
 
         foreach ($parameters as $param) {
             $type = null;
-            if (strpos($param, ':') !== false) {
-                [$param, $type] = explode(':', $param, 2);
+            if (\str_contains($param, ':')) {
+                [$param, $type] = \explode(':', $param, 2);
             }
 
             if (empty($param)) {
@@ -118,7 +119,7 @@ final class Utils
 
     public static function buildMethodArgs(array $args): string
     {
-        return implode(', ', array_map(fn($param) => '$'.$param, array_keys($args)));
+        return \implode(', ', \array_map(fn($param) => '$'.$param, \array_keys($args)));
     }
 
     public static function initializeActivityProperty(ClassType $class, Context $context): void

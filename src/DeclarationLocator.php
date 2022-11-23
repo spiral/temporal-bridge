@@ -12,22 +12,22 @@ use Temporal\Workflow\WorkflowInterface;
 final class DeclarationLocator implements DeclarationLocatorInterface
 {
     public function __construct(
-        private ClassesInterface $classes,
-        private ReaderInterface $reader
+        private readonly ClassesInterface $classes,
+        private readonly ReaderInterface $reader
     ) {
     }
 
     public function getDeclarations(): iterable
     {
         foreach ($this->classes->getClasses() as $class) {
-            if ($class->isAbstract() || $class->isInterface()) {
+            if ($class->isAbstract() || $class->isInterface() || $class->isEnum()) {
                 continue;
             }
 
-            foreach (array_merge($class->getInterfaces(), [$class]) as $type) {
-                if ($this->reader->firstClassMetadata($type, WorkflowInterface::class)) {
+            foreach (\array_merge($class->getInterfaces(), [$class]) as $type) {
+                if ($this->reader->firstClassMetadata($type, WorkflowInterface::class) !== null) {
                     yield WorkflowInterface::class => $class;
-                } else if ($this->reader->firstClassMetadata($type, ActivityInterface::class)) {
+                } elseif ($this->reader->firstClassMetadata($type, ActivityInterface::class) !== null) {
                     yield ActivityInterface::class => $class;
                 }
             }

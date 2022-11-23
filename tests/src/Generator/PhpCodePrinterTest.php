@@ -21,12 +21,13 @@ final class PhpCodePrinterTest extends TestCase
 
         $files = $this->mockContainer(FilesInterface::class);
 
-        $files->shouldReceive('write')->once()->with('src/app/Bar.php', <<<CODE
+        $files->shouldReceive('write')->once()->withSomeOfArgs('src/app/Bar.php', <<<CODE
 <?php
 
 declare(strict_types=1);
 
 namespace Foo\Bar;
+
 
 CODE
 , null, true);
