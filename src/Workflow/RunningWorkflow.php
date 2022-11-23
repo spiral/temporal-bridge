@@ -24,13 +24,13 @@ final class RunningWorkflow
         private WorkflowClientInterface $client,
         private WorkflowStubInterface $workflow,
         private string $id,
-        private ?string $class,
+        private ?string $class
     ) {
     }
 
     public function __call(string $name, array $arguments)
     {
-        return call_user_func_array([$this->workflow, $name], $arguments);
+        return \call_user_func_array([$this->workflow, $name], $arguments);
     }
 
     /**

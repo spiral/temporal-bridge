@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Generator;
 
-use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
 use Temporal\Workflow\QueryMethod;
 use Temporal\Workflow\SignalMethod;
@@ -20,18 +19,19 @@ final class WorkflowInterfaceGenerator implements FileGeneratorInterface
     {
         $className = $context->getClass();
 
-        $class = ClassType::interface($className);
+        $class = new \Nette\PhpGenerator\InterfaceType($className, $namespace);
+
         $class->addAttribute(WorkflowInterface::class);
 
         $class->addMember($method = $context->getHandlerMethod());
-        $method->setBody(null)->addAttribute(WorkflowMethod::class);
+        $method->setBody('')->addAttribute(WorkflowMethod::class);
 
         foreach ($context->getSignalMethods() as $method) {
-            $class->addMember($method->setBody(null)->addAttribute(SignalMethod::class));
+            $class->addMember($method->setBody('')->addAttribute(SignalMethod::class));
         }
 
         foreach ($context->getQueryMethods() as $method) {
-            $class->addMember($method->setBody(null)->addAttribute(QueryMethod::class));
+            $class->addMember($method->setBody('')->addAttribute(QueryMethod::class));
         }
 
         return new PhpCodePrinter(

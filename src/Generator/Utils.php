@@ -85,6 +85,7 @@ final class Utils
             $result[$method] = (new Method($method))
                 ->setPublic()
                 ->setReturnType($type);
+
             $result[$method]->setParameters(self::parseParameters(\explode(',', $params)));
         }
 

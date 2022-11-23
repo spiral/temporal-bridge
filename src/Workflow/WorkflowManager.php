@@ -13,11 +13,11 @@ use Temporal\Internal\Declaration\Reader\WorkflowReader;
 class WorkflowManager implements WorkflowManagerInterface
 {
     public function __construct(
-        private WorkflowClientInterface $client,
-        private WorkflowReader $reader,
-        private ?DateInterval $defaultWorkflowExecutionTimeout = null,
-        private ?DateInterval $defaultWorkflowRunTimeout = null,
-        private ?DateInterval $defaultWorkflowTaskTimeout = null,
+        private readonly WorkflowClientInterface $client,
+        private readonly WorkflowReader $reader,
+        private readonly ?DateInterval $defaultWorkflowExecutionTimeout = null,
+        private readonly ?DateInterval $defaultWorkflowRunTimeout = null,
+        private readonly ?DateInterval $defaultWorkflowTaskTimeout = null,
     ) {
     }
 
@@ -60,31 +60,35 @@ class WorkflowManager implements WorkflowManagerInterface
     {
         $options = new WorkflowOptions();
 
-        if ($id) {
+        if ($id !== null) {
             $options = $options->withWorkflowId($id);
         }
 
-        if ($this->defaultWorkflowExecutionTimeout) {
+        if ($this->defaultWorkflowExecutionTimeout !== null) {
             $options = $options->withWorkflowExecutionTimeout(
                 $this->defaultWorkflowExecutionTimeout
             );
         }
 
-        if ($this->defaultWorkflowRunTimeout) {
+        if ($this->defaultWorkflowRunTimeout !== null) {
             $options = $options->withWorkflowRunTimeout(
-                $this->defaultWorkflowExecutionTimeout
+                $this->defaultWorkflowRunTimeout
             );
         }
 
-        if ($this->defaultWorkflowTaskTimeout) {
+        if ($this->defaultWorkflowTaskTimeout !== null) {
             $options = $options->withWorkflowTaskTimeout(
-                $this->defaultWorkflowExecutionTimeout
+                $this->defaultWorkflowTaskTimeout
             );
         }
 
         return $options;
     }
 
+    /**
+     * @param class-string $class
+     * @throws \ReflectionException
+     */
     private function getTypeFromWorkflowClass(string $class): string
     {
         return $this->reader->fromClass($class)->getID();

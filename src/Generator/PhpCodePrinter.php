@@ -15,8 +15,8 @@ use Spiral\Files\FilesInterface;
 class PhpCodePrinter
 {
     public function __construct(
-        private PhpNamespace $namespace,
-        private Context $context
+        private readonly PhpNamespace $namespace,
+        private readonly Context $context
     ) {
     }
 

@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Bootloader;
 
 use Spiral\Attributes\AttributeReader;
-use Spiral\Attributes\ReaderInterface;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Boot\EnvironmentInterface;
 use Spiral\Boot\FinalizerInterface;
-use Spiral\Bootloader\AttributesBootloader;
 use Spiral\Config\ConfiguratorInterface;
 use Spiral\Config\Patch\Append;
 use Spiral\Console\Bootloader\ConsoleBootloader;
@@ -34,6 +32,7 @@ use Temporal\Client\GRPC\ServiceClient;
 use Temporal\Client\WorkflowClient;
 use Temporal\Client\WorkflowClientInterface;
 use Temporal\DataConverter\DataConverter;
+use Temporal\DataConverter\DataConverterInterface;
 use Temporal\Worker\Transport\Goridge;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
@@ -49,19 +48,20 @@ class TemporalBridgeBootloader extends Bootloader
         WorkflowClientInterface::class => [self::class, 'initWorkflowClient'],
         WorkersRegistryInterface::class => [self::class, 'initWorkersRegistry'],
         PresetRegistryInterface::class => PresetRegistry::class,
+        DataConverterInterface::class => [self::class, 'initDataConverter'],
     ];
 
     protected const DEPENDENCIES = [
         ConsoleBootloader::class,
         RoadRunnerBootloader::class,
-        AttributesBootloader::class,
     ];
 
-    public function __construct(private ConfiguratorInterface $config)
-    {
+    public function __construct(
+        private readonly ConfiguratorInterface $config
+    ) {
     }
 
-    public function boot(
+    public function init(
         AbstractKernel $kernel,
         EnvironmentInterface $env,
         ConsoleBootloader $console,
@@ -82,18 +82,18 @@ class TemporalBridgeBootloader extends Bootloader
         $this->config->modify(TemporalConfig::CONFIG, new Append('workers', $worker, $options));
     }
 
-    private function initWorkflowPresetLocator(
+    protected function initWorkflowPresetLocator(
         FactoryInterface $factory,
         ClassesInterface $classes
     ): WorkflowPresetLocatorInterface {
         return new WorkflowPresetLocator(
-            $factory,
-            $classes,
-            new AttributeReader()
+            factory: $factory,
+            classes: $classes,
+            reader: new AttributeReader()
         );
     }
 
-    private function initConfig(EnvironmentInterface $env): void
+    protected function initConfig(EnvironmentInterface $env): void
     {
         $this->config->setDefaults(
             TemporalConfig::CONFIG,
@@ -106,31 +106,41 @@ class TemporalBridgeBootloader extends Bootloader
         );
     }
 
-    private function initWorkflowClient(TemporalConfig $config): WorkflowClientInterface
-    {
+    protected function initWorkflowClient(
+        TemporalConfig $config,
+        DataConverterInterface $dataConverter
+    ): WorkflowClientInterface {
         return WorkflowClient::create(
-            ServiceClient::create($config->getAddress()),
-            (new ClientOptions())->withNamespace($config->getTemporalNamespace()),
+            serviceClient: ServiceClient::create($config->getAddress()),
+            options: (new ClientOptions())->withNamespace($config->getTemporalNamespace()),
+            converter: $dataConverter
         );
     }
 
-    private function initWorkerFactory(): WorkerFactoryInterface
+    protected function initDataConverter(): DataConverterInterface
     {
+        return DataConverter::createDefault();
+    }
+
+    protected function initWorkerFactory(
+        DataConverterInterface $dataConverter
+    ): WorkerFactoryInterface {
         return new WorkerFactory(
-            DataConverter::createDefault(),
-            Goridge::create()
+            dataConverter: $dataConverter,
+            rpc: Goridge::create()
         );
     }
 
-    private function initDeclarationLocator(ClassesInterface $classes): DeclarationLocatorInterface
-    {
+    protected function initDeclarationLocator(
+        ClassesInterface $classes
+    ): DeclarationLocatorInterface {
         return new \Spiral\TemporalBridge\DeclarationLocator(
-            $classes,
-            new AttributeReader()
+            classes: $classes,
+            reader: new AttributeReader()
         );
     }
 
-    private function initWorkersRegistry(
+    protected function initWorkersRegistry(
         WorkerFactoryInterface $workerFactory,
         FinalizerInterface $finalizer,
         TemporalConfig $config

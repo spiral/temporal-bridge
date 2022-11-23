@@ -9,10 +9,12 @@ use Temporal\Client\WorkflowOptions;
 use Temporal\Client\WorkflowStubInterface;
 use Temporal\Common\RetryOptions;
 use Temporal\Internal\Client\WorkflowProxy;
+use Temporal\Internal\Support\DateInterval;
 
 /**
  * @psalm-template T of object
  * @internal
+ * @psalm-import-type DateIntervalValue from DateInterval
  */
 final class Workflow
 {
@@ -23,10 +25,10 @@ final class Workflow
      * @param class-string<T> $class
      */
     public function __construct(
-        private WorkflowClientInterface $client,
+        private readonly WorkflowClientInterface $client,
         private WorkflowOptions $options,
-        private string $class,
-        private string $type,
+        private readonly string $class,
+        private readonly string $type,
     ) {
     }
 
@@ -51,6 +53,9 @@ final class Workflow
         return $this;
     }
 
+    /**
+     * @param DateIntervalValue|null $interval
+     */
     public function maxRetryInterval($interval): self
     {
         $this->retryOptions = $this->getRetryOptions()
@@ -59,6 +64,9 @@ final class Workflow
         return $this;
     }
 
+    /**
+     * @param DateIntervalValue|null $interval
+     */
     public function initialRetryInterval($interval): self
     {
         $this->retryOptions = $this->getRetryOptions()
@@ -84,6 +92,7 @@ final class Workflow
 
     /**
      * Sends signal on start.
+     * @param mixed ...$args
      */
     public function withSignal(string $name, ...$args): self
     {
@@ -94,7 +103,7 @@ final class Workflow
 
     /**
      * Starts untyped and typed workflow stubs in async mode.
-     * @return RunningWorkflow|WorkflowStubInterface
+     * @param mixed ...$args
      */
     public function run(...$args): RunningWorkflow
     {
@@ -144,6 +153,9 @@ final class Workflow
         throw new \BadMethodCallException(\sprintf('Method [%s] doesn\'t exist.', $name));
     }
 
+    /**
+     * @return T
+     */
     private function createStub(): WorkflowProxy
     {
         return $this->client->newWorkflowStub($this->class, $this->options);

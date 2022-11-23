@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Commands;
 
+use Psr\Container\ContainerInterface;
 use Spiral\Boot\DirectoriesInterface;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\Generator\Context;
 use Spiral\TemporalBridge\Generator\Utils;
 use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 trait WithContext
@@ -54,6 +57,9 @@ trait WithContext
 
         $question = new QuestionHelper();
 
+        \assert($this->output instanceof OutputInterface);
+        \assert($this->input instanceof InputInterface);
+
         return ! $question->ask(
             $this->input,
             $this->output,
@@ -68,8 +74,13 @@ trait WithContext
 
     public function getContext(): Context
     {
+        \assert($this->container instanceof ContainerInterface);
+
         $config = $this->container->get(TemporalConfig::class);
+        \assert($config instanceof TemporalConfig);
+
         $dirs = $this->container->get(DirectoriesInterface::class);
+        \assert($dirs instanceof DirectoriesInterface);
 
         $name = $this->getNameInput();
         $namespace = $this->getNamespaceFromClass($name) ?? $config->getDefaultNamespace();
@@ -110,36 +121,36 @@ trait WithContext
 
     protected function getPath(string $namespace, string $appDir): string
     {
-        if (str_starts_with($namespace, 'App')) {
-            $namespace = str_replace('App', 'src', $namespace);
+        if (\str_starts_with($namespace, 'App')) {
+            $namespace = \str_replace('App', 'src', $namespace);
         }
 
-        return $appDir.str_replace('\\', '/', $namespace).'/';
+        return $appDir.\str_replace('\\', '/', $namespace).'/';
     }
 
     private function getNameInput(): string
     {
-        return trim($this->argument('name'));
+        return \trim($this->argument('name'));
     }
 
     private function getNamespaceFromClass(string $name): ?string
     {
-        $namespace = trim(implode('\\', array_slice(explode('\\', $name), 0, -1)), '\\');
+        $namespace = \trim(\implode('\\', \array_slice(\explode('\\', $name), 0, -1)), '\\');
 
         return ! empty($namespace) ? $namespace : null;
     }
 
     private function qualifyClass(string $name, string $namespace): string
     {
-        $name = str_replace('/', '\\', $name);
-        $name = str_replace(['-', '_', '.'], ' ', $name);
-        $name = str_replace(' ', '', $name);
-        if (str_starts_with($name, $namespace)) {
-            $name = str_replace($namespace, '', $name);
+        $name = \str_replace('/', '\\', $name);
+        $name = \str_replace(['-', '_', '.'], ' ', $name);
+        $name = \str_replace(' ', '', $name);
+        if (\str_starts_with($name, $namespace)) {
+            $name = \str_replace($namespace, '', $name);
         }
 
-        $name = ltrim($name, '\\/');
+        $name = \ltrim($name, '\\/');
 
-        return ucwords($name);
+        return \ucwords($name);
     }
 }

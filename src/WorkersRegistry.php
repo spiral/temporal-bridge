@@ -18,14 +18,16 @@ final class WorkersRegistry implements WorkersRegistryInterface
 
     /** @psalm-param array<non-empty-string, WorkerOptions> $options */
     public function __construct(
-        private WorkerFactoryInterface $workerFactory,
-        private FinalizerInterface $finalizer,
-        private TemporalConfig $config
+        private readonly WorkerFactoryInterface $workerFactory,
+        private readonly FinalizerInterface $finalizer,
+        private readonly TemporalConfig $config
     ) {
     }
 
     public function register(string $name, ?WorkerOptions $options): void
     {
+        \assert($name !== '');
+
         if ($this->has($name)) {
             throw new WorkersRegistryException(
                 \sprintf('Temporal worker with given name `%s` has already been registered.', $name)
@@ -38,6 +40,8 @@ final class WorkersRegistry implements WorkersRegistryInterface
 
     public function get(string $name): WorkerInterface
     {
+        \assert($name !== '');
+
         $options = $this->config->getWorkers();
 
         if (! $this->has($name)) {
@@ -49,6 +53,8 @@ final class WorkersRegistry implements WorkersRegistryInterface
 
     public function has(string $name): bool
     {
+        \assert($name !== '');
+
         return isset($this->workers[$name]);
     }
 }

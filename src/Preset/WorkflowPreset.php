@@ -11,7 +11,7 @@ use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 class WorkflowPreset
 {
     public function __construct(
-        public string $name
+        public readonly string $name
     ) {
     }
 }
