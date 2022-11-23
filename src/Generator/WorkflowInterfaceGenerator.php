@@ -16,7 +16,7 @@ final class WorkflowInterfaceGenerator implements FileGeneratorInterface
     {
         $className = $context->getClass();
 
-        $class = \Nette\PhpGenerator\InterfaceType::from($className);
+        $class = new \Nette\PhpGenerator\InterfaceType($className, $namespace);
 
         $class->addAttribute(WorkflowInterface::class);
 

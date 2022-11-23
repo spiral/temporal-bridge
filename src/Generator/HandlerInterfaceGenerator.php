@@ -11,7 +11,7 @@ class HandlerInterfaceGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter
     {
-        $class = \Nette\PhpGenerator\InterfaceType::from($context->getClass());
+        $class = new \Nette\PhpGenerator\InterfaceType($context->getClass(), $namespace);
 
         $class->addMember($handler = $context->getHandlerMethod());
         $handler->setReturnType(RunningWorkflow::class);
