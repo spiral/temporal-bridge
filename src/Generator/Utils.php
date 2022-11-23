@@ -11,6 +11,9 @@ use Temporal\Internal\Workflow\ActivityProxy;
 use Temporal\Workflow\QueryMethod;
 use Temporal\Workflow\SignalMethod;
 
+/**
+ * @internal
+ */
 final class Utils
 {
     public static function addParameters(array $parameters, Method $method): void

@@ -9,6 +9,9 @@ use Nette\PhpGenerator\PhpNamespace;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Activity\ActivityMethod;
 
+/**
+ * @internal
+ */
 final class ActivityInterfaceGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter

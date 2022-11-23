@@ -46,10 +46,13 @@ class WorkflowManager implements WorkflowManagerInterface
         $type = $class !== null ? $this->getTypeFromWorkflowClass($class) : null;
 
         return new RunningWorkflow(
+            $this->client,
             $this->client->newUntypedRunningWorkflowStub(
                 workflowID: $id,
                 workflowType: $type
-            )
+            ),
+            $id,
+            $class
         );
     }
 

@@ -9,6 +9,9 @@ use Nette\PhpGenerator\PhpNamespace;
 use Psr\Log\LoggerInterface;
 use Spiral\TemporalBridge\Attribute\AssignWorker;
 
+/**
+ * @internal
+ */
 final class ActivityGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter

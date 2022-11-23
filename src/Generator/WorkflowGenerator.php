@@ -12,6 +12,9 @@ use Temporal\Activity\ActivityOptions;
 use Temporal\Internal\Workflow\ActivityProxy;
 use Temporal\Workflow;
 
+/**
+ * @internal
+ */
 final class WorkflowGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter

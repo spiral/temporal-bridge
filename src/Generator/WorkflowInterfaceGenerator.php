@@ -11,6 +11,9 @@ use Temporal\Workflow\SignalMethod;
 use Temporal\Workflow\WorkflowInterface;
 use Temporal\Workflow\WorkflowMethod;
 
+/**
+ * @internal
+ */
 final class WorkflowInterfaceGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter
