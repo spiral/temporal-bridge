@@ -44,6 +44,9 @@ class Workflow
         return $this;
     }
 
+    /**
+     * @param positive-int $attempts
+     */
     public function maxRetryAttempts(int $attempts): self
     {
         $this->retryOptions = $this->getRetryOptions()
