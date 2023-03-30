@@ -9,7 +9,7 @@ name: phpunit
 
 jobs:
     phpunit:
-        uses: spiral/gh-actions/.github/workflows/phpunit.yml@master
+        uses: spiral/gh-actions/.github/workflows/phpunit.yml@extensions
         with:
             extensions: sockets, grpc
             os: >-
