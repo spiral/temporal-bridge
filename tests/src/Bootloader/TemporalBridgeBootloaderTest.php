@@ -27,7 +27,7 @@ use Temporal\Client\WorkflowClientInterface;
 use Temporal\DataConverter\DataConverter;
 use Temporal\DataConverter\DataConverterInterface;
 use Temporal\Interceptor\SimplePipelineProvider;
-use Temporal\Internal\Interceptor\PipelineProvider;
+use Temporal\Interceptor\PipelineProvider;
 use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
 use Temporal\WorkerFactory as TemporalWorkerFactory;

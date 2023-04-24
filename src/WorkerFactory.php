@@ -10,7 +10,7 @@ use Spiral\Core\FactoryInterface;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Temporal\Exception\ExceptionInterceptorInterface;
 use Temporal\Internal\Interceptor\Interceptor;
-use Temporal\Internal\Interceptor\PipelineProvider;
+use Temporal\Interceptor\PipelineProvider;
 use Temporal\Worker\WorkerInterface;
 use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactory;
 use Temporal\Worker\WorkerOptions;

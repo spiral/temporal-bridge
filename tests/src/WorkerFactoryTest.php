@@ -13,7 +13,7 @@ use Spiral\TemporalBridge\Tests\App\SomeInterceptor;
 use Spiral\TemporalBridge\WorkerFactory;
 use Temporal\Exception\ExceptionInterceptor;
 use Temporal\Interceptor\SimplePipelineProvider;
-use Temporal\Internal\Interceptor\PipelineProvider;
+use Temporal\Interceptor\PipelineProvider;
 use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactory;
 use Temporal\Worker\WorkerInterface;
 use Temporal\Worker\WorkerOptions;
