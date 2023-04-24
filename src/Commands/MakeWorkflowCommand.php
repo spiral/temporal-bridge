@@ -13,14 +13,18 @@ use Spiral\TemporalBridge\Generator\HandlerGenerator;
 use Spiral\TemporalBridge\Generator\HandlerInterfaceGenerator;
 use Spiral\TemporalBridge\Generator\WorkflowGenerator;
 use Spiral\TemporalBridge\Generator\WorkflowInterfaceGenerator;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class MakeWorkflowCommand extends Command
 {
     use WithContext;
 
-    protected const SIGNATURE = 'temporal:make-workflow {name : Workflow name}';
+    protected const NAME = 'temporal:make-workflow';
     protected const DESCRIPTION = 'Make a new Temporal workflow';
+    protected const ARGUMENTS = [
+        ['name', InputArgument::REQUIRED, 'Workflow name'],
+    ];
 
     public function perform(Generator $generator): int
     {
