@@ -16,7 +16,6 @@ use Temporal\Worker\WorkerOptions;
  * @psalm-type TExceptionInterceptor = ExceptionInterceptorInterface|class-string<ExceptionInterceptorInterface>|Autowire<ExceptionInterceptorInterface>
  * @psalm-type TWorker = array{
  *     options?: WorkerOptions,
- *     interceptors?: TInterceptor[],
  *     exception_interceptor?: TExceptionInterceptor
  * }
  *
@@ -25,7 +24,8 @@ use Temporal\Worker\WorkerOptions;
  *     namespace: non-empty-string,
  *     temporalNamespace: non-empty-string,
  *     defaultWorker: non-empty-string,
- *     workers: array<non-empty-string, WorkerOptions|TWorker>
+ *     workers: array<non-empty-string, WorkerOptions|TWorker>,
+ *     interceptors?: TInterceptor[]
  * } $config
  */
 final class TemporalConfig extends InjectableConfig
@@ -38,6 +38,7 @@ final class TemporalConfig extends InjectableConfig
         'temporalNamespace' => 'default',
         'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
         'workers' => [],
+        'interceptors' => [],
     ];
 
     /**
@@ -78,5 +79,13 @@ final class TemporalConfig extends InjectableConfig
     public function getWorkers(): array
     {
         return $this->config['workers'] ?? [];
+    }
+
+    /**
+     * @return TInterceptor[]
+     */
+    public function getInterceptors(): array
+    {
+        return $this->config['interceptors'] ?? [];
     }
 }

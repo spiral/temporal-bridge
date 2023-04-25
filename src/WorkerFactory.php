@@ -9,10 +9,9 @@ use Spiral\Core\Container\Autowire;
 use Spiral\Core\FactoryInterface;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Temporal\Exception\ExceptionInterceptorInterface;
-use Temporal\Internal\Interceptor\Interceptor;
 use Temporal\Interceptor\PipelineProvider;
-use Temporal\Worker\WorkerInterface;
 use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactory;
+use Temporal\Worker\WorkerInterface;
 use Temporal\Worker\WorkerOptions;
 
 /**
@@ -27,7 +26,8 @@ final class WorkerFactory implements WorkerFactoryInterface
         private readonly TemporalWorkerFactory $workerFactory,
         private readonly FinalizerInterface $finalizer,
         private readonly FactoryInterface $factory,
-        private readonly TemporalConfig $config
+        private readonly PipelineProvider $pipelineProvider,
+        private readonly TemporalConfig $config,
     ) {
         $this->workers = $this->config->getWorkers();
     }
@@ -42,9 +42,9 @@ final class WorkerFactory implements WorkerFactoryInterface
             $name,
             $this->getWorkerOptions($name),
             $this->getExceptionInterceptor($name),
-            $this->getPipelineProvider($name)
+            $this->pipelineProvider,
         );
-        $worker->registerActivityFinalizer(fn() => $this->finalizer->finalize());
+        $worker->registerActivityFinalizer(fn () => $this->finalizer->finalize());
 
         return $worker;
     }
@@ -77,27 +77,6 @@ final class WorkerFactory implements WorkerFactoryInterface
         \assert($exceptionInterceptor instanceof ExceptionInterceptorInterface);
 
         return $exceptionInterceptor;
-    }
-
-    /**
-     * @param non-empty-string $name
-     */
-    private function getPipelineProvider(string $name): ?PipelineProvider
-    {
-        $worker = $this->workers[$name] ?? null;
-        if (!\is_array($worker) || !isset($worker['interceptors'])) {
-            return null;
-        }
-
-        $interceptors = [];
-        foreach ($worker['interceptors'] as $interceptor) {
-            $interceptor = $this->wire($interceptor);
-            \assert($interceptor instanceof Interceptor);
-
-            $interceptors[] = $interceptor;
-        }
-
-        return $this->factory->make(PipelineProvider::class, ['interceptors' => $interceptors]);
     }
 
     private function wire(mixed $alias): object

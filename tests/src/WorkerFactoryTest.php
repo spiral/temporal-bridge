@@ -12,8 +12,8 @@ use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\Tests\App\SomeInterceptor;
 use Spiral\TemporalBridge\WorkerFactory;
 use Temporal\Exception\ExceptionInterceptor;
-use Temporal\Interceptor\SimplePipelineProvider;
 use Temporal\Interceptor\PipelineProvider;
+use Temporal\Interceptor\SimplePipelineProvider;
 use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactory;
 use Temporal\Worker\WorkerInterface;
 use Temporal\Worker\WorkerOptions;
@@ -87,7 +87,7 @@ final class WorkerFactoryTest extends TestCase
         $expectedInterceptors = new SimplePipelineProvider([
             new SomeInterceptor(),
             new SomeInterceptor(),
-            new SomeInterceptor()
+            new SomeInterceptor(),
         ]);
 
         $this->temporalWorkerFactory
@@ -96,7 +96,7 @@ final class WorkerFactoryTest extends TestCase
             ->with('with-interceptors', null, null, $this->equalTo($expectedInterceptors))
             ->willReturn($worker = $this->createMock(WorkerInterface::class));
 
-        $factory = $this->createWorkerFactory($this->temporalWorkerFactory);
+        $factory = $this->createWorkerFactory($this->temporalWorkerFactory, $expectedInterceptors);
 
         $this->assertSame($worker, $factory->create('with-interceptors'));
     }
@@ -106,7 +106,7 @@ final class WorkerFactoryTest extends TestCase
         $expectedInterceptors = new SimplePipelineProvider([
             new SomeInterceptor(),
             new SomeInterceptor(),
-            new SomeInterceptor()
+            new SomeInterceptor(),
         ]);
 
         $this->temporalWorkerFactory
@@ -116,11 +116,11 @@ final class WorkerFactoryTest extends TestCase
                 'all',
                 $this->equalTo(WorkerOptions::new()->withEnableSessionWorker()),
                 $this->equalTo(new ExceptionInterceptor([])),
-                $this->equalTo($expectedInterceptors)
+                $this->equalTo($expectedInterceptors),
             )
             ->willReturn($worker = $this->createMock(WorkerInterface::class));
 
-        $factory = $this->createWorkerFactory($this->temporalWorkerFactory);
+        $factory = $this->createWorkerFactory($this->temporalWorkerFactory, $expectedInterceptors);
 
         $this->assertSame($worker, $factory->create('all'));
     }
@@ -132,8 +132,11 @@ final class WorkerFactoryTest extends TestCase
         yield ['with-exception-interceptor-as-instance'];
     }
 
-    private function createWorkerFactory(TemporalWorkerFactory $workerFactory): WorkerFactory
-    {
+    private function createWorkerFactory(
+        TemporalWorkerFactory $workerFactory,
+        PipelineProvider $pipelineProvider = new SimplePipelineProvider(),
+    ):
+    WorkerFactory {
         $container = new Container();
         $container->bind(PipelineProvider::class, SimplePipelineProvider::class);
         $container->bind(ExceptionInterceptor::class, new ExceptionInterceptor([]));
@@ -141,37 +144,38 @@ final class WorkerFactoryTest extends TestCase
         $interceptors = [
             SomeInterceptor::class,
             new SomeInterceptor(),
-            new Autowire(SomeInterceptor::class)
+            new Autowire(SomeInterceptor::class),
         ];
 
         return new WorkerFactory(
             $workerFactory,
             $this->createMock(FinalizerInterface::class),
             $container,
+            $pipelineProvider,
             new TemporalConfig([
                 'workers' => [
                     'with-options-as-value' => WorkerOptions::new()->withEnableSessionWorker(),
                     'with-options-in-array' => [
-                        'options' => WorkerOptions::new()->withEnableSessionWorker()
+                        'options' => WorkerOptions::new()->withEnableSessionWorker(),
                     ],
                     'with-interceptors' => [
-                        'interceptors' => $interceptors
+                        'interceptors' => $interceptors,
                     ],
                     'with-exception-interceptor-as-string' => [
-                        'exception_interceptor' => ExceptionInterceptor::class
+                        'exception_interceptor' => ExceptionInterceptor::class,
                     ],
                     'with-exception-interceptor-as-autowire' => [
-                        'exception_interceptor' => new Autowire(ExceptionInterceptor::class, [])
+                        'exception_interceptor' => new Autowire(ExceptionInterceptor::class, []),
                     ],
                     'with-exception-interceptor-as-instance' => [
-                        'exception_interceptor' => new ExceptionInterceptor([])
+                        'exception_interceptor' => new ExceptionInterceptor([]),
                     ],
                     'all' => [
                         'options' => WorkerOptions::new()->withEnableSessionWorker(),
                         'interceptors' => $interceptors,
-                        'exception_interceptor' => ExceptionInterceptor::class
-                    ]
-                ]
+                        'exception_interceptor' => ExceptionInterceptor::class,
+                    ],
+                ],
             ])
         );
     }
