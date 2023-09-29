@@ -24,7 +24,7 @@
     "spiral/tokenizer": "^3.0",
     "spiral/roadrunner-bridge": "^2.0 || ^3.0",
     "nette/php-generator": "^4.0",
-    "temporal/sdk": "dev-interceptors"
+    "temporal/sdk": "^2.7"
   },
   "require-dev": {
     "spiral/framework": "^3.0",
