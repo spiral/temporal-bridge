@@ -8,14 +8,19 @@ use Spiral\Console\Command;
 use Spiral\TemporalBridge\Generator\Generator;
 use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
 use Spiral\TemporalBridge\WorkflowPresetLocatorInterface;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class MakePresetCommand extends Command
 {
     use WithContext;
 
-    protected const SIGNATURE = 'temporal:make-preset {preset : Workflow preset} {name : Workflow name}';
+    protected const NAME = 'temporal:make-preset';
     protected const DESCRIPTION = 'Make a new Temporal workflow preset';
+    protected const ARGUMENTS = [
+        ['name', InputArgument::REQUIRED, 'Workflow name'],
+        ['preset', InputArgument::REQUIRED, 'Workflow preset'],
+    ];
 
     public function perform(
         Generator $generator,
