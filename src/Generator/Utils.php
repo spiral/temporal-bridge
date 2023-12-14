@@ -25,6 +25,7 @@ final class Utils
         foreach ($signalMethods as $method) {
             $params = null;
             if (\str_contains($method, ',')) {
+                /** @psalm-suppress PossiblyUndefinedArrayOffset */
                 [$method, $params] = \explode(',', $method, 2);
             }
 
@@ -70,10 +71,12 @@ final class Utils
         foreach ($methods as $method) {
             $params = '';
             if (\str_contains($method, ',')) {
+                /** @psalm-suppress PossiblyUndefinedArrayOffset */
                 [$method, $params] = \explode(',', $method, 2);
             }
 
             if (\str_contains($method, ':')) {
+                /** @psalm-suppress PossiblyUndefinedArrayOffset */
                 [$method, $type] = \explode(':', $method, 2);
             }
 
@@ -100,6 +103,7 @@ final class Utils
         foreach ($parameters as $param) {
             $type = null;
             if (\str_contains($param, ':')) {
+                /** @psalm-suppress PossiblyUndefinedArrayOffset */
                 [$param, $type] = \explode(':', $param, 2);
             }
 
