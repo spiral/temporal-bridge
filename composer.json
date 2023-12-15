@@ -29,7 +29,7 @@
   "require-dev": {
     "spiral/framework": "^3.0",
     "spiral/testing": "^2.0",
-    "vimeo/psalm": "^4.9"
+    "vimeo/psalm": "^5.17"
   },
   "autoload": {
     "psr-4": {

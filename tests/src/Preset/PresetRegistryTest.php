@@ -27,7 +27,7 @@ final class PresetRegistryTest extends TestCase
     public function testNotFoundPresetShouldThrowAnException(): void
     {
         $this->expectException(PresetNotFoundException::class);
-        $this->expectErrorMessage('Preset with given name [foo] is not defined.');
+        $this->expectExceptionMessage('Preset with given name [foo] is not defined.');
 
         $registry = new PresetRegistry();
 

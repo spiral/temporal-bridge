@@ -42,6 +42,7 @@ final class Dispatcher implements DispatcherInterface
         $factory = $this->container->get(WorkerFactoryInterface::class);
         $registry = $this->container->get(WorkersRegistryInterface::class);
 
+        $hasDeclarations = false;
         foreach ($declarations as $type => $declaration) {
             // Worker that listens on a task queue and hosts both workflow and activity implementations.
             $queueName = $this->resolveQueueName($declaration) ?? $this->config->getDefaultWorker();
@@ -60,6 +61,11 @@ final class Dispatcher implements DispatcherInterface
                     fn(ReflectionClass $class): object => $this->container->make($class->getName()),
                 );
             }
+            $hasDeclarations = true;
+        }
+
+        if (!$hasDeclarations) {
+            $registry->get(WorkerFactoryInterface::DEFAULT_TASK_QUEUE);
         }
 
         // start primary loop

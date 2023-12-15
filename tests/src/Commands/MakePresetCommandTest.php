@@ -16,7 +16,7 @@ final class MakePresetCommandTest extends TestCase
     public function testNotFoundPresetShouldShowErrorMessage(): void
     {
         $this->expectException(PresetNotFoundException::class);
-        $this->expectErrorMessage('Preset with given name [foo] is not defined.');
+        $this->expectExceptionMessage('Preset with given name [foo] is not defined.');
 
         $this->runCommand('temporal:make-preset', ['preset' => 'foo', 'name' => ' bar']);
     }
