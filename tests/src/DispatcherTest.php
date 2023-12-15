@@ -18,29 +18,53 @@ use Temporal\Workflow\WorkflowInterface;
 
 final class DispatcherTest extends TestCase
 {
-    public function testResolvingQueueName(): void
+    private \ReflectionMethod $method;
+    private Dispatcher $dispatcher;
+
+    protected function setUp(): void
     {
-        $dispatcher = new Dispatcher(
+        parent::setUp();
+
+        $this->dispatcher = new Dispatcher(
             RoadRunnerMode::Temporal,
             new AttributeReader(),
             new TemporalConfig(['defaultWorker' => 'foo']),
             $this->getContainer(),
         );
 
-        $ref = new \ReflectionClass($dispatcher);
-        $method = $ref->getMethod('resolveQueueName');
+        $ref = new \ReflectionClass($this->dispatcher);
+        $this->method = $ref->getMethod('resolveQueueName');
+        $this->method->setAccessible(true);
+    }
 
-        $queue = $method->invoke(
-            $dispatcher,
-            new \ReflectionClass(ActivityInterfaceWithAttribute::class)
+    public function testResolvingQueueNameWithAttributeOnClass(): void
+    {
+        $queue = $this->method->invoke(
+            $this->dispatcher,
+            new \ReflectionClass(ActivityInterfaceWithAttribute::class),
         );
+
         $this->assertSame('worker1', $queue);
+    }
 
-        $queue = $method->invoke(
-            $dispatcher,
-            new \ReflectionClass(ActivityInterfaceWithoutAttribute::class)
+    public function testResolvingQueueNameWithAttributeOnParentClass(): void
+    {
+        $queue = $this->method->invoke(
+            $this->dispatcher,
+            new \ReflectionClass(ActivityClass::class),
         );
-        $this->assertSame('foo', $queue);
+
+        $this->assertSame('worker1', $queue);
+    }
+
+    public function testResolvingQueueNameWithoutAttribute(): void
+    {
+        $queue = $this->method->invoke(
+            $this->dispatcher,
+            new \ReflectionClass(ActivityInterfaceWithoutAttribute::class),
+        );
+
+        $this->assertNull($queue);
     }
 
     public function testServeWithoutDeclarations(): void
@@ -103,5 +127,9 @@ interface ActivityInterfaceWithAttribute
 
 
 interface ActivityInterfaceWithoutAttribute
+{
+}
+
+class ActivityClass implements ActivityInterfaceWithAttribute
 {
 }

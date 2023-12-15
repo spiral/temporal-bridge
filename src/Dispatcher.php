@@ -21,7 +21,7 @@ final class Dispatcher implements DispatcherInterface
         private readonly RoadRunnerMode $mode,
         private readonly ReaderInterface $reader,
         private readonly TemporalConfig $config,
-        private readonly Container $container
+        private readonly Container $container,
     ) {
     }
 
@@ -45,7 +45,9 @@ final class Dispatcher implements DispatcherInterface
         $hasDeclarations = false;
         foreach ($declarations as $type => $declaration) {
             // Worker that listens on a task queue and hosts both workflow and activity implementations.
-            $worker = $registry->get($this->resolveQueueName($declaration));
+            $queueName = $this->resolveQueueName($declaration) ?? $this->config->getDefaultWorker();
+
+            $worker = $registry->get($queueName);
 
             if ($type === WorkflowInterface::class) {
                 // Workflows are stateful. So you need a type to create instances.
@@ -56,7 +58,7 @@ final class Dispatcher implements DispatcherInterface
                 // Workflows are stateful. So you need a type to create instances.
                 $worker->registerActivity(
                     $declaration->getName(),
-                    fn(ReflectionClass $class): object => $this->container->make($class->getName())
+                    fn(ReflectionClass $class): object => $this->container->make($class->getName()),
                 );
             }
             $hasDeclarations = true;
@@ -70,14 +72,22 @@ final class Dispatcher implements DispatcherInterface
         $factory->run();
     }
 
-    private function resolveQueueName(\ReflectionClass $declaration): string
+    private function resolveQueueName(\ReflectionClass $declaration): ?string
     {
         $assignWorker = $this->reader->firstClassMetadata($declaration, AssignWorker::class);
 
-        if ($assignWorker === null) {
-            return $this->config->getDefaultWorker();
+        if ($assignWorker !== null) {
+            return $assignWorker->name;
         }
 
-        return $assignWorker->name;
+        $parents = $declaration->getInterfaceNames();
+        foreach ($parents as $parent) {
+            $queueName = $this->resolveQueueName(new \ReflectionClass($parent));
+            if ($queueName !== null) {
+                return $queueName;
+            }
+        }
+
+        return null;
     }
 }
