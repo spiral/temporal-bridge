@@ -10,7 +10,7 @@ use Spiral\Attributes\NamedArgumentConstructor;
 final class AssignWorker
 {
     public function __construct(
-        public readonly string $name
+        public readonly string $name,
     ) {
     }
 }
