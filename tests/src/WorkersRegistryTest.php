@@ -40,7 +40,7 @@ final class WorkersRegistryTest extends TestCase
     public function testRegisterWorkerWithExistsName(): void
     {
         $this->expectException(WorkersRegistryException::class);
-        $this->expectErrorMessage('Temporal worker with given name `foo` has already been registered.');
+        $this->expectExceptionMessage('Temporal worker with given name `foo` has already been registered.');
 
         $registry = new WorkersRegistry(
             $this->createMock(WorkerFactoryInterface::class),
