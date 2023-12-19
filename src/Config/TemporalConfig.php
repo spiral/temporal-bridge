@@ -14,7 +14,7 @@ final class TemporalConfig extends InjectableConfig
 
     protected array $config = [
         'address' => 'localhost:7233',
-        'namespace' => 'App\\Workflow',
+        'namespace' => 'App\\Endpoint\\Temporal\\Workflow',
         'temporalNamespace' => 'default',
         'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
         'workers' => [],

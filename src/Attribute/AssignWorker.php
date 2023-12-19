@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Attribute;
 
-use Spiral\Attributes\NamedArgumentConstructor;
-
-#[\Attribute(\Attribute::TARGET_CLASS), NamedArgumentConstructor]
+#[\Attribute(\Attribute::TARGET_CLASS)]
 final class AssignWorker
 {
     public function __construct(

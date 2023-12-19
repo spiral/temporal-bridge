@@ -1,27 +1,22 @@
 <?xml version="1.0"?>
 <psalm
-        errorLevel="2"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="https://getpsalm.org/schema/config"
-        xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    errorLevel="2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
-        <directory name="src" />
+        <directory name="src"/>
         <ignoreFiles>
-            <directory name="vendor" />
+            <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
     <issueHandlers>
-        <UndefinedAttributeClass>
+        <PropertyNotSetInConstructor>
             <errorLevel type="suppress">
-                <referencedClass name="JetBrains\PhpStorm\ExpectedValues" />
+                <file name="src/Commands/Scaffolder/ActivityCommand.php"/>
+                <file name="src/Commands/Scaffolder/WorkflowCommand.php"/>
             </errorLevel>
-        </UndefinedAttributeClass>
-        <MismatchingDocblockReturnType>
-            <errorLevel type="suppress">
-                <file name="src/WorkflowManagerInterface.php" />
-                <file name="src/Workflow/Workflow.php" />
-            </errorLevel>
-        </MismatchingDocblockReturnType>
+        </PropertyNotSetInConstructor>
     </issueHandlers>
 </psalm>

@@ -24,7 +24,7 @@ final class TemporalConfigTest extends TestCase
     {
         $config = new TemporalConfig([]);
 
-        $this->assertSame('App\\Workflow', $config->getDefaultNamespace());
+        $this->assertSame('App\\Endpoint\\Temporal\\Workflow', $config->getDefaultNamespace());
     }
 
     public function testGetsDefaultTemporalNamespaceIfItNotSet(): void
