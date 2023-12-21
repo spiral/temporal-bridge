@@ -16,16 +16,11 @@ use Spiral\Core\FactoryInterface;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
 use Spiral\TemporalBridge\Config\TemporalConfig;
+use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Dispatcher;
-use Spiral\TemporalBridge\Preset\PresetRegistry;
-use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
-use Spiral\TemporalBridge\Workflow\WorkflowManager;
-use Spiral\TemporalBridge\WorkflowManagerInterface;
-use Spiral\TemporalBridge\WorkflowPresetLocator;
-use Spiral\TemporalBridge\WorkflowPresetLocatorInterface;
 use Spiral\Tokenizer\ClassesInterface;
 use Temporal\Client\ClientOptions;
 use Temporal\Client\GRPC\ServiceClient;
@@ -40,56 +35,44 @@ use Temporal\WorkerFactory;
 
 class TemporalBridgeBootloader extends Bootloader
 {
-    protected const SINGLETONS = [
-        WorkflowPresetLocatorInterface::class => [self::class, 'initWorkflowPresetLocator'],
-        WorkflowManagerInterface::class => WorkflowManager::class,
-        WorkerFactoryInterface::class => [self::class, 'initWorkerFactory'],
-        DeclarationLocatorInterface::class => [self::class, 'initDeclarationLocator'],
-        WorkflowClientInterface::class => [self::class, 'initWorkflowClient'],
-        WorkersRegistryInterface::class => [self::class, 'initWorkersRegistry'],
-        PresetRegistryInterface::class => PresetRegistry::class,
-        DataConverterInterface::class => [self::class, 'initDataConverter'],
-    ];
+    public function defineDependencies(): array
+    {
+        return [
+            ConsoleBootloader::class,
+            RoadRunnerBootloader::class,
+            ScaffolderBootloader::class,
+        ];
+    }
 
-    protected const DEPENDENCIES = [
-        ConsoleBootloader::class,
-        RoadRunnerBootloader::class,
-    ];
+    public function defineSingletons(): array
+    {
+        return [
+            WorkerFactoryInterface::class => [self::class, 'initWorkerFactory'],
+            DeclarationLocatorInterface::class => [self::class, 'initDeclarationLocator'],
+            WorkflowClientInterface::class => [self::class, 'initWorkflowClient'],
+            WorkersRegistryInterface::class => [self::class, 'initWorkersRegistry'],
+            DataConverterInterface::class => [self::class, 'initDataConverter'],
+        ];
+    }
 
     public function __construct(
-        private readonly ConfiguratorInterface $config
+        private readonly ConfiguratorInterface $config,
     ) {
     }
 
     public function init(
         AbstractKernel $kernel,
         EnvironmentInterface $env,
-        ConsoleBootloader $console,
-        FactoryInterface $factory
+        FactoryInterface $factory,
     ): void {
         $this->initConfig($env);
 
         $kernel->addDispatcher($factory->make(Dispatcher::class));
-
-        $console->addCommand(Commands\MakeWorkflowCommand::class);
-        $console->addCommand(Commands\MakePresetCommand::class);
-        $console->addCommand(Commands\PresetListCommand::class);
     }
 
     public function addWorkerOptions(string $worker, WorkerOptions $options): void
     {
         $this->config->modify(TemporalConfig::CONFIG, new Append('workers', $worker, $options));
-    }
-
-    protected function initWorkflowPresetLocator(
-        FactoryInterface $factory,
-        ClassesInterface $classes
-    ): WorkflowPresetLocatorInterface {
-        return new WorkflowPresetLocator(
-            factory: $factory,
-            classes: $classes,
-            reader: new AttributeReader()
-        );
     }
 
     protected function initConfig(EnvironmentInterface $env): void
@@ -98,21 +81,21 @@ class TemporalBridgeBootloader extends Bootloader
             TemporalConfig::CONFIG,
             [
                 'address' => $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
-                'namespace' => 'App\\Workflow',
+                'namespace' => 'App\\Endpoint\\Temporal\\Workflow',
                 'defaultWorker' => (string)$env->get('TEMPORAL_TASK_QUEUE', WorkerFactoryInterface::DEFAULT_TASK_QUEUE),
                 'workers' => [],
-            ]
+            ],
         );
     }
 
     protected function initWorkflowClient(
         TemporalConfig $config,
-        DataConverterInterface $dataConverter
+        DataConverterInterface $dataConverter,
     ): WorkflowClientInterface {
         return WorkflowClient::create(
             serviceClient: ServiceClient::create($config->getAddress()),
             options: (new ClientOptions())->withNamespace($config->getTemporalNamespace()),
-            converter: $dataConverter
+            converter: $dataConverter,
         );
     }
 
@@ -122,27 +105,27 @@ class TemporalBridgeBootloader extends Bootloader
     }
 
     protected function initWorkerFactory(
-        DataConverterInterface $dataConverter
+        DataConverterInterface $dataConverter,
     ): WorkerFactoryInterface {
         return new WorkerFactory(
             dataConverter: $dataConverter,
-            rpc: Goridge::create()
+            rpc: Goridge::create(),
         );
     }
 
     protected function initDeclarationLocator(
-        ClassesInterface $classes
+        ClassesInterface $classes,
     ): DeclarationLocatorInterface {
-        return new \Spiral\TemporalBridge\DeclarationLocator(
+        return new DeclarationLocator(
             classes: $classes,
-            reader: new AttributeReader()
+            reader: new AttributeReader(),
         );
     }
 
     protected function initWorkersRegistry(
         WorkerFactoryInterface $workerFactory,
         FinalizerInterface $finalizer,
-        TemporalConfig $config
+        TemporalConfig $config,
     ): WorkersRegistryInterface {
         return new WorkersRegistry($workerFactory, $finalizer, $config);
     }
