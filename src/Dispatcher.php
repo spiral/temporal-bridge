@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge;
 
 use ReflectionClass;
-use Spiral\Attributes\ReaderInterface;
 use Spiral\Boot\DispatcherInterface;
 use Spiral\Core\Container;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
-use Spiral\TemporalBridge\Attribute\AssignWorker;
-use Spiral\TemporalBridge\Config\TemporalConfig;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Workflow\WorkflowInterface;
@@ -19,9 +16,8 @@ final class Dispatcher implements DispatcherInterface
 {
     public function __construct(
         private readonly RoadRunnerMode $mode,
-        private readonly ReaderInterface $reader,
-        private readonly TemporalConfig $config,
         private readonly Container $container,
+        private readonly DeclarationWorkerResolver $workerResolver,
     ) {
     }
 
@@ -39,13 +35,15 @@ final class Dispatcher implements DispatcherInterface
         $declarations = $this->container->get(DeclarationLocatorInterface::class)->getDeclarations();
 
         // factory initiates and runs task queue specific activity and workflow workers
+        /** @var WorkerFactoryInterface $factory */
         $factory = $this->container->get(WorkerFactoryInterface::class);
+        /** @var WorkersRegistryInterface $registry */
         $registry = $this->container->get(WorkersRegistryInterface::class);
 
         $hasDeclarations = false;
         foreach ($declarations as $type => $declaration) {
             // Worker that listens on a task queue and hosts both workflow and activity implementations.
-            $queueName = $this->resolveQueueName($declaration) ?? $this->config->getDefaultWorker();
+            $queueName = $this->workerResolver->resolve($declaration);
 
             $worker = $registry->get($queueName);
 
@@ -70,24 +68,5 @@ final class Dispatcher implements DispatcherInterface
 
         // start primary loop
         $factory->run();
-    }
-
-    private function resolveQueueName(\ReflectionClass $declaration): ?string
-    {
-        $assignWorker = $this->reader->firstClassMetadata($declaration, AssignWorker::class);
-
-        if ($assignWorker !== null) {
-            return $assignWorker->name;
-        }
-
-        $parents = $declaration->getInterfaceNames();
-        foreach ($parents as $parent) {
-            $queueName = $this->resolveQueueName(new \ReflectionClass($parent));
-            if ($queueName !== null) {
-                return $queueName;
-            }
-        }
-
-        return null;
     }
 }

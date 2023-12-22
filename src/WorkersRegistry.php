@@ -20,7 +20,7 @@ final class WorkersRegistry implements WorkersRegistryInterface
     public function __construct(
         private readonly WorkerFactoryInterface $workerFactory,
         private readonly FinalizerInterface $finalizer,
-        private readonly TemporalConfig $config
+        private readonly TemporalConfig $config,
     ) {
     }
 
@@ -30,7 +30,7 @@ final class WorkersRegistry implements WorkersRegistryInterface
 
         if ($this->has($name)) {
             throw new WorkersRegistryException(
-                \sprintf('Temporal worker with given name `%s` has already been registered.', $name)
+                \sprintf('Temporal worker with given name `%s` has already been registered.', $name),
             );
         }
 
@@ -44,7 +44,7 @@ final class WorkersRegistry implements WorkersRegistryInterface
 
         $options = $this->config->getWorkers();
 
-        if (! $this->has($name)) {
+        if (!$this->has($name)) {
             $this->register($name, $options[$name] ?? null);
         }
 
