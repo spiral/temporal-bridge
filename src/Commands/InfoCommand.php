@@ -11,6 +11,7 @@ use Spiral\Console\Command;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\DeclarationWorkerResolver;
 use Symfony\Component\Console\Helper\TableSeparator;
+use Symfony\Component\Console\Output\OutputInterface;
 use Temporal\Internal\Declaration\Reader\ActivityReader;
 use Temporal\Internal\Declaration\Reader\WorkflowReader;
 use Temporal\Workflow\WorkflowInterface;
@@ -63,7 +64,10 @@ final class InfoCommand extends Command
 
         $rootDir = \realpath($dir->get('root')) . '/';
 
+        \assert($this->output instanceof OutputInterface);
+
         $this->output->title('Workflows');
+
         $table = $this->table(['Name', 'Class', 'Task Queue']);
         foreach ($workflows as $workflow) {
             $table->addRow([
