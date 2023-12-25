@@ -14,8 +14,11 @@ final class PhpCodePrinterTest extends TestCase
 {
     public function testPrint(): void
     {
+        $namespace = new PhpNamespace('Foo\\Bar');
+        $namespace->addClass('Baz');
+
         $printer = new PhpCodePrinter(
-            new PhpNamespace('Foo\\Bar'),
+            $namespace,
             new Context('src/app/', 'App//Foo', 'Bar')
         );
 
@@ -28,6 +31,9 @@ declare(strict_types=1);
 
 namespace Foo\Bar;
 
+class Baz
+{
+}
 
 CODE
 , null, true);
