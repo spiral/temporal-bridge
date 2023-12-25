@@ -38,8 +38,8 @@ use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
 use Temporal\WorkerFactory as TemporalWorkerFactory;
 use Temporal\Client\ScheduleClient;
-use \Temporal\Client\ScheduleClientInterface;
-use \Temporal\Client\GRPC\ServiceClientInterface;
+use Temporal\Client\ScheduleClientInterface;
+use Temporal\Client\GRPC\ServiceClientInterface;
 
 class TemporalBridgeBootloader extends Bootloader
 {
