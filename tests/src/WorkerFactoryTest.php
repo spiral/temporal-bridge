@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Spiral\Boot\FinalizerInterface;
 use Spiral\Core\Container;
@@ -66,9 +67,7 @@ final class WorkerFactoryTest extends TestCase
         $this->assertSame($worker, $factory->create('with-options-in-array'));
     }
 
-    /**
-     * @dataProvider exceptionInterceptorsDataProvider
-     */
+    #[DataProvider(methodName: 'exceptionInterceptorsDataProvider')]
     public function testCreateWithExceptionInterceptor(string $name): void
     {
         $this->temporalWorkerFactory
@@ -125,7 +124,7 @@ final class WorkerFactoryTest extends TestCase
         $this->assertSame($worker, $factory->create('all'));
     }
 
-    public function exceptionInterceptorsDataProvider(): \Traversable
+    public static function exceptionInterceptorsDataProvider(): \Traversable
     {
         yield ['with-exception-interceptor-as-string'];
         yield ['with-exception-interceptor-as-autowire'];

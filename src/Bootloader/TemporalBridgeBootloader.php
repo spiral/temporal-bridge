@@ -37,6 +37,9 @@ use Temporal\Worker\Transport\Goridge;
 use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
 use Temporal\WorkerFactory as TemporalWorkerFactory;
+use Temporal\Client\ScheduleClient;
+use \Temporal\Client\ScheduleClientInterface;
+use \Temporal\Client\GRPC\ServiceClientInterface;
 
 class TemporalBridgeBootloader extends Bootloader
 {
@@ -57,8 +60,10 @@ class TemporalBridgeBootloader extends Bootloader
             DeclarationLocatorInterface::class => [self::class, 'initDeclarationLocator'],
             WorkflowClientInterface::class => [self::class, 'initWorkflowClient'],
             WorkersRegistryInterface::class => WorkersRegistry::class,
+            ScheduleClientInterface::class => [self::class, 'initScheduleClient'],
             DataConverterInterface::class => [self::class, 'initDataConverter'],
             PipelineProvider::class => [self::class, 'initPipelineProvider'],
+            ServiceClientInterface::class => [self::class, 'initServiceClient'],
         ];
     }
 
@@ -89,8 +94,12 @@ class TemporalBridgeBootloader extends Bootloader
             [
                 'address' => $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
                 'namespace' => 'App\\Endpoint\\Temporal\\Workflow',
-                'defaultWorker' => (string)$env->get('TEMPORAL_TASK_QUEUE', TemporalWorkerFactoryInterface::DEFAULT_TASK_QUEUE),
+                'defaultWorker' => (string)$env->get(
+                    'TEMPORAL_TASK_QUEUE',
+                    TemporalWorkerFactoryInterface::DEFAULT_TASK_QUEUE,
+                ),
                 'workers' => [],
+                'clientOptions' => null,
             ],
         );
     }
@@ -99,10 +108,11 @@ class TemporalBridgeBootloader extends Bootloader
         TemporalConfig $config,
         DataConverterInterface $dataConverter,
         PipelineProvider $pipelineProvider,
+        ServiceClientInterface $serviceClient,
     ): WorkflowClientInterface {
         return new WorkflowClient(
-            serviceClient: ServiceClient::create($config->getAddress()),
-            options: (new ClientOptions())->withNamespace($config->getTemporalNamespace()),
+            serviceClient: $serviceClient,
+            options: $config->getClientOptions(),
             converter: $dataConverter,
             interceptorProvider: $pipelineProvider,
         );
@@ -142,5 +152,22 @@ class TemporalBridgeBootloader extends Bootloader
         );
 
         return new SimplePipelineProvider($interceptors);
+    }
+
+    protected function initServiceClient(TemporalConfig $config): ServiceClientInterface
+    {
+        return ServiceClient::create($config->getAddress());
+    }
+
+    protected function initScheduleClient(
+        TemporalConfig $config,
+        DataConverterInterface $dataConverter,
+        ServiceClientInterface $serviceClient,
+    ): ScheduleClientInterface {
+        return new ScheduleClient(
+            serviceClient: $serviceClient,
+            options: $config->getClientOptions(),
+            converter: $dataConverter,
+        );
     }
 }

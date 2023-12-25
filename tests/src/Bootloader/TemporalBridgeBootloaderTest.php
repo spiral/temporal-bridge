@@ -15,6 +15,10 @@ use Spiral\TemporalBridge\WorkerFactory;
 use Spiral\TemporalBridge\WorkerFactoryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
+use Temporal\Client\GRPC\ServiceClient;
+use Temporal\Client\GRPC\ServiceClientInterface;
+use Temporal\Client\ScheduleClient;
+use Temporal\Client\ScheduleClientInterface;
 use Temporal\Client\WorkflowClient;
 use Temporal\Client\WorkflowClientInterface;
 use Temporal\DataConverter\DataConverter;
@@ -27,6 +31,22 @@ use Temporal\WorkerFactory as TemporalWorkerFactory;
 
 class TemporalBridgeBootloaderTest extends TestCase
 {
+    public function testServiceClient(): void
+    {
+        $this->assertContainerBoundAsSingleton(
+            ServiceClientInterface::class,
+            ServiceClient::class,
+        );
+    }
+
+    public function testScheduleClient(): void
+    {
+        $this->assertContainerBoundAsSingleton(
+            ScheduleClientInterface::class,
+            ScheduleClient::class,
+        );
+    }
+
     public function testTemporalWorkerFactory(): void
     {
         $this->assertContainerBoundAsSingleton(
