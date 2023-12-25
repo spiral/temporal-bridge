@@ -49,7 +49,7 @@ final class WorkflowDeclaration extends AbstractDeclaration
     public function assignWorker(string $worker): void
     {
         $this->namespace->addUse(AssignWorker::class);
-        $this->class->addAttribute(AssignWorker::class, ['name' => $worker]);
+        $this->class->addAttribute(AssignWorker::class, ['taskQueue' => $worker]);
     }
 
     public function addQueryMethod(string $name, string $returnType): void

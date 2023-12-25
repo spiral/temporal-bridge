@@ -43,23 +43,26 @@ final class Dispatcher implements DispatcherInterface
         $hasDeclarations = false;
         foreach ($declarations as $type => $declaration) {
             // Worker that listens on a task queue and hosts both workflow and activity implementations.
-            $queueName = $this->workerResolver->resolve($declaration);
+            $taskQueues = $this->workerResolver->resolve($declaration);
 
-            $worker = $registry->get($queueName);
+            foreach ($taskQueues as $taskQueue) {
+                $worker = $registry->get($taskQueue);
 
-            if ($type === WorkflowInterface::class) {
-                // Workflows are stateful. So you need a type to create instances.
-                $worker->registerWorkflowTypes($declaration->getName());
+                if ($type === WorkflowInterface::class) {
+                    // Workflows are stateful. So you need a type to create instances.
+                    $worker->registerWorkflowTypes($declaration->getName());
+                }
+
+                if ($type === ActivityInterface::class) {
+                    // Workflows are stateful. So you need a type to create instances.
+                    $worker->registerActivity(
+                        $declaration->getName(),
+                        fn(ReflectionClass $class): object => $this->container->make($class->getName()),
+                    );
+                }
+
+                $hasDeclarations = true;
             }
-
-            if ($type === ActivityInterface::class) {
-                // Workflows are stateful. So you need a type to create instances.
-                $worker->registerActivity(
-                    $declaration->getName(),
-                    fn(ReflectionClass $class): object => $this->container->make($class->getName()),
-                );
-            }
-            $hasDeclarations = true;
         }
 
         if (!$hasDeclarations) {

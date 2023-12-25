@@ -117,7 +117,7 @@ use Temporal\Workflow\WorkflowInterface;
 use Temporal\Workflow\WorkflowMethod;
 
 #[WorkflowInterface]
-#[AssignWorker(name: 'test')]
+#[AssignWorker(taskQueue: 'test')]
 class PaymentWorkflow
 {
     /**

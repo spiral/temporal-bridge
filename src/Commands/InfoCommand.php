@@ -6,6 +6,7 @@ namespace Spiral\TemporalBridge\Commands;
 
 use Spiral\Boot\DirectoriesInterface;
 use Spiral\Console\Attribute\AsCommand;
+use Spiral\Console\Attribute\Option;
 use Spiral\Console\Command;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\DeclarationWorkerResolver;
@@ -20,6 +21,9 @@ use Temporal\Workflow\WorkflowInterface;
 )]
 final class InfoCommand extends Command
 {
+    #[Option(name: 'show-activities', shortcut: 'a', description: 'Show activities.')]
+    private bool $showActivities = false;
+
     public function perform(
         DeclarationLocatorInterface $locator,
         DeclarationWorkerResolver $workerResolver,
@@ -39,16 +43,20 @@ final class InfoCommand extends Command
                     'class' => $declaration->getName(),
                     'file' => $declaration->getFileName(),
                     'name' => $prototype->getID(),
-                    'task_queue' => $taskQueue,
+                    'task_queue' => \implode(', ', $taskQueue),
                 ];
             } else {
+                $taskQueueShown = false;
+
                 foreach ($activityReader->fromClass($declaration->getName()) as $prototype) {
                     $activities[$declaration->getName()][$prototype->getID()] = [
                         'file' => $declaration->getFileName(),
                         'name' => $prototype->getID(),
                         'handler' => $declaration->getShortName() . '::' . $prototype->getHandler()->getName(),
-                        'task_queue' => $taskQueue,
+                        'task_queue' => !$taskQueueShown ? \implode(', ', $taskQueue) : '',
                     ];
+
+                    $taskQueueShown = true;
                 }
             }
         }
@@ -66,6 +74,9 @@ final class InfoCommand extends Command
         }
         $table->render();
 
+        if (!$this->showActivities) {
+            return self::SUCCESS;
+        }
 
         $this->output->title('Activities');
         $table = $this->table(['Name', 'Class', 'Task Queue']);

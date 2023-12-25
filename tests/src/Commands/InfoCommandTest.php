@@ -37,26 +37,53 @@ final class InfoCommandTest extends TestCase
 Workflows
 =========
 
-+-----------------+------------------------------------------------------+------------+
-| Name            | Class                                                | Task Queue |
-+-----------------+------------------------------------------------------+------------+
-| fooWorkflow     | Spiral\TemporalBridge\Tests\Commands\Workflow        | worker2    |
-|                 | src/Commands/InfoCommandTest.php                     |            |
-| AnotherWorkflow | Spiral\TemporalBridge\Tests\Commands\AnotherWorkflow | default    |
-|                 | src/Commands/InfoCommandTest.php                     |            |
-+-----------------+------------------------------------------------------+------------+
++-----------------+------------------------------------------------------+------------------+
+| Name            | Class                                                | Task Queue       |
++-----------------+------------------------------------------------------+------------------+
+| fooWorkflow     | Spiral\TemporalBridge\Tests\Commands\Workflow        | worker2          |
+|                 | src/Commands/InfoCommandTest.php                     |                  |
+| AnotherWorkflow | Spiral\TemporalBridge\Tests\Commands\AnotherWorkflow | default, worker2 |
+|                 | src/Commands/InfoCommandTest.php                     |                  |
++-----------------+------------------------------------------------------+------------------+
+
+OUTPUT,
+            $result,
+        );
+    }
+
+    public function testInfoWithActivities(): void
+    {
+        $result = $this->runCommand('temporal:info', [
+            '--show-activities' => true,
+        ]);
+
+        $this->assertSame(
+            <<<'OUTPUT'
+
+Workflows
+=========
+
++-----------------+------------------------------------------------------+------------------+
+| Name            | Class                                                | Task Queue       |
++-----------------+------------------------------------------------------+------------------+
+| fooWorkflow     | Spiral\TemporalBridge\Tests\Commands\Workflow        | worker2          |
+|                 | src/Commands/InfoCommandTest.php                     |                  |
+| AnotherWorkflow | Spiral\TemporalBridge\Tests\Commands\AnotherWorkflow | default, worker2 |
+|                 | src/Commands/InfoCommandTest.php                     |                  |
++-----------------+------------------------------------------------------+------------------+
 
 Activities
 ==========
 
-+----------------+-------------------------------------+------------+
-| Name           | Class                               | Task Queue |
-+----------------+-------------------------------------+------------+
-| fooActivity    | ActivityInterfaceWithWorker::foo    | worker1    |
-| bar            | ActivityInterfaceWithWorker::bar    | worker1    |
-+----------------+-------------------------------------+------------+
-| fooActivitybaz | ActivityInterfaceWithoutWorker::baz | default    |
-+----------------+-------------------------------------+------------+
++------------------------+---------------------------------------------+------------+
+| Name                   | Class                                       | Task Queue |
++------------------------+---------------------------------------------+------------+
+| fooActivity            | ActivityInterfaceWithWorker::foo            | worker1    |
+| bar                    | ActivityInterfaceWithWorker::bar            |            |
++------------------------+---------------------------------------------+------------+
+| fooActivity__construct | ActivityInterfaceWithoutWorker::__construct | default    |
+| fooActivitybaz         | ActivityInterfaceWithoutWorker::baz         |            |
++------------------------+---------------------------------------------+------------+
 
 OUTPUT,
             $result,
@@ -64,7 +91,7 @@ OUTPUT,
     }
 }
 
-#[AssignWorker(name: 'worker1')]
+#[AssignWorker(taskQueue: 'worker1')]
 #[ActivityInterface]
 class ActivityInterfaceWithWorker
 {
@@ -83,14 +110,21 @@ class ActivityInterfaceWithWorker
 #[ActivityInterface('fooActivity')]
 class ActivityInterfaceWithoutWorker
 {
+    public function __construct()
+    {
+    }
 
     #[ActivityMethod]
     public function baz(): void
     {
     }
+
+    private function baf(): void
+    {
+    }
 }
 
-#[AssignWorker(name: 'worker2')]
+#[AssignWorker(taskQueue: 'worker2')]
 #[WorkflowInterface]
 class Workflow
 {
@@ -100,7 +134,8 @@ class Workflow
     }
 }
 
-#[AssignWorker(name: 'default')]
+#[AssignWorker(taskQueue: 'default')]
+#[AssignWorker(taskQueue: 'worker2')]
 #[WorkflowInterface]
 class AnotherWorkflow
 {

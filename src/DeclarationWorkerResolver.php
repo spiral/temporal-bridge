@@ -17,30 +17,42 @@ final class DeclarationWorkerResolver
     }
 
     /**
-     * Find the worker name for the given workflow or class declaration. If no worker is assigned, the default worker
-     * name is returned.
+     * Find the worker name for the given workflow or class declaration. If no worker is assigned, the default task
+     * queue name is returned.
      */
-    public function resolve(\ReflectionClass $declaration): string
+    public function resolve(\ReflectionClass $declaration): array
     {
-        return $this->resolveQueueName($declaration) ?? $this->config->getDefaultWorker();
+        $queue = $this->resolveTaskQueues($declaration);
+
+        if ($queue !== []) {
+            return $queue;
+        }
+
+        return [$this->config->getDefaultWorker()];
     }
 
-    private function resolveQueueName(\ReflectionClass $declaration): ?string
+    private function resolveTaskQueues(\ReflectionClass $declaration): array
     {
-        $assignWorker = $this->reader->firstClassMetadata($declaration, AssignWorker::class);
+        $assignWorker = $this->reader->getClassMetadata($declaration, AssignWorker::class);
 
-        if ($assignWorker !== null) {
-            return $assignWorker->name;
+        $workers = [];
+
+        foreach ($assignWorker as $worker) {
+            $workers[] = $worker->taskQueue;
+        }
+
+        if ($workers !== []) {
+            return $workers;
         }
 
         $parents = $declaration->getInterfaceNames();
         foreach ($parents as $parent) {
-            $queueName = $this->resolveQueueName(new \ReflectionClass($parent));
-            if ($queueName !== null) {
+            $queueName = $this->resolveTaskQueues(new \ReflectionClass($parent));
+            if ($queueName !== []) {
                 return $queueName;
             }
         }
 
-        return null;
+        return [];
     }
 }

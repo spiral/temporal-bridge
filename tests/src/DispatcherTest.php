@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Tests;
 
+use Mockery as m;
 use Spiral\Attributes\AttributeReader;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\DeclarationWorkerResolver;
 use Spiral\TemporalBridge\Dispatcher;
+use Spiral\TemporalBridge\Tests\App\SomeActivity;
+use Spiral\TemporalBridge\Tests\App\SomeActivityWithDefaultWorker;
 use Spiral\TemporalBridge\Tests\App\SomeWorkflow;
+use Spiral\TemporalBridge\Tests\App\SomeWorkflowWithMultipleWorkers;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
+use Temporal\Activity\ActivityInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerInterface;
 use Temporal\Workflow\WorkflowInterface;
@@ -30,7 +35,7 @@ final class DispatcherTest extends TestCase
             new DeclarationWorkerResolver(
                 new AttributeReader(),
                 new TemporalConfig(['defaultWorker' => 'foo']),
-            )
+            ),
         );
     }
 
@@ -55,16 +60,41 @@ final class DispatcherTest extends TestCase
     public function testServeWithDeclarations(): void
     {
         $locator = $this->mockContainer(DeclarationLocatorInterface::class);
-        $locator->shouldReceive('getDeclarations')->once()->andReturn([
-            WorkflowInterface::class => new \ReflectionClass(SomeWorkflow::class),
-        ]);
+        $locator->shouldReceive('getDeclarations')->once()->andReturnUsing(function () {
+            yield WorkflowInterface::class => new \ReflectionClass(SomeWorkflow::class);
+            yield WorkflowInterface::class => new \ReflectionClass(SomeWorkflowWithMultipleWorkers::class);
+            yield ActivityInterface::class => new \ReflectionClass(SomeActivity::class);
+            yield ActivityInterface::class => new \ReflectionClass(SomeActivityWithDefaultWorker::class);
+        });
 
         $registry = $this->mockContainer(WorkersRegistryInterface::class);
+
         $registry
             ->shouldReceive('get')
             ->once()
+            ->with('foo')
+            ->andReturn($worker = m::mock(WorkerInterface::class));
+
+        $worker->shouldReceive('registerActivity')->once()->withSomeOfArgs(SomeActivityWithDefaultWorker::class);
+
+        $registry
+            ->shouldReceive('get')
+            ->twice()
             ->with('worker2')
-            ->andReturn($this->createMock(WorkerInterface::class));
+            ->andReturn($worker = m::mock(WorkerInterface::class));
+
+        $worker->shouldReceive('registerWorkflowTypes')->once()->with(SomeWorkflow::class);
+        $worker->shouldReceive('registerWorkflowTypes')->once()->with(SomeWorkflowWithMultipleWorkers::class);
+
+        $registry
+            ->shouldReceive('get')
+            ->twice()
+            ->with('worker1')
+            ->andReturn($worker = m::mock(WorkerInterface::class));
+
+        $worker->shouldReceive('registerWorkflowTypes')->once()->with(SomeWorkflowWithMultipleWorkers::class);
+        $worker->shouldReceive('registerActivity')->once()->withSomeOfArgs(SomeActivity::class);
+
 
         $factory = $this->mockContainer(WorkerFactoryInterface::class);
         $factory->shouldReceive('run')->once();

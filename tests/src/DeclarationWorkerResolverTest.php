@@ -29,7 +29,16 @@ final class DeclarationWorkerResolverTest extends TestCase
             new \ReflectionClass(ActivityInterfaceWithAttribute::class),
         );
 
-        $this->assertSame('worker1', $queue);
+        $this->assertSame(['worker1'], $queue);
+    }
+
+    public function testResolvingQueueNameWithMultipleAttributeOnClass(): void
+    {
+        $queue = $this->resolver->resolve(
+            new \ReflectionClass(ActivityInterfaceWithMultipleAttributes::class),
+        );
+
+        $this->assertSame(['worker1', 'worker2'], $queue);
     }
 
     public function testResolvingQueueNameWithAttributeOnParentClass(): void
@@ -38,7 +47,7 @@ final class DeclarationWorkerResolverTest extends TestCase
             new \ReflectionClass(ActivityClass::class),
         );
 
-        $this->assertSame('worker1', $queue);
+        $this->assertSame(['worker1'], $queue);
     }
 
     public function testResolvingQueueNameWithoutAttribute(): void
@@ -47,12 +56,18 @@ final class DeclarationWorkerResolverTest extends TestCase
             new \ReflectionClass(ActivityInterfaceWithoutAttribute::class),
         );
 
-        $this->assertSame('foo', $queue);
+        $this->assertSame(['foo'], $queue);
     }
 }
 
-#[AssignWorker(name: 'worker1')]
+#[AssignWorker(taskQueue: 'worker1')]
 interface ActivityInterfaceWithAttribute
+{
+}
+
+#[AssignWorker(taskQueue: 'worker1')]
+#[AssignWorker(taskQueue: 'worker2')]
+interface ActivityInterfaceWithMultipleAttributes
 {
 }
 
