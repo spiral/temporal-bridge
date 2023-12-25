@@ -8,7 +8,6 @@ use Spiral\Attributes\AttributeReader;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Boot\EnvironmentInterface;
-use Spiral\Boot\FinalizerInterface;
 use Spiral\Config\ConfiguratorInterface;
 use Spiral\Config\Patch\Append;
 use Spiral\Console\Bootloader\ConsoleBootloader;
@@ -20,8 +19,6 @@ use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Dispatcher;
-use Spiral\TemporalBridge\Preset\PresetRegistry;
-use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
 use Spiral\TemporalBridge\WorkerFactory;
 use Spiral\TemporalBridge\WorkerFactoryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
@@ -55,7 +52,8 @@ class TemporalBridgeBootloader extends Bootloader
     public function defineSingletons(): array
     {
         return [
-            WorkerFactoryInterface::class => [self::class, 'initWorkerFactory'],
+            TemporalWorkerFactoryInterface::class => [self::class, 'initWorkerFactory'],
+            WorkerFactoryInterface::class => WorkerFactory::class,
             DeclarationLocatorInterface::class => [self::class, 'initDeclarationLocator'],
             WorkflowClientInterface::class => [self::class, 'initWorkflowClient'],
             WorkersRegistryInterface::class => WorkersRegistry::class,
@@ -91,7 +89,7 @@ class TemporalBridgeBootloader extends Bootloader
             [
                 'address' => $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
                 'namespace' => 'App\\Endpoint\\Temporal\\Workflow',
-                'defaultWorker' => (string)$env->get('TEMPORAL_TASK_QUEUE', WorkerFactoryInterface::DEFAULT_TASK_QUEUE),
+                'defaultWorker' => (string)$env->get('TEMPORAL_TASK_QUEUE', TemporalWorkerFactoryInterface::DEFAULT_TASK_QUEUE),
                 'workers' => [],
             ],
         );
@@ -115,18 +113,16 @@ class TemporalBridgeBootloader extends Bootloader
         return DataConverter::createDefault();
     }
 
-    protected function initWorkerFactory(
-        DataConverterInterface $dataConverter,
-    ): WorkerFactoryInterface {
-        return new WorkerFactory(
+    protected function initWorkerFactory(DataConverterInterface $dataConverter,): TemporalWorkerFactoryInterface
+    {
+        return new TemporalWorkerFactory(
             dataConverter: $dataConverter,
             rpc: Goridge::create(),
         );
     }
 
-    protected function initDeclarationLocator(
-        ClassesInterface $classes,
-    ): DeclarationLocatorInterface {
+    protected function initDeclarationLocator(ClassesInterface $classes,): DeclarationLocatorInterface
+    {
         return new DeclarationLocator(
             classes: $classes,
             reader: new AttributeReader(),
@@ -137,7 +133,7 @@ class TemporalBridgeBootloader extends Bootloader
     {
         /** @var Interceptor[] $interceptors */
         $interceptors = \array_map(
-            static fn (mixed $interceptor) => match (true) {
+            static fn(mixed $interceptor) => match (true) {
                 \is_string($interceptor) => $factory->make($interceptor),
                 $interceptor instanceof Autowire => $interceptor->resolve($factory),
                 default => $interceptor

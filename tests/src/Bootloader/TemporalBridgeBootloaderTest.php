@@ -27,6 +27,14 @@ use Temporal\WorkerFactory as TemporalWorkerFactory;
 
 class TemporalBridgeBootloaderTest extends TestCase
 {
+    public function testTemporalWorkerFactory(): void
+    {
+        $this->assertContainerBoundAsSingleton(
+            TemporalWorkerFactoryInterface::class,
+            TemporalWorkerFactory::class,
+        );
+    }
+
     public function testWorkerFactory(): void
     {
         $this->assertContainerBoundAsSingleton(
@@ -39,7 +47,7 @@ class TemporalBridgeBootloaderTest extends TestCase
     {
         $this->assertContainerBoundAsSingleton(
             DataConverterInterface::class,
-            DataConverter::class
+            DataConverter::class,
         );
     }
 
@@ -47,7 +55,7 @@ class TemporalBridgeBootloaderTest extends TestCase
     {
         $this->assertContainerBoundAsSingleton(
             DeclarationLocatorInterface::class,
-            DeclarationLocator::class
+            DeclarationLocator::class,
         );
     }
 
@@ -55,7 +63,7 @@ class TemporalBridgeBootloaderTest extends TestCase
     {
         $this->assertContainerBoundAsSingleton(
             WorkflowClientInterface::class,
-            WorkflowClient::class
+            WorkflowClient::class,
         );
     }
 
@@ -63,7 +71,7 @@ class TemporalBridgeBootloaderTest extends TestCase
     {
         $this->assertContainerBoundAsSingleton(
             WorkersRegistryInterface::class,
-            WorkersRegistry::class
+            WorkersRegistry::class,
         );
     }
 
@@ -71,7 +79,7 @@ class TemporalBridgeBootloaderTest extends TestCase
     {
         $this->assertContainerBound(
             PipelineProvider::class,
-            SimplePipelineProvider::class
+            SimplePipelineProvider::class,
         );
     }
 
@@ -86,7 +94,7 @@ class TemporalBridgeBootloaderTest extends TestCase
 
         $this->assertSame(
             ['first' => $first, 'second' => $second],
-            $configs->getConfig(TemporalConfig::CONFIG)['workers']
+            $configs->getConfig(TemporalConfig::CONFIG)['workers'],
         );
     }
 }
