@@ -8,8 +8,8 @@ on:
 name: static analysis
 
 jobs:
-  psalm:
-    uses: spiral/gh-actions/.github/workflows/psalm.yml@master
-    with:
-      os: >-
-        ['ubuntu-latest']
+    psalm:
+        uses: spiral/gh-actions/.github/workflows/psalm.yml@master
+        with:
+            os: >-
+                ['ubuntu-latest']

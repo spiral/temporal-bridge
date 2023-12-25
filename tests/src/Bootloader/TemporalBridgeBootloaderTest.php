@@ -11,19 +11,23 @@ use Spiral\Config\LoaderInterface;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Tests\TestCase;
+use Spiral\TemporalBridge\WorkerFactory;
+use Spiral\TemporalBridge\WorkerFactoryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
 use Temporal\Client\WorkflowClient;
 use Temporal\Client\WorkflowClientInterface;
 use Temporal\DataConverter\DataConverter;
 use Temporal\DataConverter\DataConverterInterface;
-use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Interceptor\SimplePipelineProvider;
+use Temporal\Interceptor\PipelineProvider;
+use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
-use Temporal\WorkerFactory;
+use Temporal\WorkerFactory as TemporalWorkerFactory;
 
 class TemporalBridgeBootloaderTest extends TestCase
 {
-    public function testWorkerFactory()
+    public function testWorkerFactory(): void
     {
         $this->assertContainerBoundAsSingleton(
             WorkerFactoryInterface::class,
@@ -31,7 +35,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         );
     }
 
-    public function testDataConverter()
+    public function testDataConverter(): void
     {
         $this->assertContainerBoundAsSingleton(
             DataConverterInterface::class,
@@ -39,7 +43,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         );
     }
 
-    public function testDeclarationLocator()
+    public function testDeclarationLocator(): void
     {
         $this->assertContainerBoundAsSingleton(
             DeclarationLocatorInterface::class,
@@ -47,7 +51,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         );
     }
 
-    public function testWorkflowClient()
+    public function testWorkflowClient(): void
     {
         $this->assertContainerBoundAsSingleton(
             WorkflowClientInterface::class,
@@ -60,6 +64,14 @@ class TemporalBridgeBootloaderTest extends TestCase
         $this->assertContainerBoundAsSingleton(
             WorkersRegistryInterface::class,
             WorkersRegistry::class
+        );
+    }
+
+    public function testPipelineProvider(): void
+    {
+        $this->assertContainerBound(
+            PipelineProvider::class,
+            SimplePipelineProvider::class
         );
     }
 
