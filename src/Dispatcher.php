@@ -20,7 +20,6 @@ final class Dispatcher implements DispatcherInterface
     public function __construct(
         private readonly RoadRunnerMode $mode,
         private readonly ReaderInterface $reader,
-        private readonly TemporalConfig $config,
         private readonly Container $container,
     ) {
     }
@@ -32,6 +31,8 @@ final class Dispatcher implements DispatcherInterface
 
     public function serve(): void
     {
+        $config = $this->container->get(TemporalConfig::class);
+
         // finds all available workflows, activity types and commands in a given directory
         /**
          * @var array<class-string<WorkflowInterface>|class-string<ActivityInterface>, ReflectionClass> $declarations
@@ -45,7 +46,7 @@ final class Dispatcher implements DispatcherInterface
         $hasDeclarations = false;
         foreach ($declarations as $type => $declaration) {
             // Worker that listens on a task queue and hosts both workflow and activity implementations.
-            $queueName = $this->resolveQueueName($declaration) ?? $this->config->getDefaultWorker();
+            $queueName = $this->resolveQueueName($declaration) ?? $config->getDefaultWorker();
 
             $worker = $registry->get($queueName);
 

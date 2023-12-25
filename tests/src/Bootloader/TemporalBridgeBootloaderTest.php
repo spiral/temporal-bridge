@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Tests\Bootloader;
 
+use Mockery as m;
+use Spiral\Core\Container\Autowire;
+use Spiral\Core\FactoryInterface;
 use Spiral\TemporalBridge\Bootloader\TemporalBridgeBootloader;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\Config\ConfigManager;
@@ -25,6 +28,7 @@ use Temporal\DataConverter\DataConverter;
 use Temporal\DataConverter\DataConverterInterface;
 use Temporal\Interceptor\SimplePipelineProvider;
 use Temporal\Interceptor\PipelineProvider;
+use Temporal\Internal\Interceptor\Interceptor;
 use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
 use Temporal\WorkerFactory as TemporalWorkerFactory;
@@ -108,7 +112,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         $configs = new ConfigManager($this->createMock(LoaderInterface::class));
         $configs->setDefaults(TemporalConfig::CONFIG, ['workers' => []]);
 
-        $bootloader = new TemporalBridgeBootloader($configs);
+        $bootloader = new TemporalBridgeBootloader($configs, $this->getContainer());
         $bootloader->addWorkerOptions('first', $first = WorkerOptions::new());
         $bootloader->addWorkerOptions('second', $second = WorkerOptions::new());
 
@@ -116,5 +120,69 @@ class TemporalBridgeBootloaderTest extends TestCase
             ['first' => $first, 'second' => $second],
             $configs->getConfig(TemporalConfig::CONFIG)['workers'],
         );
+    }
+
+    public function testAddInterceptor(): void
+    {
+        $configs = new ConfigManager($this->createMock(LoaderInterface::class));
+        $configs->setDefaults(TemporalConfig::CONFIG, ['interceptors' => []]);
+
+        $bootloader = new TemporalBridgeBootloader($configs, $this->getContainer());
+
+        $bootloader->addInterceptor($iterceptor = m::mock(Interceptor::class));
+
+        $this->assertSame(
+            [$iterceptor],
+            $configs->getConfig(TemporalConfig::CONFIG)['interceptors'],
+        );
+    }
+
+    public function testStringableInterceptor(): void
+    {
+        $configs = new ConfigManager($this->createMock(LoaderInterface::class));
+        $configs->setDefaults(TemporalConfig::CONFIG, ['interceptors' => []]);
+
+        $bootloader = new TemporalBridgeBootloader($configs, $factory = m::mock(FactoryInterface::class));
+
+        $factory->shouldReceive('make')->with('foo')->andReturn($iterceptor = m::mock(Interceptor::class));
+
+        $bootloader->addInterceptor('foo');
+
+        $this->assertSame(
+            [$iterceptor],
+            $configs->getConfig(TemporalConfig::CONFIG)['interceptors'],
+        );
+    }
+
+    public function testAutowireInterceptor(): void
+    {
+        $configs = new ConfigManager($this->createMock(LoaderInterface::class));
+        $configs->setDefaults(TemporalConfig::CONFIG, ['interceptors' => []]);
+
+        $bootloader = new TemporalBridgeBootloader($configs, $factory = m::mock(FactoryInterface::class));
+
+        $factory->shouldReceive('make')->with('foo', ['bar' => 'baz'])->andReturn($iterceptor = m::mock(Interceptor::class));
+
+        $bootloader->addInterceptor(new Autowire('foo', ['bar' => 'baz']));
+
+        $this->assertSame(
+            [$iterceptor],
+            $configs->getConfig(TemporalConfig::CONFIG)['interceptors'],
+        );
+    }
+
+    public function testInvalidInterceptor(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Interceptor must be an instance of `Temporal\Internal\Interceptor\Interceptor`, `stdClass` given.');
+
+        $configs = new ConfigManager($this->createMock(LoaderInterface::class));
+        $configs->setDefaults(TemporalConfig::CONFIG, ['interceptors' => []]);
+
+        $bootloader = new TemporalBridgeBootloader($configs, $factory = m::mock(FactoryInterface::class));
+
+        $factory->shouldReceive('make')->with('foo')->andReturn(new \StdClass());
+
+        $bootloader->addInterceptor('foo');
     }
 }
