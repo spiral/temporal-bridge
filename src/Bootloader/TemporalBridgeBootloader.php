@@ -8,10 +8,10 @@ use Spiral\Attributes\AttributeReader;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Boot\EnvironmentInterface;
-use Spiral\Boot\FinalizerInterface;
 use Spiral\Config\ConfiguratorInterface;
 use Spiral\Config\Patch\Append;
 use Spiral\Console\Bootloader\ConsoleBootloader;
+use Spiral\Core\Container\Autowire;
 use Spiral\Core\FactoryInterface;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
@@ -19,6 +19,8 @@ use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Dispatcher;
+use Spiral\TemporalBridge\WorkerFactory;
+use Spiral\TemporalBridge\WorkerFactoryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
 use Spiral\Tokenizer\ClassesInterface;
@@ -28,10 +30,13 @@ use Temporal\Client\WorkflowClient;
 use Temporal\Client\WorkflowClientInterface;
 use Temporal\DataConverter\DataConverter;
 use Temporal\DataConverter\DataConverterInterface;
+use Temporal\Interceptor\PipelineProvider;
+use Temporal\Interceptor\SimplePipelineProvider;
+use Temporal\Internal\Interceptor\Interceptor;
 use Temporal\Worker\Transport\Goridge;
-use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
-use Temporal\WorkerFactory;
+use Temporal\WorkerFactory as TemporalWorkerFactory;
 
 class TemporalBridgeBootloader extends Bootloader
 {
@@ -47,11 +52,13 @@ class TemporalBridgeBootloader extends Bootloader
     public function defineSingletons(): array
     {
         return [
-            WorkerFactoryInterface::class => [self::class, 'initWorkerFactory'],
+            TemporalWorkerFactoryInterface::class => [self::class, 'initWorkerFactory'],
+            WorkerFactoryInterface::class => WorkerFactory::class,
             DeclarationLocatorInterface::class => [self::class, 'initDeclarationLocator'],
             WorkflowClientInterface::class => [self::class, 'initWorkflowClient'],
-            WorkersRegistryInterface::class => [self::class, 'initWorkersRegistry'],
+            WorkersRegistryInterface::class => WorkersRegistry::class,
             DataConverterInterface::class => [self::class, 'initDataConverter'],
+            PipelineProvider::class => [self::class, 'initPipelineProvider'],
         ];
     }
 
@@ -82,7 +89,7 @@ class TemporalBridgeBootloader extends Bootloader
             [
                 'address' => $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
                 'namespace' => 'App\\Endpoint\\Temporal\\Workflow',
-                'defaultWorker' => (string)$env->get('TEMPORAL_TASK_QUEUE', WorkerFactoryInterface::DEFAULT_TASK_QUEUE),
+                'defaultWorker' => (string)$env->get('TEMPORAL_TASK_QUEUE', TemporalWorkerFactoryInterface::DEFAULT_TASK_QUEUE),
                 'workers' => [],
             ],
         );
@@ -91,11 +98,13 @@ class TemporalBridgeBootloader extends Bootloader
     protected function initWorkflowClient(
         TemporalConfig $config,
         DataConverterInterface $dataConverter,
+        PipelineProvider $pipelineProvider,
     ): WorkflowClientInterface {
-        return WorkflowClient::create(
+        return new WorkflowClient(
             serviceClient: ServiceClient::create($config->getAddress()),
             options: (new ClientOptions())->withNamespace($config->getTemporalNamespace()),
             converter: $dataConverter,
+            interceptorProvider: $pipelineProvider,
         );
     }
 
@@ -104,29 +113,34 @@ class TemporalBridgeBootloader extends Bootloader
         return DataConverter::createDefault();
     }
 
-    protected function initWorkerFactory(
-        DataConverterInterface $dataConverter,
-    ): WorkerFactoryInterface {
-        return new WorkerFactory(
+    protected function initWorkerFactory(DataConverterInterface $dataConverter,): TemporalWorkerFactoryInterface
+    {
+        return new TemporalWorkerFactory(
             dataConverter: $dataConverter,
             rpc: Goridge::create(),
         );
     }
 
-    protected function initDeclarationLocator(
-        ClassesInterface $classes,
-    ): DeclarationLocatorInterface {
+    protected function initDeclarationLocator(ClassesInterface $classes,): DeclarationLocatorInterface
+    {
         return new DeclarationLocator(
             classes: $classes,
             reader: new AttributeReader(),
         );
     }
 
-    protected function initWorkersRegistry(
-        WorkerFactoryInterface $workerFactory,
-        FinalizerInterface $finalizer,
-        TemporalConfig $config,
-    ): WorkersRegistryInterface {
-        return new WorkersRegistry($workerFactory, $finalizer, $config);
+    protected function initPipelineProvider(TemporalConfig $config, FactoryInterface $factory): PipelineProvider
+    {
+        /** @var Interceptor[] $interceptors */
+        $interceptors = \array_map(
+            static fn(mixed $interceptor) => match (true) {
+                \is_string($interceptor) => $factory->make($interceptor),
+                $interceptor instanceof Autowire => $interceptor->resolve($factory),
+                default => $interceptor
+            },
+            $config->getInterceptors(),
+        );
+
+        return new SimplePipelineProvider($interceptors);
     }
 }

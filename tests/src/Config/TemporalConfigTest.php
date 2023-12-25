@@ -79,7 +79,25 @@ final class TemporalConfigTest extends TestCase
     {
         $workers = [
             'first' => WorkerOptions::new(),
-            'second' => WorkerOptions::new()
+            'second' => WorkerOptions::new(),
+            'withOptions' => [
+                'options' => WorkerOptions::new(),
+            ],
+            'withInterceptors' => [
+                'interceptors' => [
+                    'foo'
+                ],
+            ],
+            'withExceptionInterceptor' => [
+                'exception_interceptor' => 'bar'
+            ],
+            'all' => [
+                'options' => WorkerOptions::new(),
+                'interceptors' => [
+                    'foo'
+                ],
+                'exception_interceptor' => 'bar'
+            ],
         ];
 
         $config = new TemporalConfig([
