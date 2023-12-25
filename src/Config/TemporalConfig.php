@@ -6,6 +6,7 @@ namespace Spiral\TemporalBridge\Config;
 
 use Spiral\Core\Container\Autowire;
 use Spiral\Core\InjectableConfig;
+use Temporal\Client\ClientOptions;
 use Temporal\Exception\ExceptionInterceptorInterface;
 use Temporal\Internal\Interceptor\Interceptor;
 use Temporal\Worker\WorkerFactoryInterface;
@@ -25,7 +26,8 @@ use Temporal\Worker\WorkerOptions;
  *     temporalNamespace: non-empty-string,
  *     defaultWorker: non-empty-string,
  *     workers: array<non-empty-string, WorkerOptions|TWorker>,
- *     interceptors?: TInterceptor[]
+ *     interceptors?: TInterceptor[],
+ *     clientOptions?: ClientOptions
  * } $config
  */
 final class TemporalConfig extends InjectableConfig
@@ -39,6 +41,7 @@ final class TemporalConfig extends InjectableConfig
         'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
         'workers' => [],
         'interceptors' => [],
+        'clientOptions' => null,
     ];
 
     /**
@@ -87,5 +90,10 @@ final class TemporalConfig extends InjectableConfig
     public function getInterceptors(): array
     {
         return $this->config['interceptors'] ?? [];
+    }
+
+    public function getClientOptions(): ClientOptions
+    {
+        return $this->config['clientOptions'] ?? (new ClientOptions())->withNamespace($this->getTemporalNamespace());
     }
 }

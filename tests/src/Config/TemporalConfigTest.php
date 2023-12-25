@@ -6,6 +6,7 @@ namespace Spiral\TemporalBridge\Tests\Config;
 
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\Tests\TestCase;
+use Temporal\Client\ClientOptions;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
 
@@ -112,5 +113,25 @@ final class TemporalConfigTest extends TestCase
         $config = new TemporalConfig([]);
 
         $this->assertSame([], $config->getWorkers());
+    }
+
+    public function testGetsUndefinedClientOptions(): void
+    {
+        $config = new TemporalConfig([
+            'temporalNamespace' => 'foo',
+        ]);
+
+        $options = $config->getClientOptions();
+
+        $this->assertSame('foo', $options->namespace);
+    }
+
+    public function testGetsClientOptions(): void
+    {
+        $config = new TemporalConfig([
+            'clientOptions' => $options = new ClientOptions(),
+        ]);
+
+        $this->assertSame($options, $config->getClientOptions());
     }
 }
