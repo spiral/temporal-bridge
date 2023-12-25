@@ -6,7 +6,6 @@ namespace Spiral\TemporalBridge\Workflow;
 
 use Temporal\Client\WorkflowClientInterface;
 use Temporal\Client\WorkflowOptions;
-use Temporal\Client\WorkflowStubInterface;
 use Temporal\Common\RetryOptions;
 use Temporal\Internal\Client\WorkflowProxy;
 use Temporal\Internal\Support\DateInterval;
@@ -44,6 +43,9 @@ class Workflow
         return $this;
     }
 
+    /**
+     * @param positive-int $attempts
+     */
     public function maxRetryAttempts(int $attempts): self
     {
         $this->retryOptions = $this->getRetryOptions()

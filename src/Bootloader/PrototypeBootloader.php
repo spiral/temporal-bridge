@@ -9,7 +9,7 @@ use Spiral\Prototype\Bootloader\PrototypeBootloader as BasePrototypeBootloader;
 use Spiral\TemporalBridge\WorkflowManagerInterface;
 use Temporal\Client\WorkflowClientInterface;
 
-class PrototypeBootloader extends Bootloader
+final class PrototypeBootloader extends Bootloader
 {
     protected const DEPENDENCIES = [
         BasePrototypeBootloader::class,

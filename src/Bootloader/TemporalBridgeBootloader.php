@@ -8,18 +8,21 @@ use Spiral\Attributes\AttributeReader;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Boot\EnvironmentInterface;
-use Spiral\Boot\FinalizerInterface;
 use Spiral\Config\ConfiguratorInterface;
 use Spiral\Config\Patch\Append;
 use Spiral\Console\Bootloader\ConsoleBootloader;
+use Spiral\Core\Container\Autowire;
 use Spiral\Core\FactoryInterface;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
 use Spiral\TemporalBridge\Config\TemporalConfig;
+use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Dispatcher;
 use Spiral\TemporalBridge\Preset\PresetRegistry;
 use Spiral\TemporalBridge\Preset\PresetRegistryInterface;
+use Spiral\TemporalBridge\WorkerFactory;
+use Spiral\TemporalBridge\WorkerFactoryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
 use Spiral\TemporalBridge\Workflow\WorkflowManager;
@@ -33,22 +36,27 @@ use Temporal\Client\WorkflowClient;
 use Temporal\Client\WorkflowClientInterface;
 use Temporal\DataConverter\DataConverter;
 use Temporal\DataConverter\DataConverterInterface;
+use Temporal\Interceptor\PipelineProvider;
+use Temporal\Interceptor\SimplePipelineProvider;
+use Temporal\Internal\Interceptor\Interceptor;
 use Temporal\Worker\Transport\Goridge;
-use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
-use Temporal\WorkerFactory;
+use Temporal\WorkerFactory as TemporalWorkerFactory;
 
 class TemporalBridgeBootloader extends Bootloader
 {
     protected const SINGLETONS = [
         WorkflowPresetLocatorInterface::class => [self::class, 'initWorkflowPresetLocator'],
         WorkflowManagerInterface::class => WorkflowManager::class,
-        WorkerFactoryInterface::class => [self::class, 'initWorkerFactory'],
+        TemporalWorkerFactoryInterface::class => [self::class, 'initWorkerFactory'],
         DeclarationLocatorInterface::class => [self::class, 'initDeclarationLocator'],
         WorkflowClientInterface::class => [self::class, 'initWorkflowClient'],
-        WorkersRegistryInterface::class => [self::class, 'initWorkersRegistry'],
+        WorkersRegistryInterface::class => WorkersRegistry::class,
         PresetRegistryInterface::class => PresetRegistry::class,
         DataConverterInterface::class => [self::class, 'initDataConverter'],
+        WorkerFactoryInterface::class => WorkerFactory::class,
+        PipelineProvider::class => [self::class, 'initPipelineProvider'],
     ];
 
     protected const DEPENDENCIES = [
@@ -57,7 +65,7 @@ class TemporalBridgeBootloader extends Bootloader
     ];
 
     public function __construct(
-        private readonly ConfiguratorInterface $config
+        private readonly ConfiguratorInterface $config,
     ) {
     }
 
@@ -65,7 +73,7 @@ class TemporalBridgeBootloader extends Bootloader
         AbstractKernel $kernel,
         EnvironmentInterface $env,
         ConsoleBootloader $console,
-        FactoryInterface $factory
+        FactoryInterface $factory,
     ): void {
         $this->initConfig($env);
 
@@ -83,7 +91,7 @@ class TemporalBridgeBootloader extends Bootloader
 
     protected function initWorkflowPresetLocator(
         FactoryInterface $factory,
-        ClassesInterface $classes
+        ClassesInterface $classes,
     ): WorkflowPresetLocatorInterface {
         return new WorkflowPresetLocator(
             factory: $factory,
@@ -99,20 +107,22 @@ class TemporalBridgeBootloader extends Bootloader
             [
                 'address' => $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
                 'namespace' => 'App\\Workflow',
-                'defaultWorker' => (string)$env->get('TEMPORAL_TASK_QUEUE', WorkerFactoryInterface::DEFAULT_TASK_QUEUE),
+                'defaultWorker' => (string)$env->get('TEMPORAL_TASK_QUEUE', TemporalWorkerFactory::DEFAULT_TASK_QUEUE),
                 'workers' => [],
-            ]
+            ],
         );
     }
 
     protected function initWorkflowClient(
         TemporalConfig $config,
-        DataConverterInterface $dataConverter
+        DataConverterInterface $dataConverter,
+        PipelineProvider $pipelineProvider,
     ): WorkflowClientInterface {
-        return WorkflowClient::create(
+        return new WorkflowClient(
             serviceClient: ServiceClient::create($config->getAddress()),
             options: (new ClientOptions())->withNamespace($config->getTemporalNamespace()),
-            converter: $dataConverter
+            converter: $dataConverter,
+            interceptorProvider: $pipelineProvider,
         );
     }
 
@@ -122,28 +132,35 @@ class TemporalBridgeBootloader extends Bootloader
     }
 
     protected function initWorkerFactory(
-        DataConverterInterface $dataConverter
-    ): WorkerFactoryInterface {
-        return new WorkerFactory(
+        DataConverterInterface $dataConverter,
+    ): TemporalWorkerFactoryInterface {
+        return new TemporalWorkerFactory(
             dataConverter: $dataConverter,
             rpc: Goridge::create()
         );
     }
 
     protected function initDeclarationLocator(
-        ClassesInterface $classes
+        ClassesInterface $classes,
     ): DeclarationLocatorInterface {
-        return new \Spiral\TemporalBridge\DeclarationLocator(
+        return new DeclarationLocator(
             classes: $classes,
             reader: new AttributeReader()
         );
     }
 
-    protected function initWorkersRegistry(
-        WorkerFactoryInterface $workerFactory,
-        FinalizerInterface $finalizer,
-        TemporalConfig $config
-    ): WorkersRegistryInterface {
-        return new WorkersRegistry($workerFactory, $finalizer, $config);
+    protected function initPipelineProvider(TemporalConfig $config, FactoryInterface $factory): PipelineProvider
+    {
+        /** @var Interceptor[] $interceptors */
+        $interceptors = \array_map(
+            static fn (mixed $interceptor) => match (true) {
+                \is_string($interceptor) => $factory->make($interceptor),
+                $interceptor instanceof Autowire => $interceptor->resolve($factory),
+                default => $interceptor
+            },
+            $config->getInterceptors(),
+        );
+
+        return new SimplePipelineProvider($interceptors);
     }
 }
