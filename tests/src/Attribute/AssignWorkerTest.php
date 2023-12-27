@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Tests\Attribute;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Spiral\Attributes\Factory;
 use Spiral\TemporalBridge\Attribute\AssignWorker;
 use Spiral\TemporalBridge\Tests\App\SomeActivity;
@@ -13,7 +14,7 @@ use Spiral\TemporalBridge\Tests\TestCase;
 
 final class AssignWorkerTest extends TestCase
 {
-    /** @dataProvider assignWorkerDataProvider */
+    #[DataProvider(methodName: "assignWorkerDataProvider")]
     public function testAssignWorkerAttribute(\ReflectionClass $class, ?AssignWorker $expected = null): void
     {
         $reader = (new Factory())->create();
@@ -21,7 +22,7 @@ final class AssignWorkerTest extends TestCase
         $this->assertEquals($expected, $reader->firstClassMetadata($class, AssignWorker::class));
     }
 
-    public function assignWorkerDataProvider(): \Traversable
+    public static function assignWorkerDataProvider(): \Traversable
     {
         yield [new \ReflectionClass(SomeActivity::class), new AssignWorker('worker1')];
         yield [new \ReflectionClass(SomeWorkflow::class), new AssignWorker('worker2')];

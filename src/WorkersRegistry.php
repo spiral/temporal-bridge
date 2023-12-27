@@ -7,7 +7,7 @@ namespace Spiral\TemporalBridge;
 use Spiral\Boot\FinalizerInterface;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\Exception\WorkersRegistryException;
-use Temporal\Worker\WorkerFactoryInterface;
+use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactory;
 use Temporal\Worker\WorkerInterface;
 use Temporal\Worker\WorkerOptions;
 
@@ -18,7 +18,7 @@ final class WorkersRegistry implements WorkersRegistryInterface
 
     /** @psalm-param array<non-empty-string, WorkerOptions> $options */
     public function __construct(
-        private readonly WorkerFactoryInterface $workerFactory,
+        private readonly WorkerFactoryInterface|TemporalWorkerFactory $workerFactory,
         private readonly FinalizerInterface $finalizer,
         private readonly TemporalConfig $config,
     ) {
@@ -30,22 +30,26 @@ final class WorkersRegistry implements WorkersRegistryInterface
 
         if ($this->has($name)) {
             throw new WorkersRegistryException(
-                \sprintf('Temporal worker with given name `%s` has already been registered.', $name),
+                \sprintf('Temporal worker with given name `%s` has already been registered.', $name)
             );
         }
 
-        $this->workers[$name] = $this->workerFactory->newWorker($name, $options);
-        $this->workers[$name]->registerActivityFinalizer(fn() => $this->finalizer->finalize());
+        if ($this->workerFactory instanceof WorkerFactoryInterface) {
+            $this->workers[$name] = $this->workerFactory->create($name);
+        } else {
+            $this->workers[$name] = $this->workerFactory->newWorker($name, $options);
+            $this->workers[$name]->registerActivityFinalizer(fn() => $this->finalizer->finalize());
+        }
     }
 
     public function get(string $name): WorkerInterface
     {
         \assert($name !== '');
 
-        $options = $this->config->getWorkers();
+        $options = $this->config->getWorkers()[$name] ?? null;
 
-        if (!$this->has($name)) {
-            $this->register($name, $options[$name] ?? null);
+        if (! $this->has($name)) {
+            $this->register($name, $options instanceof WorkerOptions ? $options : null);
         }
 
         return $this->workers[$name];

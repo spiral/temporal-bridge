@@ -8,7 +8,7 @@ use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Prototype\Bootloader\PrototypeBootloader as BasePrototypeBootloader;
 use Temporal\Client\WorkflowClientInterface;
 
-class PrototypeBootloader extends Bootloader
+final class PrototypeBootloader extends Bootloader
 {
     public function defineDependencies(): array
     {
