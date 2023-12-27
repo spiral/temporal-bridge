@@ -70,7 +70,7 @@ use Temporal\Activity\ActivityInterface;
 use Temporal\Activity\ActivityMethod;
 
 #[ActivityInterface]
-#[AssignWorker(name: 'scanner_service')]
+#[AssignWorker(taskQueue: 'scanner_service')]
 class PaymentActivity
 {
 }

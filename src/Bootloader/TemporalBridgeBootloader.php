@@ -48,7 +48,6 @@ class TemporalBridgeBootloader extends Bootloader
     public function defineDependencies(): array
     {
         return [
-            ConsoleBootloader::class,
             RoadRunnerBootloader::class,
             ScaffolderBootloader::class,
         ];
@@ -78,11 +77,12 @@ class TemporalBridgeBootloader extends Bootloader
     public function init(
         AbstractKernel $kernel,
         EnvironmentInterface $env,
-        Dispatcher $dispatcher,
+        ConsoleBootloader $console,
     ): void {
         $this->initConfig($env);
 
-        $kernel->addDispatcher($dispatcher);
+        $console->addCommand(Commands\InfoCommand::class);
+        $kernel->addDispatcher($this->factory->make(Dispatcher::class));
     }
 
     public function addWorkerOptions(string $worker, WorkerOptions $options): void

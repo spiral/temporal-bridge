@@ -6,7 +6,7 @@ namespace Spiral\TemporalBridge\Tests\App;
 
 use Spiral\TemporalBridge\Attribute\AssignWorker;
 
-#[AssignWorker(name: 'worker1')]
+#[AssignWorker(taskQueue: 'worker1')]
 class SomeActivity
 {
 }

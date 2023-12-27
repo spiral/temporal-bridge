@@ -20,7 +20,7 @@ final class WorkersRegistry implements WorkersRegistryInterface
     public function __construct(
         private readonly WorkerFactoryInterface|TemporalWorkerFactory $workerFactory,
         private readonly FinalizerInterface $finalizer,
-        private readonly TemporalConfig $config
+        private readonly TemporalConfig $config,
     ) {
     }
 
