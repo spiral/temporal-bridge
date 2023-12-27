@@ -24,7 +24,6 @@ use Spiral\TemporalBridge\WorkerFactoryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
 use Spiral\Tokenizer\ClassesInterface;
-use Temporal\Client\ClientOptions;
 use Temporal\Client\GRPC\ServiceClient;
 use Temporal\Client\WorkflowClient;
 use Temporal\Client\WorkflowClientInterface;
@@ -41,6 +40,9 @@ use Temporal\Client\ScheduleClient;
 use Temporal\Client\ScheduleClientInterface;
 use Temporal\Client\GRPC\ServiceClientInterface;
 
+/**
+ * @psalm-import-type TInterceptor from TemporalConfig
+ */
 class TemporalBridgeBootloader extends Bootloader
 {
     public function defineDependencies(): array
@@ -69,22 +71,49 @@ class TemporalBridgeBootloader extends Bootloader
 
     public function __construct(
         private readonly ConfiguratorInterface $config,
+        private readonly FactoryInterface $factory,
     ) {
     }
 
     public function init(
         AbstractKernel $kernel,
         EnvironmentInterface $env,
-        FactoryInterface $factory,
+        Dispatcher $dispatcher,
     ): void {
         $this->initConfig($env);
 
-        $kernel->addDispatcher($factory->make(Dispatcher::class));
+        $kernel->addDispatcher($dispatcher);
     }
 
     public function addWorkerOptions(string $worker, WorkerOptions $options): void
     {
         $this->config->modify(TemporalConfig::CONFIG, new Append('workers', $worker, $options));
+    }
+
+    /**
+     * Register a new Temporal interceptor.
+     *
+     * @param TInterceptor $interceptor
+     */
+    public function addInterceptor(string|Interceptor|Autowire $interceptor): void
+    {
+        if (\is_string($interceptor)) {
+            $interceptor = $this->factory->make($interceptor);
+        } elseif ($interceptor instanceof Autowire) {
+            $interceptor = $interceptor->resolve($this->factory);
+        }
+
+        if (!$interceptor instanceof Interceptor) {
+            throw new \InvalidArgumentException(
+                \sprintf(
+                    'Interceptor must be an instance of `%s`, `%s` given.',
+                    Interceptor::class,
+                    \get_class($interceptor),
+                ),
+            );
+        }
+
+        $this->config->modify(TemporalConfig::CONFIG, new Append('interceptors', null, $interceptor));
     }
 
     protected function initConfig(EnvironmentInterface $env): void

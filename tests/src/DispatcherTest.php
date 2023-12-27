@@ -28,7 +28,6 @@ final class DispatcherTest extends TestCase
         $this->dispatcher = new Dispatcher(
             RoadRunnerMode::Temporal,
             new AttributeReader(),
-            new TemporalConfig(['defaultWorker' => 'foo']),
             $this->getContainer(),
         );
 
@@ -72,7 +71,6 @@ final class DispatcherTest extends TestCase
         $dispatcher = new Dispatcher(
             RoadRunnerMode::Temporal,
             new AttributeReader(),
-            new TemporalConfig(),
             $this->getContainer(),
         );
 
@@ -97,7 +95,6 @@ final class DispatcherTest extends TestCase
         $dispatcher = new Dispatcher(
             RoadRunnerMode::Temporal,
             new AttributeReader(),
-            new TemporalConfig(),
             $this->getContainer(),
         );
 
