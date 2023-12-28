@@ -9,6 +9,9 @@ use Nette\PhpGenerator\PhpNamespace;
 use Nette\PhpGenerator\PsrPrinter;
 use Spiral\Files\FilesInterface;
 
+/**
+ * @internal
+ */
 class PhpCodePrinter
 {
     public function __construct(

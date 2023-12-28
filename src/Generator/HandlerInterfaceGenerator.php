@@ -7,6 +7,9 @@ namespace Spiral\TemporalBridge\Generator;
 use Nette\PhpGenerator\PhpNamespace;
 use Spiral\TemporalBridge\Workflow\RunningWorkflow;
 
+/**
+ * @internal
+ */
 class HandlerInterfaceGenerator implements FileGeneratorInterface
 {
     public function generate(Context $context, PhpNamespace $namespace): PhpCodePrinter

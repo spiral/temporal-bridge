@@ -8,6 +8,9 @@ use Nette\PhpGenerator\PhpNamespace;
 use Spiral\Files\FilesInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @internal
+ */
 final class Generator
 {
     public function __construct(

@@ -12,9 +12,10 @@ use Temporal\Internal\Support\DateInterval;
 
 /**
  * @psalm-template T of object
+ * @internal
  * @psalm-import-type DateIntervalValue from DateInterval
  */
-class Workflow
+final class Workflow
 {
     private ?WorkflowSignal $signal = null;
     private ?RetryOptions $retryOptions = null;
@@ -126,11 +127,14 @@ class Workflow
         }
 
         return new RunningWorkflow(
-            $this->client->newUntypedRunningWorkflowStub(
-                $run->getExecution()->getID(),
-                $run->getExecution()->getRunID(),
-                $this->type
-            )
+            client: $this->client,
+            workflow: $this->client->newUntypedRunningWorkflowStub(
+                workflowID: $run->getExecution()->getID(),
+                runID: $run->getExecution()->getRunID(),
+                workflowType: $this->type
+            ),
+            id: $run->getExecution()->getID(),
+            class: $this->class
         );
     }
 
