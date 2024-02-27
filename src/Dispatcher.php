@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge;
 
 use ReflectionClass;
+use Spiral\Attribute\DispatcherScope;
 use Spiral\Boot\DispatcherInterface;
 use Spiral\Core\Container;
+use Spiral\Framework\Spiral;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Workflow\WorkflowInterface;
 
+#[DispatcherScope(Spiral::Temporal)]
 final class Dispatcher implements DispatcherInterface
 {
     public function __construct(
