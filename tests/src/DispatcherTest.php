@@ -112,7 +112,6 @@ final class DispatcherTest extends TestCase
         $binder->bind(\ArrayAccess::class, $this->createMock(\ArrayAccess::class));
 
         $ref = new \ReflectionMethod($this->dispatcher, 'makeActivity');
-        $ref->invoke($this->dispatcher, new \ReflectionClass(SomeActivityWithScope::class));
 
         $this->assertInstanceOf(
             SomeActivityWithScope::class,
