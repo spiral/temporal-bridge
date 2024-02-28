@@ -6,6 +6,7 @@ namespace Spiral\TemporalBridge\Tests;
 
 use Mockery as m;
 use Spiral\Attributes\AttributeReader;
+use Spiral\Framework\Spiral;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
@@ -13,6 +14,7 @@ use Spiral\TemporalBridge\DeclarationWorkerResolver;
 use Spiral\TemporalBridge\Dispatcher;
 use Spiral\TemporalBridge\Tests\App\SomeActivity;
 use Spiral\TemporalBridge\Tests\App\SomeActivityWithDefaultWorker;
+use Spiral\TemporalBridge\Tests\App\SomeActivityWithScope;
 use Spiral\TemporalBridge\Tests\App\SomeWorkflow;
 use Spiral\TemporalBridge\Tests\App\SomeWorkflowWithMultipleWorkers;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
@@ -36,6 +38,7 @@ final class DispatcherTest extends TestCase
                 new AttributeReader(),
                 new TemporalConfig(['defaultWorker' => 'foo']),
             ),
+            $this->getContainer(),
         );
     }
 
@@ -100,5 +103,20 @@ final class DispatcherTest extends TestCase
         $factory->shouldReceive('run')->once();
 
         $this->dispatcher->serve();
+    }
+
+    public function testScope(): void
+    {
+        $binder = $this->getContainer()->getBinder(Spiral::TemporalActivity);
+        $binder->bind(SomeActivityWithScope::class, SomeActivityWithScope::class);
+        $binder->bind(\ArrayAccess::class, $this->createMock(\ArrayAccess::class));
+
+        $ref = new \ReflectionMethod($this->dispatcher, 'makeActivity');
+        $ref->invoke($this->dispatcher, new \ReflectionClass(SomeActivityWithScope::class));
+
+        $this->assertInstanceOf(
+            SomeActivityWithScope::class,
+            $ref->invoke($this->dispatcher, new \ReflectionClass(SomeActivityWithScope::class))
+        );
     }
 }

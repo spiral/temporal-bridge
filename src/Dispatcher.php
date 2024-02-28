@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge;
 
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use Spiral\Attribute\DispatcherScope;
 use Spiral\Boot\DispatcherInterface;
-use Spiral\Core\Container;
+use Spiral\Core\FactoryInterface;
+use Spiral\Core\Scope;
+use Spiral\Core\ScopeInterface;
 use Spiral\Framework\Spiral;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
 use Temporal\Activity\ActivityInterface;
@@ -19,8 +22,9 @@ final class Dispatcher implements DispatcherInterface
 {
     public function __construct(
         private readonly RoadRunnerMode $mode,
-        private readonly Container $container,
+        private readonly ContainerInterface $container,
         private readonly DeclarationWorkerResolver $workerResolver,
+        private readonly ScopeInterface $scope,
     ) {
     }
 
@@ -58,10 +62,7 @@ final class Dispatcher implements DispatcherInterface
 
                 if ($type === ActivityInterface::class) {
                     // Workflows are stateful. So you need a type to create instances.
-                    $worker->registerActivity(
-                        $declaration->getName(),
-                        fn(ReflectionClass $class): object => $this->container->make($class->getName()),
-                    );
+                    $worker->registerActivity($declaration->getName(), $this->makeActivity(...));
                 }
 
                 $hasDeclarations = true;
@@ -74,5 +75,14 @@ final class Dispatcher implements DispatcherInterface
 
         // start primary loop
         $factory->run();
+    }
+
+    private function makeActivity(ReflectionClass $class): object
+    {
+        /** @psalm-suppress InvalidArgument */
+        return $this->scope->runScope(
+            new Scope(Spiral::TemporalActivity),
+            static fn(FactoryInterface $factory): object => $factory->make($class->getName()),
+        );
     }
 }
