@@ -6,8 +6,6 @@ namespace Spiral\TemporalBridge\Tests;
 
 use Mockery as m;
 use Spiral\Attributes\AttributeReader;
-use Spiral\Framework\Spiral;
-use Spiral\RoadRunnerBridge\RoadRunnerMode;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\DeclarationWorkerResolver;
@@ -32,7 +30,6 @@ final class DispatcherTest extends TestCase
         parent::setUp();
 
         $this->dispatcher = new Dispatcher(
-            RoadRunnerMode::Temporal,
             $this->getContainer(),
             new DeclarationWorkerResolver(
                 new AttributeReader(),
@@ -107,7 +104,7 @@ final class DispatcherTest extends TestCase
 
     public function testScope(): void
     {
-        $binder = $this->getContainer()->getBinder(Spiral::TemporalActivity);
+        $binder = $this->getContainer()->getBinder('temporal.activity');
         $binder->bind(SomeActivityWithScope::class, SomeActivityWithScope::class);
         $binder->bind(\ArrayAccess::class, $this->createMock(\ArrayAccess::class));
 

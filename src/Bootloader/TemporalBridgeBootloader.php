@@ -82,7 +82,7 @@ class TemporalBridgeBootloader extends Bootloader
         $this->initConfig($env);
 
         $console->addCommand(Commands\InfoCommand::class);
-        $kernel->addDispatcher($this->factory->make(Dispatcher::class));
+        $kernel->addDispatcher(Dispatcher::class);
     }
 
     public function addWorkerOptions(string $worker, WorkerOptions $options): void

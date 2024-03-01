@@ -11,26 +11,24 @@ use Spiral\Boot\DispatcherInterface;
 use Spiral\Core\FactoryInterface;
 use Spiral\Core\Scope;
 use Spiral\Core\ScopeInterface;
-use Spiral\Framework\Spiral;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Workflow\WorkflowInterface;
 
-#[DispatcherScope(Spiral::Temporal)]
+#[DispatcherScope('temporal')]
 final class Dispatcher implements DispatcherInterface
 {
     public function __construct(
-        private readonly RoadRunnerMode $mode,
         private readonly ContainerInterface $container,
         private readonly DeclarationWorkerResolver $workerResolver,
         private readonly ScopeInterface $scope,
     ) {
     }
 
-    public function canServe(): bool
+    public static function canServe(RoadRunnerMode $mode): bool
     {
-        return \PHP_SAPI === 'cli' && $this->mode === RoadRunnerMode::Temporal;
+        return \PHP_SAPI === 'cli' && $mode === RoadRunnerMode::Temporal;
     }
 
     public function serve(): void
@@ -81,7 +79,7 @@ final class Dispatcher implements DispatcherInterface
     {
         /** @psalm-suppress InvalidArgument */
         return $this->scope->runScope(
-            new Scope(Spiral::TemporalActivity),
+            new Scope('temporal.activity'),
             static fn(FactoryInterface $factory): object => $factory->make($class->getName()),
         );
     }
