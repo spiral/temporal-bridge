@@ -6,6 +6,7 @@ namespace Spiral\TemporalBridge\Tests;
 
 use Mockery as m;
 use Spiral\Attributes\AttributeReader;
+use Spiral\RoadRunnerBridge\RoadRunnerMode;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\DeclarationWorkerResolver;
@@ -37,6 +38,18 @@ final class DispatcherTest extends TestCase
             ),
             $this->getContainer(),
         );
+    }
+
+    public function testCanServe(): void
+    {
+        $this->assertTrue(Dispatcher::canServe(RoadRunnerMode::Temporal));
+
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Http));
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Jobs));
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Grpc));
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Tcp));
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Centrifuge));
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Unknown));
     }
 
     public function testServeWithoutDeclarations(): void
