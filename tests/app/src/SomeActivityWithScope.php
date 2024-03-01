@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Tests\App;
 
 use Spiral\Core\Attribute\Scope;
-use Spiral\Framework\Spiral;
 use Spiral\TemporalBridge\Attribute\AssignWorker;
 
-#[Scope(Spiral::TemporalActivity)]
+#[Scope('temporal.activity')]
 #[AssignWorker(taskQueue: 'worker1')]
 class SomeActivityWithScope
 {
