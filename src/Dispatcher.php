@@ -4,26 +4,31 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge;
 
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
+use Spiral\Attribute\DispatcherScope;
 use Spiral\Boot\DispatcherInterface;
-use Spiral\Core\Container;
+use Spiral\Core\FactoryInterface;
+use Spiral\Core\Scope;
+use Spiral\Core\ScopeInterface;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Workflow\WorkflowInterface;
 
+#[DispatcherScope('temporal')]
 final class Dispatcher implements DispatcherInterface
 {
     public function __construct(
-        private readonly RoadRunnerMode $mode,
-        private readonly Container $container,
+        private readonly ContainerInterface $container,
         private readonly DeclarationWorkerResolver $workerResolver,
+        private readonly ScopeInterface $scope,
     ) {
     }
 
-    public function canServe(): bool
+    public static function canServe(RoadRunnerMode $mode): bool
     {
-        return \PHP_SAPI === 'cli' && $this->mode === RoadRunnerMode::Temporal;
+        return \PHP_SAPI === 'cli' && $mode === RoadRunnerMode::Temporal;
     }
 
     public function serve(): void
@@ -55,10 +60,7 @@ final class Dispatcher implements DispatcherInterface
 
                 if ($type === ActivityInterface::class) {
                     // Workflows are stateful. So you need a type to create instances.
-                    $worker->registerActivity(
-                        $declaration->getName(),
-                        fn(ReflectionClass $class): object => $this->container->make($class->getName()),
-                    );
+                    $worker->registerActivity($declaration->getName(), $this->makeActivity(...));
                 }
 
                 $hasDeclarations = true;
@@ -71,5 +73,14 @@ final class Dispatcher implements DispatcherInterface
 
         // start primary loop
         $factory->run();
+    }
+
+    private function makeActivity(ReflectionClass $class): object
+    {
+        /** @psalm-suppress InvalidArgument */
+        return $this->scope->runScope(
+            new Scope('temporal.activity'),
+            static fn (FactoryInterface $factory): object => $factory->make($class->getName()),
+        );
     }
 }

@@ -13,6 +13,7 @@ use Spiral\TemporalBridge\DeclarationWorkerResolver;
 use Spiral\TemporalBridge\Dispatcher;
 use Spiral\TemporalBridge\Tests\App\SomeActivity;
 use Spiral\TemporalBridge\Tests\App\SomeActivityWithDefaultWorker;
+use Spiral\TemporalBridge\Tests\App\SomeActivityWithScope;
 use Spiral\TemporalBridge\Tests\App\SomeWorkflow;
 use Spiral\TemporalBridge\Tests\App\SomeWorkflowWithMultipleWorkers;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
@@ -30,13 +31,25 @@ final class DispatcherTest extends TestCase
         parent::setUp();
 
         $this->dispatcher = new Dispatcher(
-            RoadRunnerMode::Temporal,
             $this->getContainer(),
             new DeclarationWorkerResolver(
                 new AttributeReader(),
                 new TemporalConfig(['defaultWorker' => 'foo']),
             ),
+            $this->getContainer(),
         );
+    }
+
+    public function testCanServe(): void
+    {
+        $this->assertTrue(Dispatcher::canServe(RoadRunnerMode::Temporal));
+
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Http));
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Jobs));
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Grpc));
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Tcp));
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Centrifuge));
+        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Unknown));
     }
 
     public function testServeWithoutDeclarations(): void
@@ -100,5 +113,19 @@ final class DispatcherTest extends TestCase
         $factory->shouldReceive('run')->once();
 
         $this->dispatcher->serve();
+    }
+
+    public function testScope(): void
+    {
+        $binder = $this->getContainer()->getBinder('temporal.activity');
+        $binder->bind(SomeActivityWithScope::class, SomeActivityWithScope::class);
+        $binder->bind(\ArrayAccess::class, $this->createMock(\ArrayAccess::class));
+
+        $ref = new \ReflectionMethod($this->dispatcher, 'makeActivity');
+
+        $this->assertInstanceOf(
+            SomeActivityWithScope::class,
+            $ref->invoke($this->dispatcher, new \ReflectionClass(SomeActivityWithScope::class))
+        );
     }
 }
