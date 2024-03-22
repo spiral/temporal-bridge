@@ -24,6 +24,7 @@ use Temporal\Worker\WorkerOptions;
  * }
  *
  * @property array{
+ *     address?: non-empty-string|null,
  *     connection: non-empty-string,
  *     connections: array<non-empty-string, Connection>,
  *     temporalNamespace: non-empty-string,
@@ -63,17 +64,12 @@ final class TemporalConfig extends InjectableConfig
     public function getConnection(string $name): Connection
     {
         if (isset($this->config['connections'][$name])) {
-            \assert(
-                $this->config['connections'][$name] instanceof Connection,
-                'Connection must be an instance of Connection.',
-            );
-
             return $this->config['connections'][$name];
         }
 
-
-        if ($this->config['connections'] === [] && $this->config['address'] !== null) {
-            return new DsnConnection($this->config['address']);
+        $address = $this->config['address'] ?? null;
+        if ($this->config['connections'] === [] && $address !== null) {
+            return new DsnConnection(address: $address);
         }
 
         throw new \InvalidArgumentException(\sprintf('Connection `%s` is not defined.', $name));
