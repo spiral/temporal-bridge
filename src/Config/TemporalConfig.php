@@ -63,13 +63,20 @@ final class TemporalConfig extends InjectableConfig
 
     public function getConnection(string $name): Connection
     {
-        if (isset($this->config['connections'][$name])) {
-            return $this->config['connections'][$name];
+        // Legacy support. Will be removed in further versions.
+        // If you read this, please remove address from your configuration and use connections instead.
+        $address = $this->config['address'] ?? null;
+        if ($address !== null) {
+            \trigger_deprecation(
+                'spiral/temporal-bridge',
+                '3.1.0',
+                'Using `address` is deprecated, use `connections` instead.',
+            );
+            return new Connection(address: $address);
         }
 
-        $address = $this->config['address'] ?? null;
-        if ($this->config['connections'] === [] && $address !== null) {
-            return new DsnConnection(address: $address);
+        if (isset($this->config['connections'][$name])) {
+            return $this->config['connections'][$name];
         }
 
         throw new \InvalidArgumentException(\sprintf('Connection `%s` is not defined.', $name));

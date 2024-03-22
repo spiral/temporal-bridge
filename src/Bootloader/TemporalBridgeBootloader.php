@@ -16,8 +16,8 @@ use Spiral\Core\FactoryInterface;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
 use Spiral\TemporalBridge\Config\TemporalConfig;
+use Spiral\TemporalBridge\Connection\Connection;
 use Spiral\TemporalBridge\Connection\SslConnection;
-use Spiral\TemporalBridge\Connection\DsnConnection;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Dispatcher;
@@ -125,7 +125,7 @@ class TemporalBridgeBootloader extends Bootloader
             [
                 'connection' => $env->get('TEMPORAL_CONNECTION', 'default'),
                 'connections' => [
-                    'default' => new DsnConnection(address: $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233')),
+                    'default' => new Connection(address: $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233')),
                 ],
                 'defaultWorker' => (string)$env->get(
                     'TEMPORAL_TASK_QUEUE',
@@ -193,15 +193,15 @@ class TemporalBridgeBootloader extends Bootloader
 
         if ($connection instanceof SslConnection) {
             return ServiceClient::createSSL(
-                address: $connection->getAddress(),
-                crt: $connection->crt,
+                address: $connection->address,
+                crt: (string) $connection->crt,
                 clientKey: $connection->clientKey,
                 clientPem: $connection->clientPem,
                 overrideServerName: $connection->overrideServerName,
             );
         }
 
-        return ServiceClient::create(address: $connection->getAddress());
+        return ServiceClient::create(address: $connection->address);
     }
 
     protected function initScheduleClient(

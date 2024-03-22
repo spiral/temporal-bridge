@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Tests\Config;
 
 use Spiral\TemporalBridge\Config\TemporalConfig;
+use Spiral\TemporalBridge\Connection\Connection;
 use Spiral\TemporalBridge\Connection\DsnConnection;
 use Spiral\TemporalBridge\Connection\SslConnection;
 use Spiral\TemporalBridge\Tests\TestCase;
@@ -37,10 +38,9 @@ final class TemporalConfigTest extends TestCase
         ]);
 
         $connection = $config->getConnection('default');
-        $this->assertSame(DsnConnection::class, $connection::class);
+        $this->assertSame(Connection::class, $connection::class);
 
-        $this->assertSame(1111, $connection->port);
-        $this->assertSame('localhost', $connection->host);
+        $this->assertSame('localhost:1111', $connection->address);
     }
 
     public function testGetSslConnection(): void
@@ -61,8 +61,7 @@ final class TemporalConfigTest extends TestCase
 
         $this->assertSame(SslConnection::class, $connection::class);
 
-        $this->assertSame(2222, $connection->port);
-        $this->assertSame('localhost', $connection->host);
+        $this->assertSame('localhost:2222', $connection->address);
         $this->assertSame('crt', $connection->crt);
         $this->assertSame('clientKey', $connection->clientKey);
         $this->assertSame('clientPem', $connection->clientPem);
