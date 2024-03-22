@@ -86,7 +86,7 @@ final class TemporalConfig extends InjectableConfig
      */
     public function getAddress(): string
     {
-        return $this->getConnection($this->getDefaultConnection())->getAddress();
+        return $this->getConnection($this->getDefaultConnection())->address;
     }
 
     /**
