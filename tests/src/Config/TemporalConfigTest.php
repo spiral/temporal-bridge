@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Tests\Config;
 
 use Spiral\TemporalBridge\Config\TemporalConfig;
+use Spiral\TemporalBridge\Connection\DsnConnection;
+use Spiral\TemporalBridge\Connection\SslConnection;
 use Spiral\TemporalBridge\Tests\TestCase;
 use Temporal\Client\ClientOptions;
 use Temporal\Worker\WorkerFactoryInterface;
@@ -12,22 +14,6 @@ use Temporal\Worker\WorkerOptions;
 
 final class TemporalConfigTest extends TestCase
 {
-    public function testGetsDefaultNamespace(): void
-    {
-        $config = new TemporalConfig([
-            'namespace' => 'foo'
-        ]);
-
-        $this->assertSame('foo', $config->getDefaultNamespace());
-    }
-
-    public function testGetsDefaultNamespaceIfItNotSet(): void
-    {
-        $config = new TemporalConfig([]);
-
-        $this->assertSame('App\\Endpoint\\Temporal\\Workflow', $config->getDefaultNamespace());
-    }
-
     public function testGetsDefaultTemporalNamespaceIfItNotSet(): void
     {
         $config = new TemporalConfig([]);
@@ -44,26 +30,49 @@ final class TemporalConfigTest extends TestCase
         $this->assertSame('foo', $config->getTemporalNamespace());
     }
 
-    public function testGetsAddress(): void
+    public function testGetConnectionFromAddress(): void
     {
         $config = new TemporalConfig([
-            'address' => 'localhost:1111'
+            'address' => 'localhost:1111',
         ]);
 
-        $this->assertSame('localhost:1111', $config->getAddress());
+        $connection = $config->getConnection('default');
+        $this->assertSame(DsnConnection::class, $connection::class);
+
+        $this->assertSame(1111, $connection->port);
+        $this->assertSame('localhost', $connection->host);
     }
 
-    public function testGetsAddressIfItNotSet(): void
+    public function testGetSslConnection(): void
     {
-        $config = new TemporalConfig([]);
+        $config = new TemporalConfig([
+            'connections' => [
+                'default' => new SslConnection(
+                    address: 'localhost:2222',
+                    crt: 'crt',
+                    clientKey: 'clientKey',
+                    clientPem: 'clientPem',
+                    overrideServerName: 'overrideServerName',
+                ),
+            ],
+        ]);
 
-        $this->assertSame('localhost:7233', $config->getAddress());
+        $connection = $config->getConnection('default');
+
+        $this->assertSame(SslConnection::class, $connection::class);
+
+        $this->assertSame(2222, $connection->port);
+        $this->assertSame('localhost', $connection->host);
+        $this->assertSame('crt', $connection->crt);
+        $this->assertSame('clientKey', $connection->clientKey);
+        $this->assertSame('clientPem', $connection->clientPem);
+        $this->assertSame('overrideServerName', $connection->overrideServerName);
     }
 
     public function testGetsDefaultWorker(): void
     {
         $config = new TemporalConfig([
-            'defaultWorker' => 'some-worker'
+            'defaultWorker' => 'some-worker',
         ]);
 
         $this->assertSame('some-worker', $config->getDefaultWorker());
@@ -86,23 +95,23 @@ final class TemporalConfigTest extends TestCase
             ],
             'withInterceptors' => [
                 'interceptors' => [
-                    'foo'
+                    'foo',
                 ],
             ],
             'withExceptionInterceptor' => [
-                'exception_interceptor' => 'bar'
+                'exception_interceptor' => 'bar',
             ],
             'all' => [
                 'options' => WorkerOptions::new(),
                 'interceptors' => [
-                    'foo'
+                    'foo',
                 ],
-                'exception_interceptor' => 'bar'
+                'exception_interceptor' => 'bar',
             ],
         ];
 
         $config = new TemporalConfig([
-            'workers' => $workers
+            'workers' => $workers,
         ]);
 
         $this->assertSame($workers, $config->getWorkers());

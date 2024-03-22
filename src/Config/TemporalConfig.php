@@ -6,6 +6,9 @@ namespace Spiral\TemporalBridge\Config;
 
 use Spiral\Core\Container\Autowire;
 use Spiral\Core\InjectableConfig;
+use Spiral\TemporalBridge\Connection\Connection;
+use Spiral\TemporalBridge\Connection\DsnConnection;
+use Spiral\TemporalBridge\Connection\SslConnection;
 use Temporal\Client\ClientOptions;
 use Temporal\Exception\ExceptionInterceptorInterface;
 use Temporal\Internal\Interceptor\Interceptor;
@@ -21,8 +24,8 @@ use Temporal\Worker\WorkerOptions;
  * }
  *
  * @property array{
- *     address: non-empty-string,
- *     namespace: non-empty-string,
+ *     connection: non-empty-string,
+ *     connections: array<non-empty-string, Connection>,
  *     temporalNamespace: non-empty-string,
  *     defaultWorker: non-empty-string,
  *     workers: array<non-empty-string, WorkerOptions|TWorker>,
@@ -35,8 +38,8 @@ final class TemporalConfig extends InjectableConfig
     public const CONFIG = 'temporal';
 
     protected array $config = [
-        'address' => 'localhost:7233',
-        'namespace' => 'App\\Endpoint\\Temporal\\Workflow',
+        'connection' => 'default',
+        'connections' => [],
         'temporalNamespace' => 'default',
         'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
         'workers' => [],
@@ -47,25 +50,41 @@ final class TemporalConfig extends InjectableConfig
     /**
      * @return non-empty-string
      */
-    public function getDefaultNamespace(): string
-    {
-        return $this->config['namespace'];
-    }
-
-    /**
-     * @return non-empty-string
-     */
     public function getTemporalNamespace(): string
     {
         return $this->config['temporalNamespace'];
     }
 
+    public function getDefaultConnection(): string
+    {
+        return $this->config['connection'] ?? 'default';
+    }
+
+    public function getConnection(string $name): Connection
+    {
+        if (isset($this->config['connections'][$name])) {
+            \assert(
+                $this->config['connections'][$name] instanceof Connection,
+                'Connection must be an instance of Connection.',
+            );
+
+            return $this->config['connections'][$name];
+        }
+
+
+        if ($this->config['connections'] === [] && $this->config['address'] !== null) {
+            return new DsnConnection($this->config['address']);
+        }
+
+        throw new \InvalidArgumentException(\sprintf('Connection `%s` is not defined.', $name));
+    }
+
     /**
-     * @return non-empty-string
+     * @deprecated
      */
     public function getAddress(): string
     {
-        return $this->config['address'];
+        return $this->getConnection($this->getDefaultConnection())->getAddress();
     }
 
     /**
