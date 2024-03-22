@@ -67,10 +67,9 @@ final class TemporalConfig extends InjectableConfig
         // If you read this, please remove address from your configuration and use connections instead.
         $address = $this->config['address'] ?? null;
         if ($address !== null) {
-            \trigger_deprecation(
-                'spiral/temporal-bridge',
-                '3.1.0',
+            \trigger_error(
                 'Using `address` is deprecated, use `connections` instead.',
+                \E_USER_DEPRECATED,
             );
             return new Connection(address: $address);
         }
