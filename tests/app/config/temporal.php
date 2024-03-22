@@ -6,7 +6,7 @@ use Spiral\TemporalBridge\Connection\DsnConnection;
 use Spiral\TemporalBridge\Connection\SslConnection;
 
 return [
-    'connection' => 'default',
+    'connection' => env('TEMPORAL_CONNECTION', 'default'),
     'connections' => [
         'default' => new DsnConnection(
             address: 'localhost:7233',
