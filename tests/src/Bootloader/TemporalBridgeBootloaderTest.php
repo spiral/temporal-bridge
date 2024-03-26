@@ -18,6 +18,8 @@ use Spiral\TemporalBridge\WorkerFactory;
 use Spiral\TemporalBridge\WorkerFactoryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
+use Spiral\Testing\Attribute\Env;
+use Temporal\Api\Workflowservice\V1\WorkflowServiceClient;
 use Temporal\Client\GRPC\ServiceClient;
 use Temporal\Client\GRPC\ServiceClientInterface;
 use Temporal\Client\ScheduleClient;
@@ -63,7 +65,7 @@ class TemporalBridgeBootloaderTest extends TestCase
     {
         $this->assertContainerBoundAsSingleton(
             WorkerFactoryInterface::class,
-            WorkerFactory::class
+            WorkerFactory::class,
         );
     }
 
@@ -105,6 +107,47 @@ class TemporalBridgeBootloaderTest extends TestCase
             PipelineProvider::class,
             SimplePipelineProvider::class,
         );
+    }
+
+    #[Env('TEMPORAL_CONNECTION', 'default')]
+    public function testConnection(): void
+    {
+        $client = $this->getContainer()->get(ServiceClientInterface::class);
+
+        $refl = new \ReflectionClass($client);
+        $baseClient = $refl->getParentClass();
+        $property = $baseClient->getProperty('workflowService');
+
+        $property->setAccessible(true);
+        /** @var WorkflowServiceClient $stub */
+        $stub = $property->getValue($client);
+
+        $this->assertSame('localhost:7233', $stub->getTarget());
+    }
+
+    #[Env('TEMPORAL_CONNECTION', 'ssl')]
+    public function testSslConnection(): void
+    {
+        $client = $this->getContainer()->get(ServiceClientInterface::class);
+
+        $refl = new \ReflectionClass($client);
+        $baseClient = $refl->getParentClass();
+        $property = $baseClient->getProperty('workflowService');
+
+        $property->setAccessible(true);
+        /** @var WorkflowServiceClient $stub */
+        $stub = $property->getValue($client);
+
+        $this->assertSame('ssl:7233', $stub->getTarget());
+    }
+
+    #[Env('TEMPORAL_CONNECTION', 'test')]
+    public function testNonExistsConnection(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Connection `test` is not defined.');
+
+        $this->getContainer()->get(ServiceClientInterface::class);
     }
 
     public function testAddWorkerOptions(): void
