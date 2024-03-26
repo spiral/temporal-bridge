@@ -13,8 +13,8 @@ final class TemporalCloudConnection extends SslConnection
 {
     /**
      * @param non-empty-string $address
-     * @param non-empty-string $clientKey Full path to the client key file. Required.
-     * @param non-empty-string $clientPem Full path to the client pem file. Required.
+     * @param non-empty-string $clientKey Full path to the client key file.
+     * @param non-empty-string $clientPem Full path to the client pem file.
      */
     public function __construct(
         string $address,
