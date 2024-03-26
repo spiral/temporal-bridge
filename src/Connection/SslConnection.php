@@ -8,9 +8,9 @@ class SslConnection extends Connection
 {
     /**
      * @param non-empty-string $address
-     * @param string $crt Full path to the certificate file (Default: null)
-     * @param string|null $clientKey Full path to the client key file (Default: null)
-     * @param string|null $clientPem Full path to the client pem file (Default: null)
+     * @param non-empty-string $crt Full path to the certificate file
+     * @param non-empty-string|null $clientKey Full path to the client key file
+     * @param non-empty-string|null $clientPem Full path to the client pem file
      * @param string|null $overrideServerName
      */
     public function __construct(
