@@ -23,7 +23,7 @@ use Spiral\TemporalBridge\WorkerFactory;
 use Spiral\TemporalBridge\WorkerFactoryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
-use Spiral\Tokenizer\ClassesInterface;
+use Spiral\Tokenizer\TokenizerListenerRegistryInterface;
 use Temporal\Client\GRPC\ServiceClient;
 use Temporal\Client\WorkflowClient;
 use Temporal\Client\WorkflowClientInterface;
@@ -56,15 +56,46 @@ class TemporalBridgeBootloader extends Bootloader
     public function defineSingletons(): array
     {
         return [
-            TemporalWorkerFactoryInterface::class => [self::class, 'initWorkerFactory'],
+            TemporalWorkerFactoryInterface::class => static fn(
+                DataConverterInterface $dataConverter,
+            ): TemporalWorkerFactoryInterface => new TemporalWorkerFactory(
+                dataConverter: $dataConverter,
+                rpc: Goridge::create(),
+            ),
             WorkerFactoryInterface::class => WorkerFactory::class,
-            DeclarationLocatorInterface::class => [self::class, 'initDeclarationLocator'],
-            WorkflowClientInterface::class => [self::class, 'initWorkflowClient'],
+
+            DeclarationLocatorInterface::class => static fn() => new DeclarationLocator(
+                reader: new AttributeReader(),
+            ),
+
+            WorkflowClientInterface::class => static fn(
+                TemporalConfig $config,
+                DataConverterInterface $dataConverter,
+                PipelineProvider $pipelineProvider,
+                ServiceClientInterface $serviceClient,
+            ): WorkflowClientInterface => new WorkflowClient(
+                serviceClient: $serviceClient,
+                options: $config->getClientOptions(),
+                converter: $dataConverter,
+                interceptorProvider: $pipelineProvider,
+            ),
             WorkersRegistryInterface::class => WorkersRegistry::class,
-            ScheduleClientInterface::class => [self::class, 'initScheduleClient'],
-            DataConverterInterface::class => [self::class, 'initDataConverter'],
+
+            ScheduleClientInterface::class => static fn(
+                TemporalConfig $config,
+                DataConverterInterface $dataConverter,
+                ServiceClientInterface $serviceClient,
+            ): ScheduleClientInterface => new ScheduleClient(
+                serviceClient: $serviceClient,
+                options: $config->getClientOptions(),
+                converter: $dataConverter,
+            ),
+
+            DataConverterInterface::class => static fn() => DataConverter::createDefault(),
             PipelineProvider::class => [self::class, 'initPipelineProvider'],
-            ServiceClientInterface::class => [self::class, 'initServiceClient'],
+            ServiceClientInterface::class => static fn(
+                TemporalConfig $config,
+            ): ServiceClientInterface => ServiceClient::create($config->getAddress()),
         ];
     }
 
@@ -78,9 +109,11 @@ class TemporalBridgeBootloader extends Bootloader
         AbstractKernel $kernel,
         EnvironmentInterface $env,
         ConsoleBootloader $console,
+        TokenizerListenerRegistryInterface $tokenizer,
+        DeclarationLocator $locator,
     ): void {
         $this->initConfig($env);
-
+        $tokenizer->addListener($locator);
         $console->addCommand(Commands\InfoCommand::class);
         $kernel->addDispatcher($this->factory->make(Dispatcher::class));
     }
@@ -133,41 +166,6 @@ class TemporalBridgeBootloader extends Bootloader
         );
     }
 
-    protected function initWorkflowClient(
-        TemporalConfig $config,
-        DataConverterInterface $dataConverter,
-        PipelineProvider $pipelineProvider,
-        ServiceClientInterface $serviceClient,
-    ): WorkflowClientInterface {
-        return new WorkflowClient(
-            serviceClient: $serviceClient,
-            options: $config->getClientOptions(),
-            converter: $dataConverter,
-            interceptorProvider: $pipelineProvider,
-        );
-    }
-
-    protected function initDataConverter(): DataConverterInterface
-    {
-        return DataConverter::createDefault();
-    }
-
-    protected function initWorkerFactory(DataConverterInterface $dataConverter,): TemporalWorkerFactoryInterface
-    {
-        return new TemporalWorkerFactory(
-            dataConverter: $dataConverter,
-            rpc: Goridge::create(),
-        );
-    }
-
-    protected function initDeclarationLocator(ClassesInterface $classes,): DeclarationLocatorInterface
-    {
-        return new DeclarationLocator(
-            classes: $classes,
-            reader: new AttributeReader(),
-        );
-    }
-
     protected function initPipelineProvider(TemporalConfig $config, FactoryInterface $factory): PipelineProvider
     {
         /** @var Interceptor[] $interceptors */
@@ -181,22 +179,5 @@ class TemporalBridgeBootloader extends Bootloader
         );
 
         return new SimplePipelineProvider($interceptors);
-    }
-
-    protected function initServiceClient(TemporalConfig $config): ServiceClientInterface
-    {
-        return ServiceClient::create($config->getAddress());
-    }
-
-    protected function initScheduleClient(
-        TemporalConfig $config,
-        DataConverterInterface $dataConverter,
-        ServiceClientInterface $serviceClient,
-    ): ScheduleClientInterface {
-        return new ScheduleClient(
-            serviceClient: $serviceClient,
-            options: $config->getClientOptions(),
-            converter: $dataConverter,
-        );
     }
 }
