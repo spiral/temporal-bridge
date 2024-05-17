@@ -31,7 +31,7 @@ final class InfoCommandTest extends TestCase
     {
         $result = $this->runCommand('temporal:info');
 
-        $this->assertSame(
+        $this->assertStringEqualsStringIgnoringLineEndings(
             <<<'OUTPUT'
 
 Workflows
@@ -57,7 +57,7 @@ OUTPUT,
             '--show-activities' => true,
         ]);
 
-        $this->assertSame(
+        $this->assertStringEqualsStringIgnoringLineEndings(
             <<<'OUTPUT'
 
 Workflows
