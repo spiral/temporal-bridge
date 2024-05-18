@@ -8,7 +8,7 @@ use Mockery as m;
 use Spiral\Attributes\AttributeReader;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
 use Spiral\TemporalBridge\Config\TemporalConfig;
-use Spiral\TemporalBridge\DeclarationLocatorInterface;
+use Spiral\TemporalBridge\DeclarationRegistryInterface;
 use Spiral\TemporalBridge\DeclarationWorkerResolver;
 use Spiral\TemporalBridge\Dispatcher;
 use Spiral\TemporalBridge\Tests\App\SomeActivity;
@@ -41,7 +41,7 @@ final class DispatcherTest extends TestCase
 
     public function testServeWithoutDeclarations(): void
     {
-        $locator = $this->mockContainer(DeclarationLocatorInterface::class);
+        $locator = $this->mockContainer(DeclarationRegistryInterface::class);
         $locator->shouldReceive('getDeclarations')->once()->andReturn([]);
 
         $registry = $this->mockContainer(WorkersRegistryInterface::class);
@@ -59,7 +59,7 @@ final class DispatcherTest extends TestCase
 
     public function testServeWithDeclarations(): void
     {
-        $locator = $this->mockContainer(DeclarationLocatorInterface::class);
+        $locator = $this->mockContainer(DeclarationRegistryInterface::class);
         $locator->shouldReceive('getDeclarations')->once()->andReturnUsing(function () {
             yield WorkflowInterface::class => new \ReflectionClass(SomeWorkflow::class);
             yield WorkflowInterface::class => new \ReflectionClass(SomeWorkflowWithMultipleWorkers::class);
