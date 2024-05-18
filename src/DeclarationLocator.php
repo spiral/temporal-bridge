@@ -14,13 +14,18 @@ use Temporal\Workflow\WorkflowInterface;
 #[Singleton]
 #[TargetAttribute(WorkflowInterface::class)]
 #[TargetAttribute(ActivityInterface::class)]
-final class DeclarationLocator implements DeclarationLocatorInterface, TokenizationListenerInterface
+final class DeclarationLocator implements DeclarationRegistryInterface, TokenizationListenerInterface
 {
     private array $declarations = [];
 
     public function __construct(
         private readonly ReaderInterface $reader,
     ) {
+    }
+
+    public function addDeclaration(\ReflectionClass|string $class): void
+    {
+        $this->listen($class instanceof \ReflectionClass ? $class : new \ReflectionClass($class));
     }
 
     public function getDeclarations(): iterable

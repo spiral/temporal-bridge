@@ -18,6 +18,7 @@ use Spiral\TemporalBridge\Commands;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
+use Spiral\TemporalBridge\DeclarationRegistryInterface;
 use Spiral\TemporalBridge\Dispatcher;
 use Spiral\TemporalBridge\WorkerFactory;
 use Spiral\TemporalBridge\WorkerFactoryInterface;
@@ -63,8 +64,9 @@ class TemporalBridgeBootloader extends Bootloader
                 rpc: Goridge::create(),
             ),
             WorkerFactoryInterface::class => WorkerFactory::class,
+            DeclarationLocatorInterface::class => DeclarationRegistryInterface::class,
 
-            DeclarationLocatorInterface::class => static fn() => new DeclarationLocator(
+            DeclarationRegistryInterface::class => static fn() => new DeclarationLocator(
                 reader: new AttributeReader(),
             ),
 
