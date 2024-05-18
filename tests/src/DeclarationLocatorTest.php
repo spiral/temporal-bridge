@@ -20,19 +20,14 @@ final class DeclarationLocatorTest extends TestCase
     {
         parent::setUp();
 
-        $this->locator = new DeclarationLocator(
-            $this->classes = m::mock(ClassesInterface::class),
-            new AttributeReader()
-        );
+        $this->locator = new DeclarationLocator(new AttributeReader());
     }
 
     public function testEnumClassesShouldBeSkipped(): void
     {
-        $this->classes->shouldReceive('getClasses')->once()->andReturn([
-            new \ReflectionClass(TestEnum::class),
-            new \ReflectionClass(TestAbstractClass::class),
-            new \ReflectionClass(TestInterface::class),
-        ]);
+        $this->locator->listen(new \ReflectionClass(TestEnum::class));
+        $this->locator->listen(new \ReflectionClass(TestAbstractClass::class));
+        $this->locator->listen(new \ReflectionClass(TestInterface::class));
 
         $result = [];
 
@@ -45,15 +40,13 @@ final class DeclarationLocatorTest extends TestCase
 
     public function testWorkflowsShouldBeRegistered(): void
     {
-        $this->classes->shouldReceive('getClasses')->once()->andReturn([
-            new \ReflectionClass(TestEnum::class),
-            new \ReflectionClass(TestAbstractClass::class),
-            new \ReflectionClass(TestInterface::class),
-            $workflow1 = new \ReflectionClass(TestWorkflowClass::class),
-            $workflow2 = new \ReflectionClass(TestWorkflowClassWithInterface::class),
-            $activity1 = new \ReflectionClass(TestActivityClass::class),
-            $activity2 = new \ReflectionClass(TestActivityClassWithInterface::class),
-        ]);
+        $this->locator->listen(new \ReflectionClass(TestEnum::class));
+        $this->locator->listen(new \ReflectionClass(TestAbstractClass::class));
+        $this->locator->listen(new \ReflectionClass(TestInterface::class));
+        $this->locator->listen($workflow1 = new \ReflectionClass(TestWorkflowClass::class));
+        $this->locator->listen($workflow2 = new \ReflectionClass(TestWorkflowClassWithInterface::class));
+        $this->locator->listen($activity1 = new \ReflectionClass(TestActivityClass::class));
+        $this->locator->listen($activity2 = new \ReflectionClass(TestActivityClassWithInterface::class));
 
         $result = [];
 

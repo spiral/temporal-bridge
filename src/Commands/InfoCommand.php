@@ -72,7 +72,10 @@ final class InfoCommand extends Command
         foreach ($workflows as $workflow) {
             $table->addRow([
                 \sprintf('<fg=green>%s</>', $workflow['name']),
-                $workflow['class'] . "\n" . \sprintf('<fg=blue>%s</>', \str_replace($rootDir, '', $workflow['file'])),
+                $workflow['class'] . "\n" . \sprintf(
+                    '<fg=blue>%s</>',
+                    self::normalizePath($rootDir, $workflow['file']),
+                ),
                 $workflow['task_queue'],
             ]);
         }
@@ -99,5 +102,19 @@ final class InfoCommand extends Command
         $table->render();
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @param non-empty-string $rootDir
+     * @param non-empty-string $file
+     */
+    private static function normalizePath(string $rootDir, string $file): string
+    {
+        $file = \str_replace('\\', '/', $file);
+        $rootDir = \str_replace('\\', '/', $rootDir);
+
+        return \str_starts_with($file, $rootDir)
+            ? \substr($file, \strlen($rootDir))
+            : $file;
     }
 }
