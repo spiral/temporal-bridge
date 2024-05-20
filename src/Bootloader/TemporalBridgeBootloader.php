@@ -64,11 +64,11 @@ class TemporalBridgeBootloader extends Bootloader
                 rpc: Goridge::create(),
             ),
             WorkerFactoryInterface::class => WorkerFactory::class,
-            DeclarationLocatorInterface::class => DeclarationRegistryInterface::class,
-
-            DeclarationRegistryInterface::class => static fn() => new DeclarationLocator(
+            DeclarationLocator::class => new DeclarationLocator(
                 reader: new AttributeReader(),
             ),
+            DeclarationLocatorInterface::class => DeclarationLocator::class,
+            DeclarationRegistryInterface::class => DeclarationLocator::class,
 
             WorkflowClientInterface::class => static fn(
                 TemporalConfig $config,
