@@ -41,7 +41,9 @@ final class Dispatcher implements DispatcherInterface
         $hasDeclarations = false;
         foreach ($declarations as $declaration) {
             // Worker that listens on a task queue and hosts both workflow and activity implementations.
-            $taskQueues = $this->workerResolver->resolve($declaration->class);
+            $taskQueues = $declaration->taskQueue === null
+                ? $this->workerResolver->resolve($declaration->class)
+                : [$declaration->taskQueue];
 
             foreach ($taskQueues as $taskQueue) {
                 $worker = $registry->get($taskQueue);
