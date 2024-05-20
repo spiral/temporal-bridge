@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Tests;
 
 use Spiral\Attributes\AttributeReader;
+use Spiral\TemporalBridge\Declaration\DeclarationDto;
+use Spiral\TemporalBridge\Declaration\DeclarationType;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Workflow\WorkflowInterface;
@@ -118,6 +120,46 @@ final class DeclarationLocatorTest extends TestCase
         $this->locator->addDeclaration(TestWorkflowClassWithInterface::class);
         $this->locator->addDeclaration(TestActivityClass::class);
         $this->locator->addDeclaration(TestActivityClassWithInterface::class);
+
+        $result = [];
+
+        foreach ($this->locator->getDeclarations() as $type => $class) {
+            $result[] = [$type, $class];
+        }
+
+        $this->assertCount(4, $result);
+
+        $this->assertSame(WorkflowInterface::class, $result[0][0]);
+        $this->assertSame(TestWorkflowClass::class, $result[0][1]->getName());
+
+        $this->assertSame(WorkflowInterface::class, $result[1][0]);
+        $this->assertSame(TestWorkflowClassWithInterface::class, $result[1][1]->getName());
+
+        $this->assertSame(ActivityInterface::class, $result[2][0]);
+        $this->assertSame(TestActivityClass::class, $result[2][1]->getName());
+
+        $this->assertSame(ActivityInterface::class, $result[3][0]);
+        $this->assertSame(TestActivityClassWithInterface::class, $result[3][1]->getName());
+    }
+
+    public function testAddDeclarationDto(): void
+    {
+        $this->locator->addDeclaration(new DeclarationDto(
+            type: DeclarationType::Workflow,
+            class: new \ReflectionClass(TestWorkflowClass::class),
+        ));
+        $this->locator->addDeclaration(new DeclarationDto(
+            type: DeclarationType::Workflow,
+            class: new \ReflectionClass(TestWorkflowClassWithInterface::class),
+        ));
+        $this->locator->addDeclaration(new DeclarationDto(
+            type: DeclarationType::Activity,
+            class: new \ReflectionClass(TestActivityClass::class),
+        ));
+        $this->locator->addDeclaration(new DeclarationDto(
+            type: DeclarationType::Activity,
+            class: new \ReflectionClass(TestActivityClassWithInterface::class),
+        ));
 
         $result = [];
 

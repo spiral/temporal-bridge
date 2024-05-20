@@ -8,6 +8,8 @@ use Mockery as m;
 use Spiral\Attributes\AttributeReader;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
 use Spiral\TemporalBridge\Config\TemporalConfig;
+use Spiral\TemporalBridge\Declaration\DeclarationDto;
+use Spiral\TemporalBridge\Declaration\DeclarationType;
 use Spiral\TemporalBridge\DeclarationRegistryInterface;
 use Spiral\TemporalBridge\DeclarationWorkerResolver;
 use Spiral\TemporalBridge\Dispatcher;
@@ -16,10 +18,8 @@ use Spiral\TemporalBridge\Tests\App\SomeActivityWithDefaultWorker;
 use Spiral\TemporalBridge\Tests\App\SomeWorkflow;
 use Spiral\TemporalBridge\Tests\App\SomeWorkflowWithMultipleWorkers;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
-use Temporal\Activity\ActivityInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerInterface;
-use Temporal\Workflow\WorkflowInterface;
 
 final class DispatcherTest extends TestCase
 {
@@ -42,7 +42,7 @@ final class DispatcherTest extends TestCase
     public function testServeWithoutDeclarations(): void
     {
         $locator = $this->mockContainer(DeclarationRegistryInterface::class);
-        $locator->shouldReceive('getDeclarations')->once()->andReturn([]);
+        $locator->shouldReceive('getDeclarationList')->once()->andReturn([]);
 
         $registry = $this->mockContainer(WorkersRegistryInterface::class);
         $registry
@@ -60,11 +60,11 @@ final class DispatcherTest extends TestCase
     public function testServeWithDeclarations(): void
     {
         $locator = $this->mockContainer(DeclarationRegistryInterface::class);
-        $locator->shouldReceive('getDeclarations')->once()->andReturnUsing(function () {
-            yield WorkflowInterface::class => new \ReflectionClass(SomeWorkflow::class);
-            yield WorkflowInterface::class => new \ReflectionClass(SomeWorkflowWithMultipleWorkers::class);
-            yield ActivityInterface::class => new \ReflectionClass(SomeActivity::class);
-            yield ActivityInterface::class => new \ReflectionClass(SomeActivityWithDefaultWorker::class);
+        $locator->shouldReceive('getDeclarationList')->once()->andReturnUsing(function () {
+            yield new DeclarationDto(DeclarationType::Workflow, new \ReflectionClass(SomeWorkflow::class));
+            yield new DeclarationDto(DeclarationType::Workflow, new \ReflectionClass(SomeWorkflowWithMultipleWorkers::class));
+            yield new DeclarationDto(DeclarationType::Activity, new \ReflectionClass(SomeActivity::class));
+            yield new DeclarationDto(DeclarationType::Activity, new \ReflectionClass(SomeActivityWithDefaultWorker::class));
         });
 
         $registry = $this->mockContainer(WorkersRegistryInterface::class);

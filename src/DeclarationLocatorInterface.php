@@ -16,6 +16,7 @@ interface DeclarationLocatorInterface
      * List of all declarations for workflows and activities.
      *
      * @return iterable<class-string<WorkflowInterface>|class-string<ActivityInterface>, \ReflectionClass>
+     * @deprecated Use {@see DeclarationRegistryInterface::getDeclarationList} instead.
      */
     public function getDeclarations(): iterable;
 }
