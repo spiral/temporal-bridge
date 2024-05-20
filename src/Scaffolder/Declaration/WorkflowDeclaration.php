@@ -14,6 +14,7 @@ use Temporal\Workflow\WorkflowMethod;
 
 final class WorkflowDeclaration extends AbstractDeclaration
 {
+    /** @var non-empty-string */
     public const TYPE = 'workflow';
 
     public function __construct(

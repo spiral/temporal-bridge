@@ -32,6 +32,7 @@ use Temporal\Worker\WorkerOptions;
  */
 final class TemporalConfig extends InjectableConfig
 {
+    /** @var non-empty-string */
     public const CONFIG = 'temporal';
 
     protected array $config = [

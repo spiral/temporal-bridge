@@ -32,7 +32,7 @@ final class Dispatcher implements DispatcherInterface
         /**
          * @var array<class-string<WorkflowInterface>|class-string<ActivityInterface>, ReflectionClass> $declarations
          */
-        $declarations = $this->container->get(DeclarationLocatorInterface::class)->getDeclarations();
+        $declarations = $this->container->get(DeclarationRegistryInterface::class)->getDeclarations();
 
         // factory initiates and runs task queue specific activity and workflow workers
         /** @var WorkerFactoryInterface $factory */

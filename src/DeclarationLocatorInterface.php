@@ -7,6 +7,9 @@ namespace Spiral\TemporalBridge;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Workflow\WorkflowInterface;
 
+/**
+ * @deprecated Use {@see DeclarationRegistryInterface} instead.
+ */
 interface DeclarationLocatorInterface
 {
     /**
