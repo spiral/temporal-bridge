@@ -181,6 +181,19 @@ final class DeclarationLocatorTest extends TestCase
         $this->assertSame(ActivityInterface::class, $result[3][0]);
         $this->assertSame(TestActivityClassWithInterface::class, $result[3][1]->getName());
     }
+
+    public function testWrongClasses(): void
+    {
+        $this->locator->listen(new \ReflectionClass(\stdClass::class));
+
+        $result = [];
+
+        foreach ($this->locator->getDeclarations() as $type => $class) {
+            $result[] = [$type, $class];
+        }
+
+        $this->assertCount(0, $result);
+    }
 }
 
 enum TestEnum

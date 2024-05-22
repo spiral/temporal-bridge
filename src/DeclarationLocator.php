@@ -14,8 +14,8 @@ use Temporal\Activity\ActivityInterface;
 use Temporal\Workflow\WorkflowInterface;
 
 #[Singleton]
-#[TargetAttribute(WorkflowInterface::class)]
-#[TargetAttribute(ActivityInterface::class)]
+// #[TargetAttribute(WorkflowInterface::class)]
+// #[TargetAttribute(ActivityInterface::class)]
 final class DeclarationLocator implements
     DeclarationRegistryInterface,
     TokenizationListenerInterface,
@@ -63,13 +63,13 @@ final class DeclarationLocator implements
         /** @var DeclarationType|null $type */
         $type = null;
 
-        foreach (\array_merge($class->getInterfaces(), [$class]) as $type) {
-            if ($this->reader->firstClassMetadata($type, WorkflowInterface::class) !== null) {
+        foreach (\array_merge($class->getInterfaces(), [$class]) as $reflection) {
+            if ($this->reader->firstClassMetadata($reflection, WorkflowInterface::class) !== null) {
                 $type = DeclarationType::Workflow;
                 break;
             }
 
-            if ($this->reader->firstClassMetadata($type, ActivityInterface::class) !== null) {
+            if ($this->reader->firstClassMetadata($reflection, ActivityInterface::class) !== null) {
                 $type = DeclarationType::Activity;
                 break;
             }
