@@ -14,8 +14,8 @@ use Temporal\Activity\ActivityInterface;
 use Temporal\Workflow\WorkflowInterface;
 
 #[Singleton]
-// #[TargetAttribute(WorkflowInterface::class)]
-// #[TargetAttribute(ActivityInterface::class)]
+#[TargetAttribute(WorkflowInterface::class, scanParents: true)]
+#[TargetAttribute(ActivityInterface::class, scanParents: true)]
 final class DeclarationLocator implements
     DeclarationRegistryInterface,
     TokenizationListenerInterface,
