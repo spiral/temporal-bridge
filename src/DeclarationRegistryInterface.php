@@ -11,7 +11,8 @@ interface DeclarationRegistryInterface
     /**
      * Add a new declaration to the registry.
      *
-     * @param \ReflectionClass|class-string $class Workflow or activity class name or reflection.
+     * @param DeclarationDto|\ReflectionClass|class-string $class Workflow or activity class name or reflection
+     *        or full declaration dto.
      */
     public function addDeclaration(DeclarationDto|\ReflectionClass|string $class): void;
 
