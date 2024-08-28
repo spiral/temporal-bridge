@@ -119,7 +119,8 @@ class TemporalBridgeBootloaderTest extends TestCase
         $workflowService = (fn() => $connection->workflowService)->call($connection);
         \assert($workflowService instanceof WorkflowServiceClient);
 
-        $this->assertSame('localhost:7233', $workflowService->getTarget());
+        // It might be dns://localhost:7233
+        $this->assertStringContainsString('localhost:7233', $workflowService->getTarget());
     }
 
     #[Env('TEMPORAL_CONNECTION', 'ssl')]
@@ -132,7 +133,8 @@ class TemporalBridgeBootloaderTest extends TestCase
         $workflowService = (fn() => $connection->workflowService)->call($connection);
         \assert($workflowService instanceof WorkflowServiceClient);
 
-        $this->assertSame('ssl:7233', $workflowService->getTarget());
+        // It might be dns://ssl:7233
+        $this->assertStringContainsString('ssl:7233', $workflowService->getTarget());
     }
 
     #[Env('TEMPORAL_CONNECTION', 'test')]
