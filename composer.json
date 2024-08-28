@@ -17,13 +17,19 @@
     "chat": "https://discord.gg/V6EK4he"
   },
   "license": "MIT",
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/spiral"
+    }
+  ],
   "authors": [
     {
       "name": "Anton Titov (wolfy-j)",
       "email": "wolfy-j@spiralscout.com"
     },
     {
-      "name": "Pavel Butchnev (butschster)",
+      "name": "Pavel Buchnev (butschster)",
       "email": "pavel.buchnev@spiralscout.com"
     },
     {
@@ -36,7 +42,7 @@
     }
   ],
   "require": {
-    "php": "^8.1",
+    "php": ">=8.1",
     "spiral/boot": "^3.0",
     "spiral/attributes": "^2.8 || ^3.0",
     "spiral/tokenizer": "^3.0",
@@ -60,12 +66,6 @@
       "Spiral\\TemporalBridge\\Tests\\": "tests/src"
     }
   },
-  "funding": [
-    {
-      "type": "github",
-      "url": "https://github.com/sponsors/roadrunner-server"
-    }
-  ],
   "scripts": {
     "test": "vendor/bin/phpunit",
     "psalm": "vendor/bin/psalm --no-cache --config=psalm.xml ./src"
