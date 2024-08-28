@@ -25,12 +25,20 @@ namespace Spiral\TemporalBridge\Config;
  */
 final class ConnectionConfig
 {
+    /**
+     * @param non-empty-string $address
+     * @param non-empty-string|null $rootCerts
+     * @param non-empty-string|null $privateKey
+     * @param non-empty-string|null $certChain
+     * @param non-empty-string|\Stringable|null $authToken
+     */
     private function __construct(
         public readonly string $address,
         public readonly bool $secure = false,
         public readonly ?string $rootCerts = null,
         public readonly ?string $privateKey = null,
         public readonly ?string $certChain = null,
+        public readonly string|\Stringable|null $authToken = null,
     ) {}
 
     /**
@@ -73,5 +81,27 @@ final class ConnectionConfig
         string $certChain,
     ): self {
         return new self($address, true, null, $privateKey, $certChain);
+    }
+
+    /**
+     * Set the authentication token for the service client.
+     *
+     * This is the equivalent of providing an "Authorization" header with "Bearer " + the given key.
+     * This will overwrite any "Authorization" header that may be on the context before each request to the
+     * Temporal service.
+     * You may pass your own {@see \Stringable} implementation to be able to change the key dynamically.
+     *
+     * @param non-empty-string|\Stringable|null $authToken
+     */
+    public function withAuthKey(string|\Stringable|null $authToken): self
+    {
+        return new self(
+            $this->address,
+            $this->secure,
+            $this->rootCerts,
+            $this->privateKey,
+            $this->certChain,
+            $authToken,
+        );
     }
 }

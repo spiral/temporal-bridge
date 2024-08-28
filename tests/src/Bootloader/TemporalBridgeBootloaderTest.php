@@ -113,32 +113,26 @@ class TemporalBridgeBootloaderTest extends TestCase
     public function testConnection(): void
     {
         $client = $this->getContainer()->get(ServiceClientInterface::class);
+        \assert($client instanceof ServiceClientInterface);
+        $connection = $client->getConnection();
+        \assert($connection instanceof \Temporal\Client\GRPC\Connection\Connection);
+        $workflowService = (fn() => $connection->workflowService)->call($connection);
+        \assert($workflowService instanceof WorkflowServiceClient);
 
-        $refl = new \ReflectionClass($client);
-        $baseClient = $refl->getParentClass();
-        $property = $baseClient->getProperty('workflowService');
-
-        $property->setAccessible(true);
-        /** @var WorkflowServiceClient $stub */
-        $stub = $property->getValue($client);
-
-        $this->assertSame('localhost:7233', $stub->getTarget());
+        $this->assertSame('localhost:7233', $workflowService->getTarget());
     }
 
     #[Env('TEMPORAL_CONNECTION', 'ssl')]
     public function testSecureConnection(): void
     {
         $client = $this->getContainer()->get(ServiceClientInterface::class);
+        \assert($client instanceof ServiceClientInterface);
+        $connection = $client->getConnection();
+        \assert($connection instanceof \Temporal\Client\GRPC\Connection\Connection);
+        $workflowService = (fn() => $connection->workflowService)->call($connection);
+        \assert($workflowService instanceof WorkflowServiceClient);
 
-        $refl = new \ReflectionClass($client);
-        $baseClient = $refl->getParentClass();
-        $property = $baseClient->getProperty('workflowService');
-
-        $property->setAccessible(true);
-        /** @var WorkflowServiceClient $stub */
-        $stub = $property->getValue($client);
-
-        $this->assertSame('ssl:7233', $stub->getTarget());
+        $this->assertSame('ssl:7233', $workflowService->getTarget());
     }
 
     #[Env('TEMPORAL_CONNECTION', 'test')]
