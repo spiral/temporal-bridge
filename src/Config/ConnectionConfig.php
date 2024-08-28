@@ -9,19 +9,15 @@ namespace Spiral\TemporalBridge\Config;
  *
  * How to connect to local Temporal server:
  *
- * ```php
- * ConnectionConfig::createInsecure('localhost:7233')
- * ```
+ *     ConnectionConfig::createInsecure('localhost:7233'),
  *
  * How to connect to Temporal Cloud:
  *
- * ```php
- * ConnectionConfig::createCloud(
- *     address: 'foo-bar-default.baz.tmprl.cloud:7233',
- *     privateKey: '/my-project.key',
- *     certChain: '/my-project.pem',
- * )
- * ```
+ *     ConnectionConfig::createCloud(
+ *         address: 'foo-bar-default.baz.tmprl.cloud:7233',
+ *         privateKey: '/my-project.key',
+ *         certChain: '/my-project.pem',
+ *     ),
  */
 final class ConnectionConfig
 {
