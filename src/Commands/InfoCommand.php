@@ -8,13 +8,13 @@ use Spiral\Boot\DirectoriesInterface;
 use Spiral\Console\Attribute\AsCommand;
 use Spiral\Console\Attribute\Option;
 use Spiral\Console\Command;
-use Spiral\TemporalBridge\DeclarationLocatorInterface;
+use Spiral\TemporalBridge\Declaration\DeclarationType;
+use Spiral\TemporalBridge\DeclarationRegistryInterface;
 use Spiral\TemporalBridge\DeclarationWorkerResolver;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Output\OutputInterface;
 use Temporal\Internal\Declaration\Reader\ActivityReader;
 use Temporal\Internal\Declaration\Reader\WorkflowReader;
-use Temporal\Workflow\WorkflowInterface;
 
 #[AsCommand(
     name: 'temporal:info',
@@ -26,7 +26,7 @@ final class InfoCommand extends Command
     private bool $showActivities = false;
 
     public function perform(
-        DeclarationLocatorInterface $locator,
+        DeclarationRegistryInterface $registry,
         DeclarationWorkerResolver $workerResolver,
         WorkflowReader $workflowReader,
         ActivityReader $activityReader,
@@ -35,25 +35,27 @@ final class InfoCommand extends Command
         $workflows = [];
         $activities = [];
 
-        foreach ($locator->getDeclarations() as $type => $declaration) {
-            $taskQueue = $workerResolver->resolve($declaration);
+        foreach ($registry->getDeclarationList() as $declaration) {
+            $taskQueue = $declaration->taskQueue === null
+                ? $workerResolver->resolve($declaration->class)
+                : [$declaration->taskQueue];
 
-            if ($type === WorkflowInterface::class) {
-                $prototype = $workflowReader->fromClass($declaration->getName());
+            if ($declaration->type === DeclarationType::Workflow) {
+                $prototype = $workflowReader->fromClass($declaration->class->getName());
                 $workflows[$prototype->getID()] = [
-                    'class' => $declaration->getName(),
-                    'file' => $declaration->getFileName(),
+                    'class' => $declaration->class->getName(),
+                    'file' => $declaration->class->getFileName(),
                     'name' => $prototype->getID(),
                     'task_queue' => \implode(', ', $taskQueue),
                 ];
             } else {
                 $taskQueueShown = false;
 
-                foreach ($activityReader->fromClass($declaration->getName()) as $prototype) {
-                    $activities[$declaration->getName()][$prototype->getID()] = [
-                        'file' => $declaration->getFileName(),
+                foreach ($activityReader->fromClass($declaration->class->getName()) as $prototype) {
+                    $activities[$declaration->class->getName()][$prototype->getID()] = [
+                        'file' => $declaration->class->getFileName(),
                         'name' => $prototype->getID(),
-                        'handler' => $declaration->getShortName() . '::' . $prototype->getHandler()->getName(),
+                        'handler' => $declaration->class->getShortName() . '::' . $prototype->getHandler()->getName(),
                         'task_queue' => !$taskQueueShown ? \implode(', ', $taskQueue) : '',
                     ];
 
@@ -72,7 +74,10 @@ final class InfoCommand extends Command
         foreach ($workflows as $workflow) {
             $table->addRow([
                 \sprintf('<fg=green>%s</>', $workflow['name']),
-                $workflow['class'] . "\n" . \sprintf('<fg=blue>%s</>', \str_replace($rootDir, '', $workflow['file'])),
+                $workflow['class'] . "\n" . \sprintf(
+                    '<fg=blue>%s</>',
+                    self::normalizePath($rootDir, $workflow['file']),
+                ),
                 $workflow['task_queue'],
             ]);
         }
@@ -99,5 +104,19 @@ final class InfoCommand extends Command
         $table->render();
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @param non-empty-string $rootDir
+     * @param non-empty-string $file
+     */
+    private static function normalizePath(string $rootDir, string $file): string
+    {
+        $file = \str_replace('\\', '/', $file);
+        $rootDir = \str_replace('\\', '/', $rootDir);
+
+        return \str_starts_with($file, $rootDir)
+            ? \substr($file, \strlen($rootDir))
+            : $file;
     }
 }
