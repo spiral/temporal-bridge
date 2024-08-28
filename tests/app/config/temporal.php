@@ -2,27 +2,24 @@
 
 declare(strict_types=1);
 
-use Spiral\TemporalBridge\Connection\Connection;
-use Spiral\TemporalBridge\Connection\SslConnection;
-use Spiral\TemporalBridge\Connection\TemporalCloudConnection;
+use Spiral\TemporalBridge\Config\ConnectionConfig;
 
 return [
     'connection' => env('TEMPORAL_CONNECTION', 'default'),
     'connections' => [
-        'default' => new Connection(
+        'default' => ConnectionConfig::createInsecure(
             address: 'localhost:7233',
         ),
-        'ssl' => new SslConnection(
+        'ssl' => ConnectionConfig::createSecure(
             address: 'ssl:7233',
-            crt: '/path/to/crt',
-            clientKey: '/path/to/clientKey',
-            clientPem: '/path/to/clientPem',
-            overrideServerName: 'overrideServerName',
+            rootCerts: '/path/to/crt',
+            privateKey: '/path/to/clientKey',
+            certChain: '/path/to/clientPem',
         ),
-        'temporal_cloud' => new TemporalCloudConnection(
+        'temporal_cloud' => ConnectionConfig::createCloud(
             address: 'ssl:7233',
-            clientKey: '/path/to/clientKey',
-            clientPem: '/path/to/clientPem',
+            privateKey: '/path/to/clientKey',
+            certChain: '/path/to/clientPem',
         ),
     ],
 ];

@@ -15,9 +15,8 @@ use Spiral\Core\Container\Autowire;
 use Spiral\Core\FactoryInterface;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
+use Spiral\TemporalBridge\Config\ConnectionConfig;
 use Spiral\TemporalBridge\Config\TemporalConfig;
-use Spiral\TemporalBridge\Connection\Connection;
-use Spiral\TemporalBridge\Connection\SslConnection;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\DeclarationRegistryInterface;
@@ -156,11 +155,11 @@ class TemporalBridgeBootloader extends Bootloader
         $this->config->setDefaults(
             TemporalConfig::CONFIG,
             [
-                // 'address' => $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
-                // 'namespace' => 'App\\Endpoint\\Temporal\\Workflow',
                 'connection' => $env->get('TEMPORAL_CONNECTION', 'default'),
                 'connections' => [
-                    'default' => new Connection(address: $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233')),
+                    'default' => ConnectionConfig::createInsecure(
+                        address: $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
+                    ),
                 ],
                 'defaultWorker' => (string)$env->get(
                     'TEMPORAL_TASK_QUEUE',
@@ -176,17 +175,14 @@ class TemporalBridgeBootloader extends Bootloader
     {
         $connection = $config->getConnection($config->getDefaultConnection());
 
-        if ($connection instanceof SslConnection) {
-            return ServiceClient::createSSL(
+        return $connection->secure
+            ? ServiceClient::createSSL(
                 address: $connection->address,
-                crt: $connection->crt,
-                clientKey: $connection->clientKey,
-                clientPem: $connection->clientPem,
-                overrideServerName: $connection->overrideServerName,
-            );
-        }
-
-        return ServiceClient::create(address: $connection->address);
+                crt: $connection->rootCerts,
+                clientKey: $connection->privateKey,
+                clientPem: $connection->certChain,
+            )
+            : ServiceClient::create(address: $connection->address);
     }
 
     protected function initPipelineProvider(TemporalConfig $config, FactoryInterface $factory): PipelineProvider

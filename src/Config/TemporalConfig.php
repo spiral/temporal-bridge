@@ -6,9 +6,6 @@ namespace Spiral\TemporalBridge\Config;
 
 use Spiral\Core\Container\Autowire;
 use Spiral\Core\InjectableConfig;
-use Spiral\TemporalBridge\Connection\Connection;
-use Spiral\TemporalBridge\Connection\DsnConnection;
-use Spiral\TemporalBridge\Connection\SslConnection;
 use Temporal\Client\ClientOptions;
 use Temporal\Exception\ExceptionInterceptorInterface;
 use Temporal\Internal\Interceptor\Interceptor;
@@ -26,7 +23,7 @@ use Temporal\Worker\WorkerOptions;
  * @property array{
  *     address?: non-empty-string|null,
  *     connection: non-empty-string,
- *     connections: array<non-empty-string, Connection>,
+ *     connections: array<non-empty-string, ConnectionConfig>,
  *     temporalNamespace: non-empty-string,
  *     defaultWorker: non-empty-string,
  *     workers: array<non-empty-string, WorkerOptions|TWorker>,
@@ -62,7 +59,7 @@ final class TemporalConfig extends InjectableConfig
         return $this->config['connection'] ?? 'default';
     }
 
-    public function getConnection(string $name): Connection
+    public function getConnection(string $name): ConnectionConfig
     {
         // Legacy support. Will be removed in further versions.
         // If you read this, please remove address from your configuration and use connections instead.
@@ -72,7 +69,7 @@ final class TemporalConfig extends InjectableConfig
                 'Using `address` is deprecated, use `connections` instead.',
                 \E_USER_DEPRECATED,
             );
-            return new Connection(address: $address);
+            return ConnectionConfig::createInsecure(address: $address);
         }
 
         if (isset($this->config['connections'][$name])) {

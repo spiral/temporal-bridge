@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Tests\Config;
 
+use Spiral\TemporalBridge\Config\ConnectionConfig;
 use Spiral\TemporalBridge\Config\TemporalConfig;
-use Spiral\TemporalBridge\Connection\Connection;
-use Spiral\TemporalBridge\Connection\DsnConnection;
-use Spiral\TemporalBridge\Connection\SslConnection;
 use Spiral\TemporalBridge\Tests\TestCase;
 use Temporal\Client\ClientOptions;
 use Temporal\Worker\WorkerFactoryInterface;
@@ -38,7 +36,7 @@ final class TemporalConfigTest extends TestCase
         ]);
 
         $connection = $config->getConnection('default');
-        $this->assertSame(Connection::class, $connection::class);
+        $this->assertSame(ConnectionConfig::class, $connection::class);
 
         $this->assertSame('localhost:1111', $connection->address);
     }
@@ -47,25 +45,22 @@ final class TemporalConfigTest extends TestCase
     {
         $config = new TemporalConfig([
             'connections' => [
-                'default' => new SslConnection(
+                'default' => ConnectionConfig::createSecure(
                     address: 'localhost:2222',
-                    crt: 'crt',
-                    clientKey: 'clientKey',
-                    clientPem: 'clientPem',
-                    overrideServerName: 'overrideServerName',
+                    rootCerts: 'crt',
+                    privateKey: 'clientKey',
+                    certChain: 'clientPem',
                 ),
             ],
         ]);
 
         $connection = $config->getConnection('default');
 
-        $this->assertSame(SslConnection::class, $connection::class);
-
+        $this->assertTrue($connection->secure);
         $this->assertSame('localhost:2222', $connection->address);
-        $this->assertSame('crt', $connection->crt);
-        $this->assertSame('clientKey', $connection->clientKey);
-        $this->assertSame('clientPem', $connection->clientPem);
-        $this->assertSame('overrideServerName', $connection->overrideServerName);
+        $this->assertSame('crt', $connection->rootCerts);
+        $this->assertSame('clientKey', $connection->privateKey);
+        $this->assertSame('clientPem', $connection->certChain);
     }
 
     public function testGetsDefaultWorker(): void

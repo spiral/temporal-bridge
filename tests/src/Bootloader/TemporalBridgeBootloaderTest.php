@@ -126,7 +126,7 @@ class TemporalBridgeBootloaderTest extends TestCase
     }
 
     #[Env('TEMPORAL_CONNECTION', 'ssl')]
-    public function testSslConnection(): void
+    public function testSecureConnection(): void
     {
         $client = $this->getContainer()->get(ServiceClientInterface::class);
 
