@@ -157,7 +157,7 @@ class TemporalBridgeBootloader extends Bootloader
             [
                 'connection' => $env->get('TEMPORAL_CONNECTION', 'default'),
                 'connections' => [
-                    'default' => ConnectionConfig::createInsecure(
+                    'default' => ConnectionConfig::create(
                         address: $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
                     ),
                 ],
@@ -175,12 +175,13 @@ class TemporalBridgeBootloader extends Bootloader
     {
         $connection = $config->getConnection($config->getDefaultConnection());
 
-        return $connection->secure
+        return $connection->isSecure()
             ? ServiceClient::createSSL(
                 address: $connection->address,
-                crt: $connection->rootCerts,
-                clientKey: $connection->privateKey,
-                clientPem: $connection->certChain,
+                crt: $connection->tlsConfig->rootCerts,
+                clientKey: $connection->tlsConfig->privateKey,
+                clientPem: $connection->tlsConfig->certChain,
+                overrideServerName: $connection->tlsConfig->serverName,
             )
             : ServiceClient::create(address: $connection->address);
     }

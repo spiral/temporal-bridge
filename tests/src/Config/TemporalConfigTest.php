@@ -41,26 +41,29 @@ final class TemporalConfigTest extends TestCase
         $this->assertSame('localhost:1111', $connection->address);
     }
 
-    public function testGetSslConnection(): void
+    public function testGetTlsConnection(): void
     {
         $config = new TemporalConfig([
             'connections' => [
-                'default' => ConnectionConfig::createSecure(
+                'default' => ConnectionConfig::create(
                     address: 'localhost:2222',
+                )->withTls(
                     rootCerts: 'crt',
                     privateKey: 'clientKey',
                     certChain: 'clientPem',
+                    serverName: 'localhost',
                 ),
             ],
         ]);
 
         $connection = $config->getConnection('default');
 
-        $this->assertTrue($connection->secure);
+        $this->assertTrue($connection->isSecure());
         $this->assertSame('localhost:2222', $connection->address);
-        $this->assertSame('crt', $connection->rootCerts);
-        $this->assertSame('clientKey', $connection->privateKey);
-        $this->assertSame('clientPem', $connection->certChain);
+        $this->assertSame('crt', $connection->tlsConfig->rootCerts);
+        $this->assertSame('clientKey', $connection->tlsConfig->privateKey);
+        $this->assertSame('clientPem', $connection->tlsConfig->certChain);
+        $this->assertSame('localhost', $connection->tlsConfig->serverName);
     }
 
     public function testGetsDefaultWorker(): void

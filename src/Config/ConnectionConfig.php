@@ -9,7 +9,7 @@ namespace Spiral\TemporalBridge\Config;
  *
  * How to connect to local Temporal server:
  *
- *     ConnectionConfig::createInsecure('localhost:7233'),
+ *     ConnectionConfig::create('localhost:7233'),
  *
  * How to connect to Temporal Cloud:
  *
@@ -23,43 +23,32 @@ final class ConnectionConfig
 {
     /**
      * @param non-empty-string $address
-     * @param non-empty-string|null $rootCerts
-     * @param non-empty-string|null $privateKey
-     * @param non-empty-string|null $certChain
      * @param non-empty-string|\Stringable|null $authToken
      */
     private function __construct(
         public readonly string $address,
-        public readonly bool $secure = false,
-        public readonly ?string $rootCerts = null,
-        public readonly ?string $privateKey = null,
-        public readonly ?string $certChain = null,
+        public readonly ?TlsConfig $tlsConfig = null,
         public readonly string|\Stringable|null $authToken = null,
     ) {}
 
     /**
-     * @param non-empty-string $address
+     * Check if the connection is secure.
+     *
+     * @psalm-assert-if-true TlsConfig $this->tlsConfig
+     * @psalm-assert-if-false null $this->tlsConfig
      */
-    public static function createInsecure(
-        string $address,
-    ): self {
-        return new self($address);
+    public function isSecure(): bool
+    {
+        return $this->tlsConfig !== null;
     }
 
     /**
      * @param non-empty-string $address
-     * @param non-empty-string|null $rootCerts Root certificates string or file in PEM format.
-     *         If null provided, default gRPC root certificates are used.
-     * @param non-empty-string|null $privateKey Client private key string or file in PEM format.
-     * @param non-empty-string|null $certChain Client certificate chain string or file in PEM format.
      */
-    public static function createSecure(
+    public static function create(
         string $address,
-        ?string $rootCerts = null,
-        ?string $privateKey = null,
-        ?string $certChain = null,
     ): self {
-        return new self($address, true, $rootCerts, $privateKey, $certChain);
+        return new self($address);
     }
 
     /**
@@ -76,7 +65,28 @@ final class ConnectionConfig
         string $privateKey,
         string $certChain,
     ): self {
-        return new self($address, true, null, $privateKey, $certChain);
+        return new self($address, new TlsConfig(privateKey: $privateKey, certChain: $certChain));
+    }
+
+    /**
+     * Set the TLS configuration for the connection.
+     *
+     * @param non-empty-string|null $rootCerts Root certificates string or file in PEM format.
+     *         If null provided, default gRPC root certificates are used.
+     * @param non-empty-string|null $privateKey Client private key string or file in PEM format.
+     * @param non-empty-string|null $certChain Client certificate chain string or file in PEM format.
+     * @param non-empty-string|null $serverName Server name override for TLS verification.
+     */
+    public function withTls(
+        ?string $rootCerts = null,
+        ?string $privateKey = null,
+        ?string $certChain = null,
+        ?string $serverName = null,
+    ): self {
+        return new self(
+            $this->address,
+            new TlsConfig($rootCerts, $privateKey, $certChain, $serverName),
+        );
     }
 
     /**
@@ -93,10 +103,7 @@ final class ConnectionConfig
     {
         return new self(
             $this->address,
-            $this->secure,
-            $this->rootCerts,
-            $this->privateKey,
-            $this->certChain,
+            $this->tlsConfig,
             $authToken,
         );
     }

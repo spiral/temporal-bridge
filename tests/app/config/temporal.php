@@ -7,11 +7,11 @@ use Spiral\TemporalBridge\Config\ConnectionConfig;
 return [
     'connection' => env('TEMPORAL_CONNECTION', 'default'),
     'connections' => [
-        'default' => ConnectionConfig::createInsecure(
+        'default' => ConnectionConfig::create(
             address: 'localhost:7233',
         ),
-        'ssl' => ConnectionConfig::createSecure(
-            address: 'ssl:7233',
+        'ssl' => ConnectionConfig::create(address: 'ssl:7233')
+        ->withTls(
             rootCerts: '/path/to/crt',
             privateKey: '/path/to/clientKey',
             certChain: '/path/to/clientPem',

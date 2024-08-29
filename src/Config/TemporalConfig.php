@@ -69,7 +69,7 @@ final class TemporalConfig extends InjectableConfig
                 'Using `address` is deprecated, use `connections` instead.',
                 \E_USER_DEPRECATED,
             );
-            return ConnectionConfig::createInsecure(address: $address);
+            return ConnectionConfig::create(address: $address);
         }
 
         if (isset($this->config['connections'][$name])) {
