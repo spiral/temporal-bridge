@@ -157,7 +157,7 @@ class TemporalBridgeBootloader extends Bootloader
             [
                 'connection' => $env->get('TEMPORAL_CONNECTION', 'default'),
                 'connections' => [
-                    'default' => ConnectionConfig::create(
+                    'default' => ConnectionConfig::new(
                         address: $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
                     ),
                 ],
@@ -173,7 +173,8 @@ class TemporalBridgeBootloader extends Bootloader
 
     protected function initServiceClient(TemporalConfig $config): ServiceClientInterface
     {
-        $connection = $config->getConnection($config->getDefaultConnection());
+        $client = $config->getClientConfig($config->getDefaultClient());
+        $connection = $client->connection;
 
         return $connection->isSecure()
             ? ServiceClient::createSSL(

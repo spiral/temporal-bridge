@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Config;
 
 /**
- * Temporal connection configuration.
+ * Temporal connection and credentials configuration.
  *
  * How to connect to local Temporal server:
  *
- *     ConnectionConfig::create('localhost:7233'),
+ *     ConnectionConfig::new('localhost:7233'),
  *
  * How to connect to Temporal Cloud:
  *
- *     ConnectionConfig::createCloud(
- *         address: 'foo-bar-default.baz.tmprl.cloud:7233',
- *         privateKey: '/my-project.key',
- *         certChain: '/my-project.pem',
- *     ),
+ *     ConnectionConfig::new('foo-bar-default.baz.tmprl.cloud:7233')
+ *         ->withTls(
+ *             privateKey: '/my-project.key',
+ *             certChain: '/my-project.pem',
+ *         ),
  */
 final class ConnectionConfig
 {
@@ -45,27 +45,10 @@ final class ConnectionConfig
     /**
      * @param non-empty-string $address
      */
-    public static function create(
+    public static function new(
         string $address,
     ): self {
         return new self($address);
-    }
-
-    /**
-     * Used to connect to Temporal Cloud.
-     *
-     * @link https://docs.temporal.io/cloud/get-started
-     *
-     * @param non-empty-string $address
-     * @param non-empty-string $privateKey Client private key string or file in PEM format.
-     * @param non-empty-string $certChain Client certificate chain string or file in PEM format.
-     */
-    public static function createCloud(
-        string $address,
-        string $privateKey,
-        string $certChain,
-    ): self {
-        return new self($address, new TlsConfig(privateKey: $privateKey, certChain: $certChain));
     }
 
     /**

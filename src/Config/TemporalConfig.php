@@ -21,14 +21,11 @@ use Temporal\Worker\WorkerOptions;
  * }
  *
  * @property array{
- *     address?: non-empty-string|null,
- *     connection: non-empty-string,
- *     connections: array<non-empty-string, ConnectionConfig>,
- *     temporalNamespace: non-empty-string,
+ *     client: non-empty-string,
+ *     clients: array<non-empty-string, ClientConfig>,
  *     defaultWorker: non-empty-string,
  *     workers: array<non-empty-string, WorkerOptions|TWorker>,
  *     interceptors?: TInterceptor[],
- *     clientOptions?: ClientOptions
  * } $config
  */
 final class TemporalConfig extends InjectableConfig
@@ -37,54 +34,76 @@ final class TemporalConfig extends InjectableConfig
     public const CONFIG = 'temporal';
 
     protected array $config = [
-        'connection' => 'default',
-        'connections' => [],
-        'temporalNamespace' => 'default',
+        'client' => 'default',
+        'clients' => [],
         'defaultWorker' => WorkerFactoryInterface::DEFAULT_TASK_QUEUE,
         'workers' => [],
         'interceptors' => [],
-        'clientOptions' => null,
     ];
 
+    public function __construct(array $config = [])
+    {
+        // Legacy support. Will be removed in further versions.
+        // If you read this, please remove `address` option from your configuration and use `clients` instead.
+        $address = $config['address'] ?? null;
+        if ($address !== null) {
+            \trigger_error(
+                'Temporal options `address`, `clientOptions`, `temporalNamespace` are deprecated.',
+                \E_USER_DEPRECATED,
+            );
+
+            // Create a default client configuration from the legacy options.
+            $namespace = $config['temporalNamespace'] ?? 'default';
+            $clientOptions = ($config['clientOptions'] ?? new ClientOptions())
+                ->withNamespace($namespace);
+
+            $config['client'] = 'default';
+            $config['clients']['default'] = ClientConfig::new(
+                ConnectionConfig::new(address: $address),
+                $clientOptions,
+            );
+        }
+
+        parent::__construct($config);
+    }
+
     /**
+     * Get default namespace for Temporal client.
+     *
      * @return non-empty-string
+     *
+     * @deprecated
      */
     public function getTemporalNamespace(): string
     {
-        return $this->config['temporalNamespace'];
+        $client = $this->getDefaultClient();
+        return match(true) {
+            isset($this->config['clients'][$client]) => $this->config['clients'][$client]->options->namespace,
+            isset($this->config['temporalNamespace']) => $this->config['temporalNamespace'],
+            default => 'default',
+        };
     }
 
-    public function getDefaultConnection(): string
+    public function getDefaultClient(): string
     {
-        return $this->config['connection'] ?? 'default';
+        return $this->config['client'] ?? 'default';
     }
 
-    public function getConnection(string $name): ConnectionConfig
+    public function getClientConfig(string $name): ClientConfig
     {
-        // Legacy support. Will be removed in further versions.
-        // If you read this, please remove address from your configuration and use connections instead.
-        $address = $this->config['address'] ?? null;
-        if ($address !== null) {
-            \trigger_error(
-                'Using `address` is deprecated, use `connections` instead.',
-                \E_USER_DEPRECATED,
-            );
-            return ConnectionConfig::create(address: $address);
-        }
-
-        if (isset($this->config['connections'][$name])) {
-            return $this->config['connections'][$name];
-        }
-
-        throw new \InvalidArgumentException(\sprintf('Connection `%s` is not defined.', $name));
+        return $this->config['clients'][$name] ?? throw new \InvalidArgumentException(
+            "Temporal client config `{$name}` is not defined.",
+        );
     }
 
     /**
+     * Get default connection address.
+     *
      * @deprecated
      */
     public function getAddress(): string
     {
-        return $this->getConnection($this->getDefaultConnection())->address;
+        return $this->getClientConfig($this->getDefaultClient())->connection->address;
     }
 
     /**
@@ -111,8 +130,18 @@ final class TemporalConfig extends InjectableConfig
         return $this->config['interceptors'] ?? [];
     }
 
+    /**
+     * Get default client options.
+     *
+     * @deprecated
+     */
     public function getClientOptions(): ClientOptions
     {
-        return $this->config['clientOptions'] ?? (new ClientOptions())->withNamespace($this->getTemporalNamespace());
+        $client = $this->getDefaultClient();
+        return match(true) {
+            isset($this->config['clients'][$client]) => $this->config['clients'][$client]->options,
+            isset($this->config['clientOptions']) => $this->config['clientOptions'],
+            default => (new ClientOptions())->withNamespace($this->getTemporalNamespace()),
+        };
     }
 }

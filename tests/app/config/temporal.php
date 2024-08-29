@@ -2,24 +2,20 @@
 
 declare(strict_types=1);
 
+use Spiral\TemporalBridge\Config\ClientConfig;
 use Spiral\TemporalBridge\Config\ConnectionConfig;
 
 return [
-    'connection' => env('TEMPORAL_CONNECTION', 'default'),
-    'connections' => [
-        'default' => ConnectionConfig::create(
-            address: 'localhost:7233',
-        ),
-        'ssl' => ConnectionConfig::create(address: 'ssl:7233')
-        ->withTls(
-            rootCerts: '/path/to/crt',
-            privateKey: '/path/to/clientKey',
-            certChain: '/path/to/clientPem',
-        ),
-        'temporal_cloud' => ConnectionConfig::createCloud(
-            address: 'ssl:7233',
-            privateKey: '/path/to/clientKey',
-            certChain: '/path/to/clientPem',
+    'client' => env('TEMPORAL_CONNECTION', 'default'),
+    'clients' => [
+        'default' => ClientConfig::new(ConnectionConfig::new('localhost:7233')),
+        'ssl' => ClientConfig::new(
+            ConnectionConfig::new(address: 'ssl:7233')
+                ->withTls(
+                    rootCerts: '/path/to/crt',
+                    privateKey: '/path/to/clientKey',
+                    certChain: '/path/to/clientPem',
+                )
         ),
     ],
 ];

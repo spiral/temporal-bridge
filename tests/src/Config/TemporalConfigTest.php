@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Tests\Config;
 
+use Spiral\TemporalBridge\Config\ClientConfig;
 use Spiral\TemporalBridge\Config\ConnectionConfig;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\Tests\TestCase;
@@ -35,28 +36,30 @@ final class TemporalConfigTest extends TestCase
             'address' => 'localhost:1111',
         ]);
 
-        $connection = $config->getConnection('default');
-        $this->assertSame(ConnectionConfig::class, $connection::class);
+        $client = $config->getClientConfig('default');
+        $this->assertSame(ClientConfig::class, $client::class);
 
-        $this->assertSame('localhost:1111', $connection->address);
+        $this->assertSame('localhost:1111', $client->connection->address);
     }
 
     public function testGetTlsConnection(): void
     {
         $config = new TemporalConfig([
-            'connections' => [
-                'default' => ConnectionConfig::create(
-                    address: 'localhost:2222',
-                )->withTls(
-                    rootCerts: 'crt',
-                    privateKey: 'clientKey',
-                    certChain: 'clientPem',
-                    serverName: 'localhost',
+            'clients' => [
+                'default' => ClientConfig::new(
+                    ConnectionConfig::new(address: 'localhost:2222')
+                        ->withTls(
+                            rootCerts: 'crt',
+                            privateKey: 'clientKey',
+                            certChain: 'clientPem',
+                            serverName: 'localhost',
+                        ),
                 ),
             ],
         ]);
 
-        $connection = $config->getConnection('default');
+        $client = $config->getClientConfig('default');
+        $connection = $client->connection;
 
         $this->assertTrue($connection->isSecure());
         $this->assertSame('localhost:2222', $connection->address);

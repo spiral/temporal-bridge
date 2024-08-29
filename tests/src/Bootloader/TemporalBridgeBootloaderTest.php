@@ -141,7 +141,7 @@ class TemporalBridgeBootloaderTest extends TestCase
     public function testNonExistsConnection(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Connection `test` is not defined.');
+        $this->expectExceptionMessage('Temporal client config `test` is not defined.');
 
         $this->getContainer()->get(ServiceClientInterface::class);
     }

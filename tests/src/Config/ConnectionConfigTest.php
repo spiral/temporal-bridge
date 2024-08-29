@@ -11,7 +11,7 @@ final class ConnectionConfigTest extends TestCase
 {
     public function testCreateSecure(): void
     {
-        $config = ConnectionConfig::create(
+        $config = ConnectionConfig::new(
             address: 'localhost:2222',
         )->withTls(
             rootCerts: 'crt',
@@ -28,7 +28,7 @@ final class ConnectionConfigTest extends TestCase
 
     public function testCreateInsecure(): void
     {
-        $config = ConnectionConfig::create(
+        $config = ConnectionConfig::new(
             address: 'localhost:1111',
         );
 
@@ -36,23 +36,9 @@ final class ConnectionConfigTest extends TestCase
         $this->assertSame('localhost:1111', $config->address);
     }
 
-    public function testCreateCloud(): void
-    {
-        $config = ConnectionConfig::createCloud(
-            address: 'localhost:1111',
-            privateKey: 'clientKey',
-            certChain: 'clientPem',
-        );
-
-        $this->assertTrue($config->isSecure());
-        $this->assertSame('localhost:1111', $config->address);
-        $this->assertSame('clientKey', $config->tlsConfig->privateKey);
-        $this->assertSame('clientPem', $config->tlsConfig->certChain);
-    }
-
     public function testWithAuthKey(): void
     {
-        $config = ConnectionConfig::create(
+        $config = ConnectionConfig::new(
             address: 'localhost:1111',
         )->withTls(
             certChain: 'clientPem',
@@ -67,7 +53,7 @@ final class ConnectionConfigTest extends TestCase
 
     public function testWithAuthKeyNull(): void
     {
-        $config = ConnectionConfig::create(address: 'localhost:1111')
+        $config = ConnectionConfig::new(address: 'localhost:1111')
             ->withTls()
             ->withAuthKey('authKey');
 
@@ -82,7 +68,7 @@ final class ConnectionConfigTest extends TestCase
 
     public function testWithAuthKeyStringable(): void
     {
-        $config = ConnectionConfig::create(address: 'localhost:1111')
+        $config = ConnectionConfig::new(address: 'localhost:1111')
             ->withTls()
             ->withAuthKey(
                 $key = new class() implements \Stringable {
