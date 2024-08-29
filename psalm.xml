@@ -15,6 +15,7 @@
     </projectFiles>
     <issueHandlers>
         <MissingClassConstType errorLevel="suppress" />
+        <DeprecatedMethod errorLevel="suppress" />
         <DeprecatedInterface>
             <errorLevel type="suppress">
                 <file name="src/Commands/InfoCommand.php"/>

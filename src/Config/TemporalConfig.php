@@ -26,6 +26,9 @@ use Temporal\Worker\WorkerOptions;
  *     defaultWorker: non-empty-string,
  *     workers: array<non-empty-string, WorkerOptions|TWorker>,
  *     interceptors?: TInterceptor[],
+ *     temporalNamespace?: non-empty-string,
+ *     address?: non-empty-string,
+ *     clientOptions?: ClientOptions
  * } $config
  */
 final class TemporalConfig extends InjectableConfig
