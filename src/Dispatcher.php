@@ -12,9 +12,9 @@ use Spiral\Core\FactoryInterface;
 use Spiral\Core\Scope;
 use Spiral\Core\ScopeInterface;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
-use Temporal\Activity\ActivityInterface;
+use Spiral\TemporalBridge\Declaration\DeclarationDto;
+use Spiral\TemporalBridge\Declaration\DeclarationType;
 use Temporal\Worker\WorkerFactoryInterface;
-use Temporal\Workflow\WorkflowInterface;
 
 #[DispatcherScope('temporal')]
 final class Dispatcher implements DispatcherInterface
@@ -34,10 +34,8 @@ final class Dispatcher implements DispatcherInterface
     public function serve(): void
     {
         // finds all available workflows, activity types and commands in a given directory
-        /**
-         * @var array<class-string<WorkflowInterface>|class-string<ActivityInterface>, ReflectionClass> $declarations
-         */
-        $declarations = $this->container->get(DeclarationLocatorInterface::class)->getDeclarations();
+        /** @var list<DeclarationDto> $declarations */
+        $declarations = $this->container->get(DeclarationRegistryInterface::class)->getDeclarationList();
 
         // factory initiates and runs task queue specific activity and workflow workers
         /** @var WorkerFactoryInterface $factory */
@@ -46,21 +44,23 @@ final class Dispatcher implements DispatcherInterface
         $registry = $this->container->get(WorkersRegistryInterface::class);
 
         $hasDeclarations = false;
-        foreach ($declarations as $type => $declaration) {
+        foreach ($declarations as $declaration) {
             // Worker that listens on a task queue and hosts both workflow and activity implementations.
-            $taskQueues = $this->workerResolver->resolve($declaration);
+            $taskQueues = $declaration->taskQueue === null
+                ? $this->workerResolver->resolve($declaration->class)
+                : [$declaration->taskQueue];
 
             foreach ($taskQueues as $taskQueue) {
                 $worker = $registry->get($taskQueue);
 
-                if ($type === WorkflowInterface::class) {
+                if ($declaration->type === DeclarationType::Workflow) {
                     // Workflows are stateful. So you need a type to create instances.
-                    $worker->registerWorkflowTypes($declaration->getName());
+                    $worker->registerWorkflowTypes($declaration->class->getName());
                 }
 
-                if ($type === ActivityInterface::class) {
+                if ($declaration->type === DeclarationType::Activity) {
                     // Workflows are stateful. So you need a type to create instances.
-                    $worker->registerActivity($declaration->getName(), $this->makeActivity(...));
+                    $worker->registerActivity($declaration->class->getName(), $this->makeActivity(...));
                 }
 
                 $hasDeclarations = true;

@@ -13,6 +13,7 @@ use Temporal\Activity\ActivityMethod;
 
 final class ActivityDeclaration extends AbstractDeclaration
 {
+    /** @var non-empty-string */
     public const TYPE = 'activity';
 
     public function __construct(
@@ -20,7 +21,7 @@ final class ActivityDeclaration extends AbstractDeclaration
         string $name,
         ?string $comment = null,
         ?string $namespace = null,
-        private ?string $activityName = null,
+        private readonly ?string $activityName = null,
     ) {
         parent::__construct($config, $name, $comment, $namespace);
     }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Tests\Config;
 
+use Spiral\TemporalBridge\Config\ClientConfig;
+use Spiral\TemporalBridge\Config\ConnectionConfig;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\Tests\TestCase;
 use Temporal\Client\ClientOptions;
@@ -12,22 +14,6 @@ use Temporal\Worker\WorkerOptions;
 
 final class TemporalConfigTest extends TestCase
 {
-    public function testGetsDefaultNamespace(): void
-    {
-        $config = new TemporalConfig([
-            'namespace' => 'foo'
-        ]);
-
-        $this->assertSame('foo', $config->getDefaultNamespace());
-    }
-
-    public function testGetsDefaultNamespaceIfItNotSet(): void
-    {
-        $config = new TemporalConfig([]);
-
-        $this->assertSame('App\\Endpoint\\Temporal\\Workflow', $config->getDefaultNamespace());
-    }
-
     public function testGetsDefaultTemporalNamespaceIfItNotSet(): void
     {
         $config = new TemporalConfig([]);
@@ -44,26 +30,49 @@ final class TemporalConfigTest extends TestCase
         $this->assertSame('foo', $config->getTemporalNamespace());
     }
 
-    public function testGetsAddress(): void
+    public function testGetConnectionFromAddress(): void
     {
         $config = new TemporalConfig([
-            'address' => 'localhost:1111'
+            'address' => 'localhost:1111',
         ]);
 
-        $this->assertSame('localhost:1111', $config->getAddress());
+        $client = $config->getClientConfig('default');
+        $this->assertSame(ClientConfig::class, $client::class);
+
+        $this->assertSame('localhost:1111', $client->connection->address);
     }
 
-    public function testGetsAddressIfItNotSet(): void
+    public function testGetTlsConnection(): void
     {
-        $config = new TemporalConfig([]);
+        $config = new TemporalConfig([
+            'clients' => [
+                'default' => ClientConfig::new(
+                    ConnectionConfig::new(address: 'localhost:2222')
+                        ->withTls(
+                            rootCerts: 'crt',
+                            privateKey: 'clientKey',
+                            certChain: 'clientPem',
+                            serverName: 'localhost',
+                        ),
+                ),
+            ],
+        ]);
 
-        $this->assertSame('localhost:7233', $config->getAddress());
+        $client = $config->getClientConfig('default');
+        $connection = $client->connection;
+
+        $this->assertTrue($connection->isSecure());
+        $this->assertSame('localhost:2222', $connection->address);
+        $this->assertSame('crt', $connection->tlsConfig->rootCerts);
+        $this->assertSame('clientKey', $connection->tlsConfig->privateKey);
+        $this->assertSame('clientPem', $connection->tlsConfig->certChain);
+        $this->assertSame('localhost', $connection->tlsConfig->serverName);
     }
 
     public function testGetsDefaultWorker(): void
     {
         $config = new TemporalConfig([
-            'defaultWorker' => 'some-worker'
+            'defaultWorker' => 'some-worker',
         ]);
 
         $this->assertSame('some-worker', $config->getDefaultWorker());
@@ -86,23 +95,23 @@ final class TemporalConfigTest extends TestCase
             ],
             'withInterceptors' => [
                 'interceptors' => [
-                    'foo'
+                    'foo',
                 ],
             ],
             'withExceptionInterceptor' => [
-                'exception_interceptor' => 'bar'
+                'exception_interceptor' => 'bar',
             ],
             'all' => [
                 'options' => WorkerOptions::new(),
                 'interceptors' => [
-                    'foo'
+                    'foo',
                 ],
-                'exception_interceptor' => 'bar'
+                'exception_interceptor' => 'bar',
             ],
         ];
 
         $config = new TemporalConfig([
-            'workers' => $workers
+            'workers' => $workers,
         ]);
 
         $this->assertSame($workers, $config->getWorkers());

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Tests\Commands;
 
 use Spiral\TemporalBridge\Attribute\AssignWorker;
-use Spiral\TemporalBridge\DeclarationLocatorInterface;
+use Spiral\TemporalBridge\Declaration\DeclarationDto;
+use Spiral\TemporalBridge\Declaration\DeclarationType;
+use Spiral\TemporalBridge\DeclarationRegistryInterface;
 use Spiral\TemporalBridge\Tests\TestCase;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Activity\ActivityMethod;
@@ -18,12 +20,24 @@ final class InfoCommandTest extends TestCase
     {
         parent::setUp();
 
-        $locator = $this->mockContainer(DeclarationLocatorInterface::class);
-        $locator->shouldReceive('getDeclarations')->andReturnUsing(function () {
-            yield WorkflowInterface::class => new \ReflectionClass(Workflow::class);
-            yield ActivityInterface::class => new \ReflectionClass(ActivityInterfaceWithWorker::class);
-            yield ActivityInterface::class => new \ReflectionClass(ActivityInterfaceWithoutWorker::class);
-            yield WorkflowInterface::class => new \ReflectionClass(AnotherWorkflow::class);
+        $locator = $this->mockContainer(DeclarationRegistryInterface::class);
+        $locator->shouldReceive('getDeclarationList')->andReturnUsing(function () {
+            yield new DeclarationDto(
+                type: DeclarationType::Workflow,
+                class: new \ReflectionClass(Workflow::class),
+            );
+            yield new DeclarationDto(
+                type: DeclarationType::Activity,
+                class: new \ReflectionClass(ActivityInterfaceWithWorker::class),
+            );
+            yield new DeclarationDto(
+                type: DeclarationType::Activity,
+                class: new \ReflectionClass(ActivityInterfaceWithoutWorker::class),
+            );
+            yield new DeclarationDto(
+                type: DeclarationType::Workflow,
+                class: new \ReflectionClass(AnotherWorkflow::class),
+            );
         });
     }
 
@@ -31,7 +45,7 @@ final class InfoCommandTest extends TestCase
     {
         $result = $this->runCommand('temporal:info');
 
-        $this->assertSame(
+        $this->assertStringEqualsStringIgnoringLineEndings(
             <<<'OUTPUT'
 
 Workflows
@@ -57,7 +71,7 @@ OUTPUT,
             '--show-activities' => true,
         ]);
 
-        $this->assertSame(
+        $this->assertStringEqualsStringIgnoringLineEndings(
             <<<'OUTPUT'
 
 Workflows

@@ -25,22 +25,22 @@ final class ActivityCommandTest extends TestCase
             $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
             $this->assertSame(
                 <<<'PHP'
-<?php
+                    <?php
 
-declare(strict_types=1);
+                    declare(strict_types=1);
 
-namespace Spiral\Testing\Endpoint\Temporal\Activity;
+                    namespace Spiral\Testing\Endpoint\Temporal\Activity;
 
-use React\Promise\PromiseInterface;
-use Temporal\Activity\ActivityInterface;
-use Temporal\Activity\ActivityMethod;
+                    use React\Promise\PromiseInterface;
+                    use Temporal\Activity\ActivityInterface;
+                    use Temporal\Activity\ActivityMethod;
 
-#[ActivityInterface]
-class PaymentActivity
-{
-}
+                    #[ActivityInterface]
+                    class PaymentActivity
+                    {
+                    }
 
-PHP,
+                    PHP,
                 $body,
             );
             return true;
@@ -58,24 +58,24 @@ PHP,
             $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
             $this->assertSame(
                 <<<'PHP'
-<?php
+                    <?php
 
-declare(strict_types=1);
+                    declare(strict_types=1);
 
-namespace Spiral\Testing\Endpoint\Temporal\Activity;
+                    namespace Spiral\Testing\Endpoint\Temporal\Activity;
 
-use React\Promise\PromiseInterface;
-use Spiral\TemporalBridge\Attribute\AssignWorker;
-use Temporal\Activity\ActivityInterface;
-use Temporal\Activity\ActivityMethod;
+                    use React\Promise\PromiseInterface;
+                    use Spiral\TemporalBridge\Attribute\AssignWorker;
+                    use Temporal\Activity\ActivityInterface;
+                    use Temporal\Activity\ActivityMethod;
 
-#[ActivityInterface]
-#[AssignWorker(taskQueue: 'scanner_service')]
-class PaymentActivity
-{
-}
+                    #[ActivityInterface]
+                    #[AssignWorker(taskQueue: 'scanner_service')]
+                    class PaymentActivity
+                    {
+                    }
 
-PHP,
+                    PHP,
                 $body,
             );
             return true;
@@ -94,22 +94,22 @@ PHP,
             $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
             $this->assertSame(
                 <<<'PHP'
-<?php
+                    <?php
 
-declare(strict_types=1);
+                    declare(strict_types=1);
 
-namespace Spiral\Testing\Endpoint\Temporal\Activity;
+                    namespace Spiral\Testing\Endpoint\Temporal\Activity;
 
-use React\Promise\PromiseInterface;
-use Temporal\Activity\ActivityInterface;
-use Temporal\Activity\ActivityMethod;
+                    use React\Promise\PromiseInterface;
+                    use Temporal\Activity\ActivityInterface;
+                    use Temporal\Activity\ActivityMethod;
 
-#[ActivityInterface(name: 'payment')]
-class PaymentActivity
-{
-}
+                    #[ActivityInterface(name: 'payment')]
+                    class PaymentActivity
+                    {
+                    }
 
-PHP,
+                    PHP,
                 $body,
             );
             return true;
@@ -128,48 +128,48 @@ PHP,
             $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
             $this->assertSame(
                 <<<'PHP'
-<?php
+                    <?php
 
-declare(strict_types=1);
+                    declare(strict_types=1);
 
-namespace Spiral\Testing\Endpoint\Temporal\Activity;
+                    namespace Spiral\Testing\Endpoint\Temporal\Activity;
 
-use React\Promise\PromiseInterface;
-use Temporal\Activity\ActivityInterface;
-use Temporal\Activity\ActivityMethod;
+                    use React\Promise\PromiseInterface;
+                    use Temporal\Activity\ActivityInterface;
+                    use Temporal\Activity\ActivityMethod;
 
-#[ActivityInterface]
-class PaymentActivity
-{
-    /**
-     * @return PromiseInterface<mixed>
-     */
-    #[ActivityMethod(name: 'pay')]
-    public function pay(): mixed
-    {
-        // TODO: Implement activity method
-    }
+                    #[ActivityInterface]
+                    class PaymentActivity
+                    {
+                        /**
+                         * @return PromiseInterface<mixed>
+                         */
+                        #[ActivityMethod(name: 'pay')]
+                        public function pay(): mixed
+                        {
+                            // TODO: Implement activity method
+                        }
 
-    /**
-     * @return PromiseInterface<void>
-     */
-    #[ActivityMethod(name: 'refund')]
-    public function refund(): void
-    {
-        // TODO: Implement activity method
-    }
+                        /**
+                         * @return PromiseInterface<void>
+                         */
+                        #[ActivityMethod(name: 'refund')]
+                        public function refund(): void
+                        {
+                            // TODO: Implement activity method
+                        }
 
-    /**
-     * @return PromiseInterface<bool>
-     */
-    #[ActivityMethod(name: 'getPaymentStatus')]
-    public function getPaymentStatus(): bool
-    {
-        // TODO: Implement activity method
-    }
-}
+                        /**
+                         * @return PromiseInterface<bool>
+                         */
+                        #[ActivityMethod(name: 'getPaymentStatus')]
+                        public function getPaymentStatus(): bool
+                        {
+                            // TODO: Implement activity method
+                        }
+                    }
 
-PHP,
+                    PHP,
                 $body,
             );
             return true;
