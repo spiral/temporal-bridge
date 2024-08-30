@@ -61,8 +61,8 @@ final class TemporalConfig extends InjectableConfig
                 ->withNamespace($namespace);
 
             $config['client'] = 'default';
-            $config['clients']['default'] = ClientConfig::new(
-                ConnectionConfig::new(address: $address),
+            $config['clients']['default'] = new ClientConfig(
+                new ConnectionConfig(address: $address),
                 $clientOptions,
             );
         }
