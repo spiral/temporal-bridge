@@ -20,6 +20,7 @@ use Spiral\TemporalBridge\WorkersRegistry;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
 use Spiral\Testing\Attribute\Env;
 use Temporal\Api\Workflowservice\V1\WorkflowServiceClient;
+use Temporal\Client\ClientOptions;
 use Temporal\Client\GRPC\ServiceClient;
 use Temporal\Client\GRPC\ServiceClientInterface;
 use Temporal\Client\ScheduleClient;
@@ -135,6 +136,28 @@ class TemporalBridgeBootloaderTest extends TestCase
 
         // It might be dns://ssl:7233
         $this->assertStringContainsString('ssl:7233', $workflowService->getTarget());
+    }
+
+    #[Env('TEMPORAL_CONNECTION', 'ssl')]
+    public function testContext(): void
+    {
+        $client = $this->getContainer()->get(ServiceClientInterface::class);
+        \assert($client instanceof ServiceClientInterface);
+        $context = $client->getContext();
+
+        $this->assertSame(['foo' => ['bar']], $context->getMetadata());
+    }
+
+    #[Env('TEMPORAL_CONNECTION', 'ssl')]
+    public function testClientOptions(): void
+    {
+        $client = $this->getContainer()->get(WorkflowClientInterface::class);
+        \assert($client instanceof WorkflowClientInterface);
+
+        $clientOptions = (fn() => $client->clientOptions)->call($client);
+        \assert($clientOptions instanceof ClientOptions);
+
+        $this->assertSame('foo-bar', $clientOptions->namespace);
     }
 
     #[Env('TEMPORAL_CONNECTION', 'test')]
