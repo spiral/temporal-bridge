@@ -79,7 +79,7 @@ final class Dispatcher implements DispatcherInterface
     {
         /** @psalm-suppress InvalidArgument */
         return $this->scope->runScope(
-            new Scope('temporal.activity'),
+            new Scope('temporal-activity'),
             static fn (FactoryInterface $factory): object => $factory->make($class->getName()),
         );
     }

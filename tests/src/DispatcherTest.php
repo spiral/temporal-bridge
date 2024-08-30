@@ -117,7 +117,7 @@ final class DispatcherTest extends TestCase
 
     public function testScope(): void
     {
-        $binder = $this->getContainer()->getBinder('temporal.activity');
+        $binder = $this->getContainer()->getBinder('temporal-activity');
         $binder->bind(SomeActivityWithScope::class, SomeActivityWithScope::class);
         $binder->bind(\ArrayAccess::class, $this->createMock(\ArrayAccess::class));
 
