@@ -18,6 +18,9 @@ use Spiral\TemporalBridge\WorkerFactory;
 use Spiral\TemporalBridge\WorkerFactoryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
+use Spiral\Testing\Attribute\Env;
+use Temporal\Api\Workflowservice\V1\WorkflowServiceClient;
+use Temporal\Client\ClientOptions;
 use Temporal\Client\GRPC\ServiceClient;
 use Temporal\Client\GRPC\ServiceClientInterface;
 use Temporal\Client\ScheduleClient;
@@ -63,7 +66,7 @@ class TemporalBridgeBootloaderTest extends TestCase
     {
         $this->assertContainerBoundAsSingleton(
             WorkerFactoryInterface::class,
-            WorkerFactory::class
+            WorkerFactory::class,
         );
     }
 
@@ -105,6 +108,65 @@ class TemporalBridgeBootloaderTest extends TestCase
             PipelineProvider::class,
             SimplePipelineProvider::class,
         );
+    }
+
+    #[Env('TEMPORAL_CONNECTION', 'default')]
+    public function testConnection(): void
+    {
+        $client = $this->getContainer()->get(ServiceClientInterface::class);
+        \assert($client instanceof ServiceClientInterface);
+        $connection = $client->getConnection();
+        \assert($connection instanceof \Temporal\Client\GRPC\Connection\Connection);
+        $workflowService = (fn() => $connection->workflowService)->call($connection);
+        \assert($workflowService instanceof WorkflowServiceClient);
+
+        // It might be dns://localhost:7233
+        $this->assertStringContainsString('localhost:7233', $workflowService->getTarget());
+    }
+
+    #[Env('TEMPORAL_CONNECTION', 'ssl')]
+    public function testSecureConnection(): void
+    {
+        $client = $this->getContainer()->get(ServiceClientInterface::class);
+        \assert($client instanceof ServiceClientInterface);
+        $connection = $client->getConnection();
+        \assert($connection instanceof \Temporal\Client\GRPC\Connection\Connection);
+        $workflowService = (fn() => $connection->workflowService)->call($connection);
+        \assert($workflowService instanceof WorkflowServiceClient);
+
+        // It might be dns://ssl:7233
+        $this->assertStringContainsString('ssl:7233', $workflowService->getTarget());
+    }
+
+    #[Env('TEMPORAL_CONNECTION', 'ssl')]
+    public function testContext(): void
+    {
+        $client = $this->getContainer()->get(ServiceClientInterface::class);
+        \assert($client instanceof ServiceClientInterface);
+        $context = $client->getContext();
+
+        $this->assertSame(['foo' => ['bar']], $context->getMetadata());
+    }
+
+    #[Env('TEMPORAL_CONNECTION', 'ssl')]
+    public function testClientOptions(): void
+    {
+        $client = $this->getContainer()->get(WorkflowClientInterface::class);
+        \assert($client instanceof WorkflowClientInterface);
+
+        $clientOptions = (fn() => $client->clientOptions)->call($client);
+        \assert($clientOptions instanceof ClientOptions);
+
+        $this->assertSame('foo-bar', $clientOptions->namespace);
+    }
+
+    #[Env('TEMPORAL_CONNECTION', 'test')]
+    public function testNonExistsConnection(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Temporal client config `test` is not defined.');
+
+        $this->getContainer()->get(ServiceClientInterface::class);
     }
 
     public function testAddWorkerOptions(): void

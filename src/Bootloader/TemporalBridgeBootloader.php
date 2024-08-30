@@ -15,6 +15,8 @@ use Spiral\Core\Container\Autowire;
 use Spiral\Core\FactoryInterface;
 use Spiral\RoadRunnerBridge\Bootloader\RoadRunnerBootloader;
 use Spiral\TemporalBridge\Commands;
+use Spiral\TemporalBridge\Config\ClientConfig;
+use Spiral\TemporalBridge\Config\ConnectionConfig;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
@@ -95,9 +97,7 @@ class TemporalBridgeBootloader extends Bootloader
 
             DataConverterInterface::class => static fn() => DataConverter::createDefault(),
             PipelineProvider::class => [self::class, 'initPipelineProvider'],
-            ServiceClientInterface::class => static fn(
-                TemporalConfig $config,
-            ): ServiceClientInterface => ServiceClient::create($config->getAddress()),
+            ServiceClientInterface::class => [self::class, 'initServiceClient'],
         ];
     }
 
@@ -156,16 +156,39 @@ class TemporalBridgeBootloader extends Bootloader
         $this->config->setDefaults(
             TemporalConfig::CONFIG,
             [
-                'address' => $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
-                'namespace' => 'App\\Endpoint\\Temporal\\Workflow',
+                'client' => $env->get('TEMPORAL_CONNECTION', 'default'),
+                'clients' => [
+                    'default' => ClientConfig::new(
+                            ConnectionConfig::new(
+                            address: $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
+                        ),
+                    ),
+                ],
                 'defaultWorker' => (string)$env->get(
                     'TEMPORAL_TASK_QUEUE',
                     TemporalWorkerFactoryInterface::DEFAULT_TASK_QUEUE,
                 ),
                 'workers' => [],
-                'clientOptions' => null,
             ],
         );
+    }
+
+    protected function initServiceClient(TemporalConfig $config): ServiceClientInterface
+    {
+        $client = $config->getClientConfig($config->getDefaultClient());
+        $connection = $client->connection;
+
+        $result = $connection->isSecure()
+            ? ServiceClient::createSSL(
+                address: $connection->address,
+                crt: $connection->tlsConfig->rootCerts,
+                clientKey: $connection->tlsConfig->privateKey,
+                clientPem: $connection->tlsConfig->certChain,
+                overrideServerName: $connection->tlsConfig->serverName,
+            )
+            : ServiceClient::create(address: $connection->address);
+
+        return $result->withContext($client->context);
     }
 
     protected function initPipelineProvider(TemporalConfig $config, FactoryInterface $factory): PipelineProvider

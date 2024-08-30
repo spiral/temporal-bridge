@@ -25,29 +25,29 @@ final class WorkflowCommandTest extends TestCase
             $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
             $this->assertSame(
                 <<<'PHP'
-<?php
+                    <?php
 
-declare(strict_types=1);
+                    declare(strict_types=1);
 
-namespace Spiral\Testing\Endpoint\Temporal\Workflow;
+                    namespace Spiral\Testing\Endpoint\Temporal\Workflow;
 
-use Temporal\Workflow\WorkflowInterface;
-use Temporal\Workflow\WorkflowMethod;
+                    use Temporal\Workflow\WorkflowInterface;
+                    use Temporal\Workflow\WorkflowMethod;
 
-#[WorkflowInterface]
-class PaymentWorkflow
-{
-    /**
-     * Handle workflow
-     */
-    #[WorkflowMethod]
-    public function handle()
-    {
-        // TODO: Implement handle method
-    }
-}
+                    #[WorkflowInterface]
+                    class PaymentWorkflow
+                    {
+                        /**
+                         * Handle workflow
+                         */
+                        #[WorkflowMethod]
+                        public function handle()
+                        {
+                            // TODO: Implement handle method
+                        }
+                    }
 
-PHP,
+                    PHP,
                 $body,
             );
             return true;
@@ -65,29 +65,29 @@ PHP,
             $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
             $this->assertSame(
                 <<<'PHP'
-<?php
+                    <?php
 
-declare(strict_types=1);
+                    declare(strict_types=1);
 
-namespace Spiral\Testing\Endpoint\Temporal\Workflow;
+                    namespace Spiral\Testing\Endpoint\Temporal\Workflow;
 
-use Temporal\Workflow\WorkflowInterface;
-use Temporal\Workflow\WorkflowMethod;
+                    use Temporal\Workflow\WorkflowInterface;
+                    use Temporal\Workflow\WorkflowMethod;
 
-#[WorkflowInterface]
-class PaymentWorkflow
-{
-    /**
-     * Handle workflow
-     */
-    #[WorkflowMethod(name: 'PaymentWorkflow')]
-    public function handle()
-    {
-        // TODO: Implement handle method
-    }
-}
+                    #[WorkflowInterface]
+                    class PaymentWorkflow
+                    {
+                        /**
+                         * Handle workflow
+                         */
+                        #[WorkflowMethod(name: 'PaymentWorkflow')]
+                        public function handle()
+                        {
+                            // TODO: Implement handle method
+                        }
+                    }
 
-PHP,
+                    PHP,
                 $body,
             );
             return true;
@@ -106,31 +106,31 @@ PHP,
             $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
             $this->assertSame(
                 <<<'PHP'
-<?php
+                    <?php
 
-declare(strict_types=1);
+                    declare(strict_types=1);
 
-namespace Spiral\Testing\Endpoint\Temporal\Workflow;
+                    namespace Spiral\Testing\Endpoint\Temporal\Workflow;
 
-use Spiral\TemporalBridge\Attribute\AssignWorker;
-use Temporal\Workflow\WorkflowInterface;
-use Temporal\Workflow\WorkflowMethod;
+                    use Spiral\TemporalBridge\Attribute\AssignWorker;
+                    use Temporal\Workflow\WorkflowInterface;
+                    use Temporal\Workflow\WorkflowMethod;
 
-#[WorkflowInterface]
-#[AssignWorker(taskQueue: 'test')]
-class PaymentWorkflow
-{
-    /**
-     * Handle workflow
-     */
-    #[WorkflowMethod]
-    public function handle()
-    {
-        // TODO: Implement handle method
-    }
-}
+                    #[WorkflowInterface]
+                    #[AssignWorker(taskQueue: 'test')]
+                    class PaymentWorkflow
+                    {
+                        /**
+                         * Handle workflow
+                         */
+                        #[WorkflowMethod]
+                        public function handle()
+                        {
+                            // TODO: Implement handle method
+                        }
+                    }
 
-PHP,
+                    PHP,
                 $body,
             );
             return true;
@@ -149,48 +149,48 @@ PHP,
             $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
             $this->assertSame(
                 <<<'PHP'
-<?php
+                    <?php
 
-declare(strict_types=1);
+                    declare(strict_types=1);
 
-namespace Spiral\Testing\Endpoint\Temporal\Workflow;
+                    namespace Spiral\Testing\Endpoint\Temporal\Workflow;
 
-use Temporal\Workflow\QueryMethod;
-use Temporal\Workflow\WorkflowInterface;
-use Temporal\Workflow\WorkflowMethod;
+                    use Temporal\Workflow\QueryMethod;
+                    use Temporal\Workflow\WorkflowInterface;
+                    use Temporal\Workflow\WorkflowMethod;
 
-#[WorkflowInterface]
-class PaymentWorkflow
-{
-    /**
-     * Handle workflow
-     */
-    #[WorkflowMethod]
-    public function handle()
-    {
-        // TODO: Implement handle method
-    }
+                    #[WorkflowInterface]
+                    class PaymentWorkflow
+                    {
+                        /**
+                         * Handle workflow
+                         */
+                        #[WorkflowMethod]
+                        public function handle()
+                        {
+                            // TODO: Implement handle method
+                        }
 
-    #[QueryMethod]
-    public function getPayment(): string
-    {
-        // TODO: Implement query method
-    }
+                        #[QueryMethod]
+                        public function getPayment(): string
+                        {
+                            // TODO: Implement query method
+                        }
 
-    #[QueryMethod]
-    public function getTotal(): int
-    {
-        // TODO: Implement query method
-    }
+                        #[QueryMethod]
+                        public function getTotal(): int
+                        {
+                            // TODO: Implement query method
+                        }
 
-    #[QueryMethod]
-    public function getLastTransaction(): mixed
-    {
-        // TODO: Implement query method
-    }
-}
+                        #[QueryMethod]
+                        public function getLastTransaction(): mixed
+                        {
+                            // TODO: Implement query method
+                        }
+                    }
 
-PHP,
+                    PHP,
                 $body,
             );
             return true;
@@ -213,42 +213,42 @@ PHP,
             $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
             $this->assertSame(
                 <<<'PHP'
-<?php
+                    <?php
 
-declare(strict_types=1);
+                    declare(strict_types=1);
 
-namespace Spiral\Testing\Endpoint\Temporal\Workflow;
+                    namespace Spiral\Testing\Endpoint\Temporal\Workflow;
 
-use Temporal\Workflow\SignalMethod;
-use Temporal\Workflow\WorkflowInterface;
-use Temporal\Workflow\WorkflowMethod;
+                    use Temporal\Workflow\SignalMethod;
+                    use Temporal\Workflow\WorkflowInterface;
+                    use Temporal\Workflow\WorkflowMethod;
 
-#[WorkflowInterface]
-class PaymentWorkflow
-{
-    /**
-     * Handle workflow
-     */
-    #[WorkflowMethod]
-    public function handle()
-    {
-        // TODO: Implement handle method
-    }
+                    #[WorkflowInterface]
+                    class PaymentWorkflow
+                    {
+                        /**
+                         * Handle workflow
+                         */
+                        #[WorkflowMethod]
+                        public function handle()
+                        {
+                            // TODO: Implement handle method
+                        }
 
-    #[SignalMethod]
-    public function pay(): void
-    {
-        // TODO: Implement signal method
-    }
+                        #[SignalMethod]
+                        public function pay(): void
+                        {
+                            // TODO: Implement signal method
+                        }
 
-    #[SignalMethod]
-    public function cancel(): void
-    {
-        // TODO: Implement signal method
-    }
-}
+                        #[SignalMethod]
+                        public function cancel(): void
+                        {
+                            // TODO: Implement signal method
+                        }
+                    }
 
-PHP,
+                    PHP,
                 $body,
             );
             return true;
