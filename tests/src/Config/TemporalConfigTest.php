@@ -46,8 +46,8 @@ final class TemporalConfigTest extends TestCase
     {
         $config = new TemporalConfig([
             'clients' => [
-                'default' => ClientConfig::new(
-                    ConnectionConfig::new(address: 'localhost:2222')
+                'default' => new ClientConfig(
+                    (new ConnectionConfig(address: 'localhost:2222'))
                         ->withTls(
                             rootCerts: 'crt',
                             privateKey: 'clientKey',

@@ -158,8 +158,8 @@ class TemporalBridgeBootloader extends Bootloader
             [
                 'client' => $env->get('TEMPORAL_CONNECTION', 'default'),
                 'clients' => [
-                    'default' => ClientConfig::new(
-                            ConnectionConfig::new(
+                    'default' => new ClientConfig(
+                        connection: new ConnectionConfig(
                             address: $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
                         ),
                     ),

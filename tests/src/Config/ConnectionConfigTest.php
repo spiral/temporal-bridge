@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Tests\Config;
 
 use Spiral\TemporalBridge\Config\ConnectionConfig;
+use Spiral\TemporalBridge\Config\TlsConfig;
 use Spiral\TemporalBridge\Tests\TestCase;
 
 final class ConnectionConfigTest extends TestCase
 {
     public function testCreateSecure(): void
     {
-        $config = ConnectionConfig::new(
-            address: 'localhost:2222',
-        )->withTls(
-            rootCerts: 'crt',
-            privateKey: 'clientKey',
-            certChain: 'clientPem',
-        );
+        $config = (new ConnectionConfig(address: 'localhost:2222'))
+            ->withTls(
+                rootCerts: 'crt',
+                privateKey: 'clientKey',
+                certChain: 'clientPem',
+            );
 
         $this->assertTrue($config->isSecure());
         $this->assertSame('localhost:2222', $config->address);
@@ -28,7 +28,7 @@ final class ConnectionConfigTest extends TestCase
 
     public function testCreateInsecure(): void
     {
-        $config = ConnectionConfig::new(
+        $config = new ConnectionConfig(
             address: 'localhost:1111',
         );
 
@@ -38,10 +38,11 @@ final class ConnectionConfigTest extends TestCase
 
     public function testWithAuthKey(): void
     {
-        $config = ConnectionConfig::new(
+        $config = new ConnectionConfig(
             address: 'localhost:1111',
-        )->withTls(
-            certChain: 'clientPem',
+            tlsConfig: new TlsConfig(
+                certChain: 'clientPem',
+            )
         );
 
         $newConfig = $config->withAuthKey($key = 'authKey');
@@ -53,7 +54,7 @@ final class ConnectionConfigTest extends TestCase
 
     public function testWithAuthKeyNull(): void
     {
-        $config = ConnectionConfig::new(address: 'localhost:1111')
+        $config = (new ConnectionConfig(address: 'localhost:1111'))
             ->withTls()
             ->withAuthKey('authKey');
 
@@ -68,7 +69,7 @@ final class ConnectionConfigTest extends TestCase
 
     public function testWithAuthKeyStringable(): void
     {
-        $config = ConnectionConfig::new(address: 'localhost:1111')
+        $config = (new ConnectionConfig(address: 'localhost:1111'))
             ->withTls()
             ->withAuthKey(
                 $key = new class() implements \Stringable {

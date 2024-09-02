@@ -13,7 +13,7 @@ namespace Spiral\TemporalBridge\Config;
  *
  * How to connect to Temporal Cloud:
  *
- *     ConnectionConfig::new('foo-bar-default.baz.tmprl.cloud:7233')
+ *     (new ConnectionConfig('foo-bar-default.baz.tmprl.cloud:7233'))
  *         ->withTls(
  *             privateKey: '/my-project.key',
  *             certChain: '/my-project.pem',
@@ -22,10 +22,11 @@ namespace Spiral\TemporalBridge\Config;
 final class ConnectionConfig
 {
     /**
-     * @param non-empty-string $address
-     * @param non-empty-string|\Stringable|null $authToken
+     * @param non-empty-string $address Address of the Temporal service.
+     * @param TlsConfig|null $tlsConfig TLS configuration for the connection.
+     * @param non-empty-string|\Stringable|null $authToken Authentication token for the service client.
      */
-    private function __construct(
+    public function __construct(
         public readonly string $address,
         public readonly ?TlsConfig $tlsConfig = null,
         public readonly string|\Stringable|null $authToken = null,
@@ -40,15 +41,6 @@ final class ConnectionConfig
     public function isSecure(): bool
     {
         return $this->tlsConfig !== null;
-    }
-
-    /**
-     * @param non-empty-string $address
-     */
-    public static function new(
-        string $address,
-    ): self {
-        return new self($address);
     }
 
     /**

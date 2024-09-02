@@ -48,19 +48,19 @@ final class InfoCommandTest extends TestCase
         $this->assertStringEqualsStringIgnoringLineEndings(
             <<<'OUTPUT'
 
-Workflows
-=========
+                Workflows
+                =========
 
-+-----------------+------------------------------------------------------+------------------+
-| Name            | Class                                                | Task Queue       |
-+-----------------+------------------------------------------------------+------------------+
-| fooWorkflow     | Spiral\TemporalBridge\Tests\Commands\Workflow        | worker2          |
-|                 | src/Commands/InfoCommandTest.php                     |                  |
-| AnotherWorkflow | Spiral\TemporalBridge\Tests\Commands\AnotherWorkflow | default, worker2 |
-|                 | src/Commands/InfoCommandTest.php                     |                  |
-+-----------------+------------------------------------------------------+------------------+
+                +-----------------+------------------------------------------------------+------------------+
+                | Name            | Class                                                | Task Queue       |
+                +-----------------+------------------------------------------------------+------------------+
+                | fooWorkflow     | Spiral\TemporalBridge\Tests\Commands\Workflow        | worker2          |
+                |                 | src/Commands/InfoCommandTest.php                     |                  |
+                | AnotherWorkflow | Spiral\TemporalBridge\Tests\Commands\AnotherWorkflow | default, worker2 |
+                |                 | src/Commands/InfoCommandTest.php                     |                  |
+                +-----------------+------------------------------------------------------+------------------+
 
-OUTPUT,
+                OUTPUT,
             $result,
         );
     }
@@ -74,32 +74,32 @@ OUTPUT,
         $this->assertStringEqualsStringIgnoringLineEndings(
             <<<'OUTPUT'
 
-Workflows
-=========
+                Workflows
+                =========
 
-+-----------------+------------------------------------------------------+------------------+
-| Name            | Class                                                | Task Queue       |
-+-----------------+------------------------------------------------------+------------------+
-| fooWorkflow     | Spiral\TemporalBridge\Tests\Commands\Workflow        | worker2          |
-|                 | src/Commands/InfoCommandTest.php                     |                  |
-| AnotherWorkflow | Spiral\TemporalBridge\Tests\Commands\AnotherWorkflow | default, worker2 |
-|                 | src/Commands/InfoCommandTest.php                     |                  |
-+-----------------+------------------------------------------------------+------------------+
+                +-----------------+------------------------------------------------------+------------------+
+                | Name            | Class                                                | Task Queue       |
+                +-----------------+------------------------------------------------------+------------------+
+                | fooWorkflow     | Spiral\TemporalBridge\Tests\Commands\Workflow        | worker2          |
+                |                 | src/Commands/InfoCommandTest.php                     |                  |
+                | AnotherWorkflow | Spiral\TemporalBridge\Tests\Commands\AnotherWorkflow | default, worker2 |
+                |                 | src/Commands/InfoCommandTest.php                     |                  |
+                +-----------------+------------------------------------------------------+------------------+
 
-Activities
-==========
+                Activities
+                ==========
 
-+------------------------+---------------------------------------------+------------+
-| Name                   | Class                                       | Task Queue |
-+------------------------+---------------------------------------------+------------+
-| fooActivity            | ActivityInterfaceWithWorker::foo            | worker1    |
-| bar                    | ActivityInterfaceWithWorker::bar            |            |
-+------------------------+---------------------------------------------+------------+
-| fooActivity__construct | ActivityInterfaceWithoutWorker::__construct | default    |
-| fooActivitybaz         | ActivityInterfaceWithoutWorker::baz         |            |
-+------------------------+---------------------------------------------+------------+
+                +------------------------+---------------------------------------------+------------+
+                | Name                   | Class                                       | Task Queue |
+                +------------------------+---------------------------------------------+------------+
+                | fooActivity            | ActivityInterfaceWithWorker::foo            | worker1    |
+                | bar                    | ActivityInterfaceWithWorker::bar            |            |
+                +------------------------+---------------------------------------------+------------+
+                | fooActivity__construct | ActivityInterfaceWithoutWorker::__construct | default    |
+                | fooActivitybaz         | ActivityInterfaceWithoutWorker::baz         |            |
+                +------------------------+---------------------------------------------+------------+
 
-OUTPUT,
+                OUTPUT,
             $result,
         );
     }

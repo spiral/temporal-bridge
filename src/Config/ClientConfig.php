@@ -11,15 +11,17 @@ use Temporal\Client\GRPC\ContextInterface;
 /**
  * Temporal Client configuration.
  *
- *     ClientConfig::new(
- *         ConnectionConfig::new('localhost:7233')
- *             ->withTls(
+ *     new ClientConfig(
+ *         connection: new ConnectionConfig(
+ *             address: 'localhost:7233',
+ *             tlsConfig: new TlsConfig(
  *                 privateKey: '/my-project.key',
  *                 certChain: '/my-project.pem',
  *             ),
- *         (new ClientOptions())
+ *         ),
+ *         options: (new ClientOptions())
  *             ->withNamespace('default'),
- *         Context::default()
+ *         context: Context::default()
  *             ->withTimeout(4.5)
  *             ->withRetryOptions(
  *                 RpcRetryOptions::new()
@@ -28,33 +30,23 @@ use Temporal\Client\GRPC\ContextInterface;
  *                     ->withMaximumInterval(10)
  *                     ->withBackoffCoefficient(1.6)
  *             ),
- *         ),
  *     ),
  */
 final class ClientConfig
 {
-    private function __construct(
-        public readonly ConnectionConfig $connection,
-        public readonly ClientOptions $options,
-        public readonly ContextInterface $context,
-    ) {}
+    public readonly ContextInterface $context;
 
     /**
      * Create a new client configuration.
      *
-     * @param ConnectionConfig $connection
-     * @param ClientOptions|null $options
+     * @param ClientOptions $options Workflow or Schedule client options.
      * @param ContextInterface|null $context Default Service Client context.
      */
-    public static function new(
-        ConnectionConfig $connection,
-        ?ClientOptions $options = null,
+    public function __construct(
+        public readonly ConnectionConfig $connection,
+        public readonly ClientOptions $options = new ClientOptions(),
         ?ContextInterface $context = null,
-    ): self {
-        return new self(
-            $connection,
-            $options ?? new ClientOptions(),
-            $context ?? Context::default(),
-        );
+    ) {
+        $this->context = $context ?? Context::default();
     }
 }
