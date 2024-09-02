@@ -181,10 +181,10 @@ class TemporalBridgeBootloader extends Bootloader
         $result = $connection->isSecure()
             ? ServiceClient::createSSL(
                 address: $connection->address,
-                crt: $connection->tlsConfig->rootCerts,
-                clientKey: $connection->tlsConfig->privateKey,
-                clientPem: $connection->tlsConfig->certChain,
-                overrideServerName: $connection->tlsConfig->serverName,
+                crt: $connection->tls->rootCerts,
+                clientKey: $connection->tls->privateKey,
+                clientPem: $connection->tls->certChain,
+                overrideServerName: $connection->tls->serverName,
             )
             : ServiceClient::create(address: $connection->address);
 

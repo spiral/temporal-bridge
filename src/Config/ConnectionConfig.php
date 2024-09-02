@@ -9,7 +9,7 @@ namespace Spiral\TemporalBridge\Config;
  *
  * How to connect to local Temporal server:
  *
- *     ConnectionConfig::new('localhost:7233'),
+ *     new ConnectionConfig('localhost:7233'),
  *
  * How to connect to Temporal Cloud:
  *
@@ -23,24 +23,24 @@ final class ConnectionConfig
 {
     /**
      * @param non-empty-string $address Address of the Temporal service.
-     * @param TlsConfig|null $tlsConfig TLS configuration for the connection.
+     * @param TlsConfig|null $tls TLS configuration for the connection.
      * @param non-empty-string|\Stringable|null $authToken Authentication token for the service client.
      */
     public function __construct(
         public readonly string $address,
-        public readonly ?TlsConfig $tlsConfig = null,
+        public readonly ?TlsConfig $tls = null,
         public readonly string|\Stringable|null $authToken = null,
     ) {}
 
     /**
      * Check if the connection is secure.
      *
-     * @psalm-assert-if-true TlsConfig $this->tlsConfig
-     * @psalm-assert-if-false null $this->tlsConfig
+     * @psalm-assert-if-true TlsConfig $this->tls
+     * @psalm-assert-if-false null $this->tls
      */
     public function isSecure(): bool
     {
-        return $this->tlsConfig !== null;
+        return $this->tls !== null;
     }
 
     /**
@@ -78,7 +78,7 @@ final class ConnectionConfig
     {
         return new self(
             $this->address,
-            $this->tlsConfig,
+            $this->tls,
             $authToken,
         );
     }

@@ -14,7 +14,7 @@ use Temporal\Client\GRPC\ContextInterface;
  *     new ClientConfig(
  *         connection: new ConnectionConfig(
  *             address: 'localhost:7233',
- *             tlsConfig: new TlsConfig(
+ *             tls: new TlsConfig(
  *                 privateKey: '/my-project.key',
  *                 certChain: '/my-project.pem',
  *             ),

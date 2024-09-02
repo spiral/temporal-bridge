@@ -15,7 +15,7 @@ return [
         'ssl' => new ClientConfig(
             new ConnectionConfig(
                 address: 'ssl:7233',
-                tlsConfig: new TlsConfig(
+                tls: new TlsConfig(
                     rootCerts: '/path/to/crt',
                     privateKey: '/path/to/clientKey',
                     certChain: '/path/to/clientPem',

@@ -21,9 +21,9 @@ final class ConnectionConfigTest extends TestCase
 
         $this->assertTrue($config->isSecure());
         $this->assertSame('localhost:2222', $config->address);
-        $this->assertSame('crt', $config->tlsConfig->rootCerts);
-        $this->assertSame('clientKey', $config->tlsConfig->privateKey);
-        $this->assertSame('clientPem', $config->tlsConfig->certChain);
+        $this->assertSame('crt', $config->tls->rootCerts);
+        $this->assertSame('clientKey', $config->tls->privateKey);
+        $this->assertSame('clientPem', $config->tls->certChain);
     }
 
     public function testCreateInsecure(): void
@@ -40,7 +40,7 @@ final class ConnectionConfigTest extends TestCase
     {
         $config = new ConnectionConfig(
             address: 'localhost:1111',
-            tlsConfig: new TlsConfig(
+            tls: new TlsConfig(
                 certChain: 'clientPem',
             )
         );

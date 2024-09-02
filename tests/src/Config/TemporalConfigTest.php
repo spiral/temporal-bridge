@@ -63,10 +63,10 @@ final class TemporalConfigTest extends TestCase
 
         $this->assertTrue($connection->isSecure());
         $this->assertSame('localhost:2222', $connection->address);
-        $this->assertSame('crt', $connection->tlsConfig->rootCerts);
-        $this->assertSame('clientKey', $connection->tlsConfig->privateKey);
-        $this->assertSame('clientPem', $connection->tlsConfig->certChain);
-        $this->assertSame('localhost', $connection->tlsConfig->serverName);
+        $this->assertSame('crt', $connection->tls->rootCerts);
+        $this->assertSame('clientKey', $connection->tls->privateKey);
+        $this->assertSame('clientPem', $connection->tls->certChain);
+        $this->assertSame('localhost', $connection->tls->serverName);
     }
 
     public function testGetsDefaultWorker(): void
