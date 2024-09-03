@@ -43,15 +43,15 @@
   ],
   "require": {
     "php": "^8.1",
-    "spiral/boot": "^3.13",
+    "spiral/boot": "^3.14",
     "spiral/attributes": "^2.8 || ^3.1.5",
-    "spiral/tokenizer": "^3.13",
-    "spiral/scaffolder": "^3.13",
-    "spiral/roadrunner-bridge": "^2.0 || ^3.6",
+    "spiral/tokenizer": "^3.14",
+    "spiral/scaffolder": "^3.14",
+    "spiral/roadrunner-bridge": "^3.7 || ^4.0",
     "temporal/sdk": "^2.10"
   },
   "require-dev": {
-    "spiral/framework": "^3.13",
+    "spiral/framework": "^3.14",
     "spiral/testing": "^2.8",
     "vimeo/psalm": "^5.23"
   },
