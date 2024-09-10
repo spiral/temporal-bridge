@@ -13,7 +13,6 @@
     "issues": "https://github.com/spiral/temporal-bridge/issues",
     "source": "https://github.com/spiral/temporal-bridge",
     "docs": "https://spiral.dev/docs",
-    "forum": "https://forum.spiral.dev",
     "chat": "https://discord.gg/V6EK4he"
   },
   "license": "MIT",
@@ -43,17 +42,19 @@
   ],
   "require": {
     "php": "^8.1",
-    "spiral/boot": "^3.13",
     "spiral/attributes": "^2.8 || ^3.1.5",
-    "spiral/tokenizer": "^3.13",
-    "spiral/scaffolder": "^3.13",
-    "spiral/roadrunner-bridge": "^2.0 || ^3.6",
+    "spiral/boot": "^3.14",
+    "spiral/core": "^3.14",
+    "spiral/roadrunner-bridge": "^3.7 || ^4.0",
+    "spiral/scaffolder": "^3.14",
+    "spiral/tokenizer": "^3.14",
     "temporal/sdk": "^2.10"
   },
   "require-dev": {
-    "spiral/framework": "^3.13",
+    "spiral/framework": "^3.14",
+    "spiral/dumper": "^3.3",
     "spiral/testing": "^2.8",
-    "vimeo/psalm": "^5.23"
+    "vimeo/psalm": "^5.26"
   },
   "autoload": {
     "psr-4": {
