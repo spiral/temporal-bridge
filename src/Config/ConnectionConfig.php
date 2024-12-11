@@ -61,6 +61,7 @@ final class ConnectionConfig
         return new self(
             $this->address,
             new TlsConfig($rootCerts, $privateKey, $certChain, $serverName),
+            $this->authToken,
         );
     }
 
