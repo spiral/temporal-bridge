@@ -13,16 +13,6 @@ final class DeclarationWorkerResolverTest extends TestCase
 {
     private DeclarationWorkerResolver $resolver;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->resolver = new DeclarationWorkerResolver(
-            new AttributeReader(),
-            new TemporalConfig(['defaultWorker' => 'foo']),
-        );
-    }
-
     public function testResolvingQueueNameWithAttributeOnClass(): void
     {
         $queue = $this->resolver->resolve(
@@ -58,24 +48,26 @@ final class DeclarationWorkerResolverTest extends TestCase
 
         $this->assertSame(['foo'], $queue);
     }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->resolver = new DeclarationWorkerResolver(
+            new AttributeReader(),
+            new TemporalConfig(['defaultWorker' => 'foo']),
+        );
+    }
 }
 
 #[AssignWorker(taskQueue: 'worker1')]
-interface ActivityInterfaceWithAttribute
-{
-}
+interface ActivityInterfaceWithAttribute {}
 
 #[AssignWorker(taskQueue: 'worker1')]
 #[AssignWorker(taskQueue: 'worker2')]
-interface ActivityInterfaceWithMultipleAttributes
-{
-}
+interface ActivityInterfaceWithMultipleAttributes {}
 
 
-interface ActivityInterfaceWithoutAttribute
-{
-}
+interface ActivityInterfaceWithoutAttribute {}
 
-class ActivityClass implements ActivityInterfaceWithAttribute
-{
-}
+class ActivityClass implements ActivityInterfaceWithAttribute {}

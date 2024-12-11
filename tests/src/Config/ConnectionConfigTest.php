@@ -42,7 +42,7 @@ final class ConnectionConfigTest extends TestCase
             address: 'localhost:1111',
             tls: new TlsConfig(
                 certChain: 'clientPem',
-            )
+            ),
         );
 
         $newConfig = $config->withAuthKey($key = 'authKey');
@@ -72,12 +72,12 @@ final class ConnectionConfigTest extends TestCase
         $config = (new ConnectionConfig(address: 'localhost:1111'))
             ->withTls()
             ->withAuthKey(
-                $key = new class() implements \Stringable {
+                $key = new class implements \Stringable {
                     public function __toString(): string
                     {
                         return 'authKey';
                     }
-                }
+                },
             );
 
         $this->assertSame($key, $config->authToken);

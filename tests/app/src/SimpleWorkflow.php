@@ -6,8 +6,5 @@ namespace Spiral\TemporalBridge\Tests\App;
 
 class SimpleWorkflow
 {
-    public function handle()
-    {
-
-    }
+    public function handle(): void {}
 }

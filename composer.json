@@ -41,7 +41,7 @@
     }
   ],
   "require": {
-    "php": "^8.1",
+    "php": ">=8.1",
     "spiral/attributes": "^2.8 || ^3.1.5",
     "spiral/boot": "^3.14",
     "spiral/core": "^3.14",
@@ -51,6 +51,8 @@
     "temporal/sdk": "^2.10"
   },
   "require-dev": {
+    "buggregator/trap": "^1.11",
+    "spiral/code-style": "^2.2.0",
     "spiral/framework": "^3.14",
     "spiral/dumper": "^3.3",
     "spiral/testing": "^2.8",
@@ -68,8 +70,11 @@
     }
   },
   "scripts": {
-    "test": "vendor/bin/phpunit",
-    "psalm": "vendor/bin/psalm --no-cache --config=psalm.xml ./src"
+    "cs:diff": "php-cs-fixer fix --dry-run -v --diff",
+    "cs:fix": "php-cs-fixer fix -v",
+    "psalm": "psalm",
+    "psalm:baseline": "psalm --set-baseline=psalm-baseline.xml",
+    "test": "phpunit --color=always"
   },
   "config": {
     "sort-packages": true,

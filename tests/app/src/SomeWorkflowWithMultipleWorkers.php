@@ -8,6 +8,4 @@ use Spiral\TemporalBridge\Attribute\AssignWorker;
 
 #[AssignWorker(taskQueue: 'worker1')]
 #[AssignWorker(taskQueue: 'worker2')]
-class SomeWorkflowWithMultipleWorkers
-{
-}
+class SomeWorkflowWithMultipleWorkers {}

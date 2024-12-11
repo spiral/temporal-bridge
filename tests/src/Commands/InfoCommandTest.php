@@ -16,31 +16,6 @@ use Temporal\Workflow\WorkflowMethod;
 
 final class InfoCommandTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $locator = $this->mockContainer(DeclarationRegistryInterface::class);
-        $locator->shouldReceive('getDeclarationList')->andReturnUsing(function () {
-            yield new DeclarationDto(
-                type: DeclarationType::Workflow,
-                class: new \ReflectionClass(Workflow::class),
-            );
-            yield new DeclarationDto(
-                type: DeclarationType::Activity,
-                class: new \ReflectionClass(ActivityInterfaceWithWorker::class),
-            );
-            yield new DeclarationDto(
-                type: DeclarationType::Activity,
-                class: new \ReflectionClass(ActivityInterfaceWithoutWorker::class),
-            );
-            yield new DeclarationDto(
-                type: DeclarationType::Workflow,
-                class: new \ReflectionClass(AnotherWorkflow::class),
-            );
-        });
-    }
-
     public function testInfo(): void
     {
         $result = $this->runCommand('temporal:info');
@@ -103,6 +78,31 @@ final class InfoCommandTest extends TestCase
             $result,
         );
     }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $locator = $this->mockContainer(DeclarationRegistryInterface::class);
+        $locator->shouldReceive('getDeclarationList')->andReturnUsing(static function () {
+            yield new DeclarationDto(
+                type: DeclarationType::Workflow,
+                class: new \ReflectionClass(Workflow::class),
+            );
+            yield new DeclarationDto(
+                type: DeclarationType::Activity,
+                class: new \ReflectionClass(ActivityInterfaceWithWorker::class),
+            );
+            yield new DeclarationDto(
+                type: DeclarationType::Activity,
+                class: new \ReflectionClass(ActivityInterfaceWithoutWorker::class),
+            );
+            yield new DeclarationDto(
+                type: DeclarationType::Workflow,
+                class: new \ReflectionClass(AnotherWorkflow::class),
+            );
+        });
+    }
 }
 
 #[AssignWorker(taskQueue: 'worker1')]
@@ -110,32 +110,22 @@ final class InfoCommandTest extends TestCase
 class ActivityInterfaceWithWorker
 {
     #[ActivityMethod('fooActivity')]
-    public function foo(): void
-    {
-    }
+    public function foo(): void {}
 
     #[ActivityMethod]
-    public function bar(): void
-    {
-    }
+    public function bar(): void {}
 }
 
 
 #[ActivityInterface('fooActivity')]
 class ActivityInterfaceWithoutWorker
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     #[ActivityMethod]
-    public function baz(): void
-    {
-    }
+    public function baz(): void {}
 
-    private function baf(): void
-    {
-    }
+    private function baf(): void {}
 }
 
 #[AssignWorker(taskQueue: 'worker2')]
@@ -143,9 +133,7 @@ class ActivityInterfaceWithoutWorker
 class Workflow
 {
     #[WorkflowMethod('fooWorkflow')]
-    public function handle()
-    {
-    }
+    public function handle(): void {}
 }
 
 #[AssignWorker(taskQueue: 'default')]
@@ -154,7 +142,5 @@ class Workflow
 class AnotherWorkflow
 {
     #[WorkflowMethod]
-    public function handle()
-    {
-    }
+    public function handle(): void {}
 }

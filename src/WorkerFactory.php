@@ -44,7 +44,7 @@ final class WorkerFactory implements WorkerFactoryInterface
             $this->getExceptionInterceptor($name),
             $this->pipelineProvider,
         );
-        $worker->registerActivityFinalizer(fn () => $this->finalizer->finalize());
+        $worker->registerActivityFinalizer(fn() => $this->finalizer->finalize());
 
         return $worker;
     }
@@ -59,7 +59,7 @@ final class WorkerFactory implements WorkerFactoryInterface
         return match (true) {
             $worker instanceof WorkerOptions => $worker,
             isset($worker['options']) && $worker['options'] instanceof WorkerOptions => $worker['options'],
-            default => null
+            default => null,
         };
     }
 
@@ -84,7 +84,7 @@ final class WorkerFactory implements WorkerFactoryInterface
         return match (true) {
             \is_string($alias) => $this->factory->make($alias),
             $alias instanceof Autowire => $alias->resolve($this->factory),
-            default => $alias
+            default => $alias,
         };
     }
 }

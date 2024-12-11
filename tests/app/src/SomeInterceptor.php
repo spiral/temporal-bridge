@@ -9,7 +9,5 @@ use Temporal\Interceptor\ActivityInboundInterceptor;
 
 final class SomeInterceptor implements ActivityInboundInterceptor
 {
-    public function handleActivityInbound(ActivityInput $input, callable $next): mixed
-    {
-    }
+    public function handleActivityInbound(ActivityInput $input, callable $next): mixed {}
 }

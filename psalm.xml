@@ -1,11 +1,18 @@
 <?xml version="1.0"?>
 <psalm
-        errorLevel="2"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="https://getpsalm.org/schema/config"
-        xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-        findUnusedBaselineEntry="true"
-        findUnusedCode="false"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    errorLevel="1"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
+    hoistConstants="true"
+    resolveFromConfigFile="true"
+    findUnusedPsalmSuppress="true"
+    findUnusedVariablesAndParams="true"
+    ensureArrayStringOffsetsExist="true"
+    addParamDefaultToDocblockType="true"
+    errorBaseline="psalm-baseline.xml"
 >
     <projectFiles>
         <directory name="src"/>

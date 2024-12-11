@@ -26,8 +26,7 @@ final class DeclarationLocator implements
 
     public function __construct(
         private readonly ReaderInterface $reader,
-    ) {
-    }
+    ) {}
 
     public function addDeclaration(DeclarationDto|\ReflectionClass|string $class): void
     {
@@ -47,7 +46,7 @@ final class DeclarationLocator implements
     public function getDeclarations(): iterable
     {
         foreach ($this->declarations as $declaration) {
-            yield match($declaration->type) {
+            yield match ($declaration->type) {
                 DeclarationType::Workflow => WorkflowInterface::class,
                 DeclarationType::Activity => ActivityInterface::class,
             } => $declaration->class;

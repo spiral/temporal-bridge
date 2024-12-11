@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="5.26.1@d747f6500b38ac4f7dfc5edbcae6e4b637d7add0">
+  <file src="src/Bootloader/TemporalBridgeBootloader.php">
+    <MixedArgument>
+      <code><![CDATA[$env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233')]]></code>
+    </MixedArgument>
+  </file>
+  <file src="src/Commands/InfoCommand.php">
+    <MixedArgumentTypeCoercion>
+      <code><![CDATA[$taskQueue]]></code>
+      <code><![CDATA[$taskQueue]]></code>
+    </MixedArgumentTypeCoercion>
+    <UnusedVariable>
+      <code><![CDATA[$class]]></code>
+    </UnusedVariable>
+  </file>
+  <file src="src/Commands/Scaffolder/ActivityCommand.php">
+    <MixedArgument>
+      <code><![CDATA[$method]]></code>
+    </MixedArgument>
+    <MixedAssignment>
+      <code><![CDATA[$method]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Commands/Scaffolder/WorkflowCommand.php">
+    <MixedArgument>
+      <code><![CDATA[$method]]></code>
+      <code><![CDATA[$name]]></code>
+    </MixedArgument>
+    <MixedAssignment>
+      <code><![CDATA[$method]]></code>
+      <code><![CDATA[$name]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Config/TemporalConfig.php">
+    <MixedArgument>
+      <code><![CDATA[$address]]></code>
+      <code><![CDATA[$clientOptions]]></code>
+      <code><![CDATA[$namespace]]></code>
+    </MixedArgument>
+    <MixedArrayAssignment>
+      <code><![CDATA[$config['clients']['default']]]></code>
+    </MixedArrayAssignment>
+    <MixedAssignment>
+      <code><![CDATA[$address]]></code>
+      <code><![CDATA[$clientOptions]]></code>
+      <code><![CDATA[$namespace]]></code>
+    </MixedAssignment>
+    <MixedMethodCall>
+      <code><![CDATA[withNamespace]]></code>
+    </MixedMethodCall>
+  </file>
+  <file src="src/Dispatcher.php">
+    <MixedArgument>
+      <code><![CDATA[$taskQueue]]></code>
+    </MixedArgument>
+    <MixedAssignment>
+      <code><![CDATA[$taskQueue]]></code>
+    </MixedAssignment>
+    <MixedInferredReturnType>
+      <code><![CDATA[object]]></code>
+    </MixedInferredReturnType>
+    <MixedMethodCall>
+      <code><![CDATA[getDeclarationList]]></code>
+    </MixedMethodCall>
+    <MixedReturnStatement>
+      <code><![CDATA[$this->scope->runScope(
+            new Scope('temporal-activity'),
+            static fn(FactoryInterface $factory): object => $factory->make($class->getName()),
+        )]]></code>
+    </MixedReturnStatement>
+  </file>
+  <file src="src/Scaffolder/Declaration/ActivityDeclaration.php">
+    <InvalidClassConstantType>
+      <code><![CDATA[TYPE]]></code>
+    </InvalidClassConstantType>
+  </file>
+  <file src="src/Scaffolder/Declaration/WorkflowDeclaration.php">
+    <InvalidClassConstantType>
+      <code><![CDATA[TYPE]]></code>
+    </InvalidClassConstantType>
+  </file>
+  <file src="src/WorkerFactory.php">
+    <MixedInferredReturnType>
+      <code><![CDATA[object]]></code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement>
+      <code><![CDATA[match (true) {
+            \is_string($alias) => $this->factory->make($alias),
+            $alias instanceof Autowire => $alias->resolve($this->factory),
+            default => $alias,
+        }]]></code>
+      <code><![CDATA[match (true) {
+            \is_string($alias) => $this->factory->make($alias),
+            $alias instanceof Autowire => $alias->resolve($this->factory),
+            default => $alias,
+        }]]></code>
+    </MixedReturnStatement>
+  </file>
+</files>

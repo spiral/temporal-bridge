@@ -23,9 +23,11 @@ final class WorkerFactoryTest extends TestCase
 {
     private TemporalWorkerFactory $temporalWorkerFactory;
 
-    protected function setUp(): void
+    public static function exceptionInterceptorsDataProvider(): \Traversable
     {
-        $this->temporalWorkerFactory = $this->createMock(TemporalWorkerFactory::class);
+        yield ['with-exception-interceptor-as-string'];
+        yield ['with-exception-interceptor-as-autowire'];
+        yield ['with-exception-interceptor-as-instance'];
     }
 
     public function testCreateWithoutAnyOptions(): void
@@ -124,18 +126,15 @@ final class WorkerFactoryTest extends TestCase
         $this->assertSame($worker, $factory->create('all'));
     }
 
-    public static function exceptionInterceptorsDataProvider(): \Traversable
+    protected function setUp(): void
     {
-        yield ['with-exception-interceptor-as-string'];
-        yield ['with-exception-interceptor-as-autowire'];
-        yield ['with-exception-interceptor-as-instance'];
+        $this->temporalWorkerFactory = $this->createMock(TemporalWorkerFactory::class);
     }
 
     private function createWorkerFactory(
         TemporalWorkerFactory $workerFactory,
         PipelineProvider $pipelineProvider = new SimplePipelineProvider(),
-    ):
-    WorkerFactory {
+    ): WorkerFactory {
         $container = new Container();
         $container->bind(PipelineProvider::class, SimplePipelineProvider::class);
         $container->bind(ExceptionInterceptor::class, new ExceptionInterceptor([]));
@@ -175,7 +174,7 @@ final class WorkerFactoryTest extends TestCase
                         'exception_interceptor' => ExceptionInterceptor::class,
                     ],
                 ],
-            ])
+            ]),
         );
     }
 }
