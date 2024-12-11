@@ -117,7 +117,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         \assert($client instanceof ServiceClientInterface);
         $connection = $client->getConnection();
         \assert($connection instanceof \Temporal\Client\GRPC\Connection\Connection);
-        $workflowService = (static fn() => $connection->workflowService)->call($connection);
+        $workflowService = $this->fetchPrivateProperty($connection, 'workflowService');
         \assert($workflowService instanceof WorkflowServiceClient);
 
         // It might be dns://localhost:7233
@@ -131,7 +131,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         \assert($client instanceof ServiceClientInterface);
         $connection = $client->getConnection();
         \assert($connection instanceof \Temporal\Client\GRPC\Connection\Connection);
-        $workflowService = (static fn() => $connection->workflowService)->call($connection);
+        $workflowService = $this->fetchPrivateProperty($connection, 'workflowService');
         \assert($workflowService instanceof WorkflowServiceClient);
 
         // It might be dns://ssl:7233
@@ -154,7 +154,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         $client = $this->getContainer()->get(WorkflowClientInterface::class);
         \assert($client instanceof WorkflowClientInterface);
 
-        $clientOptions = (static fn() => $client->clientOptions)->call($client);
+        $clientOptions = $this->fetchPrivateProperty($client, 'clientOptions');
         \assert($clientOptions instanceof ClientOptions);
 
         $this->assertSame('foo-bar', $clientOptions->namespace);
@@ -246,5 +246,13 @@ class TemporalBridgeBootloaderTest extends TestCase
         $factory->shouldReceive('make')->with('foo')->andReturn(new \StdClass());
 
         $bootloader->addInterceptor('foo');
+    }
+
+    /**
+     * @param non-empty-string $property
+     */
+    private function fetchPrivateProperty(object $object, string $property): mixed
+    {
+        return (static fn() => $object->$property)->bindTo(null, $object)();
     }
 }

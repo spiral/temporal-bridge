@@ -1,5 +1,6 @@
 /.*/
 !/.github/
 /runtime/
+/tests/runtime/
 /vendor/
 composer.lock
