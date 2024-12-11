@@ -9,15 +9,15 @@ namespace Spiral\TemporalBridge\Config;
  *
  * How to connect to local Temporal server:
  *
- *     new ConnectionConfig('localhost:7233'),
+ *      new ConnectionConfig('localhost:7233'),
  *
  * How to connect to Temporal Cloud:
  *
- *     (new ConnectionConfig('foo-bar-default.baz.tmprl.cloud:7233'))
- *         ->withTls(
- *             privateKey: '/my-project.key',
- *             certChain: '/my-project.pem',
- *         ),
+ *      (new ConnectionConfig('foo-bar-default.baz.tmprl.cloud:7233'))
+ *          ->withTls(
+ *              privateKey: '/my-project.key',
+ *              certChain: '/my-project.pem',
+ *          ),
  */
 final class ConnectionConfig
 {

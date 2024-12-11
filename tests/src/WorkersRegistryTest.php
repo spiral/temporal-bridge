@@ -22,7 +22,7 @@ final class WorkersRegistryTest extends TestCase
         $registry = new WorkersRegistry(
             $factory = $this->createMock(WorkerFactoryInterface::class),
             $this->createMock(FinalizerInterface::class),
-            new TemporalConfig(['workers' => []])
+            new TemporalConfig(['workers' => []]),
         );
         $factory
             ->expects($this->exactly(1))
@@ -45,7 +45,7 @@ final class WorkersRegistryTest extends TestCase
         $registry = new WorkersRegistry(
             $this->createMock(WorkerFactoryInterface::class),
             $this->createMock(FinalizerInterface::class),
-            new TemporalConfig(['workers' => []])
+            new TemporalConfig(['workers' => []]),
         );
 
         $registry->register('foo', null);
@@ -58,13 +58,13 @@ final class WorkersRegistryTest extends TestCase
         $options->enableSessionWorker = true;
         $factory = new WorkerFactory(
             $this->createMock(DataConverterInterface::class),
-            $this->createMock(RPCConnectionInterface::class)
+            $this->createMock(RPCConnectionInterface::class),
         );
 
         $registry = new WorkersRegistry(
             $factory,
             $this->createMock(FinalizerInterface::class),
-            new TemporalConfig(['workers' => ['worker1' => $options]])
+            new TemporalConfig(['workers' => ['worker1' => $options]]),
         );
 
         $worker = $registry->get('worker1');
@@ -83,7 +83,7 @@ final class WorkersRegistryTest extends TestCase
         $registry = new WorkersRegistry(
             $this->createMock(WorkerFactoryInterface::class),
             $this->createMock(FinalizerInterface::class),
-            new TemporalConfig()
+            new TemporalConfig(),
         );
 
         $registry->get('foo');

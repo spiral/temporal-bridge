@@ -14,6 +14,5 @@ class SomeActivityWithScope
     // Binding ArrayAccess $tasks available only in `temporal-activity` scope
     public function __construct(
         private readonly \ArrayAccess $tasks,
-    ) {
-    }
+    ) {}
 }

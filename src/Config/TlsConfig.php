@@ -7,7 +7,8 @@ namespace Spiral\TemporalBridge\Config;
 /**
  * gRPC TLS configuration.
  */
-final class TlsConfig {
+final class TlsConfig
+{
     /**
      * @param non-empty-string|null $rootCerts Root certificates string or file in PEM format.
      *        If null provided, default gRPC root certificates are used.

@@ -12,12 +12,6 @@ final class WorkflowCommandTest extends TestCase
 {
     private FilesInterface|MockInterface $files;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->files = $this->mockContainer(FilesInterface::class);
-    }
-
     public function testGenerate(): void
     {
         $this->files->shouldReceive('exists')->andReturnFalse();
@@ -261,5 +255,11 @@ final class WorkflowCommandTest extends TestCase
                 'cancel',
             ],
         ]);
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->files = $this->mockContainer(FilesInterface::class);
     }
 }

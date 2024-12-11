@@ -17,6 +17,5 @@ final class AssignWorker
      */
     public function __construct(
         public readonly string $taskQueue,
-    ) {
-    }
+    ) {}
 }

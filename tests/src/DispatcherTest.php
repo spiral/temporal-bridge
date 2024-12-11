@@ -26,20 +26,6 @@ final class DispatcherTest extends TestCase
 {
     private Dispatcher $dispatcher;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->dispatcher = new Dispatcher(
-            $this->getContainer(),
-            new DeclarationWorkerResolver(
-                new AttributeReader(),
-                new TemporalConfig(['defaultWorker' => 'foo']),
-            ),
-            $this->getContainer(),
-        );
-    }
-
     public function testCanServe(): void
     {
         $this->assertTrue(Dispatcher::canServe(RoadRunnerMode::Temporal));
@@ -73,7 +59,7 @@ final class DispatcherTest extends TestCase
     public function testServeWithDeclarations(): void
     {
         $locator = $this->mockContainer(DeclarationRegistryInterface::class);
-        $locator->shouldReceive('getDeclarationList')->once()->andReturnUsing(function () {
+        $locator->shouldReceive('getDeclarationList')->once()->andReturnUsing(static function () {
             yield new DeclarationDto(DeclarationType::Workflow, new \ReflectionClass(SomeWorkflow::class));
             yield new DeclarationDto(DeclarationType::Workflow, new \ReflectionClass(SomeWorkflowWithMultipleWorkers::class));
             yield new DeclarationDto(DeclarationType::Activity, new \ReflectionClass(SomeActivity::class));
@@ -125,7 +111,21 @@ final class DispatcherTest extends TestCase
 
         $this->assertInstanceOf(
             SomeActivityWithScope::class,
-            $ref->invoke($this->dispatcher, new \ReflectionClass(SomeActivityWithScope::class))
+            $ref->invoke($this->dispatcher, new \ReflectionClass(SomeActivityWithScope::class)),
+        );
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->dispatcher = new Dispatcher(
+            $this->getContainer(),
+            new DeclarationWorkerResolver(
+                new AttributeReader(),
+                new TemporalConfig(['defaultWorker' => 'foo']),
+            ),
+            $this->getContainer(),
         );
     }
 }

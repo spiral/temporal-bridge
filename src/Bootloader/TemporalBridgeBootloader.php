@@ -48,6 +48,11 @@ use Temporal\Client\GRPC\ServiceClientInterface;
  */
 class TemporalBridgeBootloader extends Bootloader
 {
+    public function __construct(
+        private readonly ConfiguratorInterface $config,
+        private readonly FactoryInterface $factory,
+    ) {}
+
     public function defineDependencies(): array
     {
         return [
@@ -66,7 +71,7 @@ class TemporalBridgeBootloader extends Bootloader
                 rpc: Goridge::create(),
             ),
             WorkerFactoryInterface::class => WorkerFactory::class,
-            DeclarationLocator::class => static fn (): DeclarationLocator => new DeclarationLocator(
+            DeclarationLocator::class => static fn(): DeclarationLocator => new DeclarationLocator(
                 reader: new AttributeReader(),
             ),
             DeclarationLocatorInterface::class => DeclarationLocator::class,
@@ -99,12 +104,6 @@ class TemporalBridgeBootloader extends Bootloader
             PipelineProvider::class => [self::class, 'initPipelineProvider'],
             ServiceClientInterface::class => [self::class, 'initServiceClient'],
         ];
-    }
-
-    public function __construct(
-        private readonly ConfiguratorInterface $config,
-        private readonly FactoryInterface $factory,
-    ) {
     }
 
     public function init(
@@ -164,7 +163,7 @@ class TemporalBridgeBootloader extends Bootloader
                         ),
                     ),
                 ],
-                'defaultWorker' => (string)$env->get(
+                'defaultWorker' => (string) $env->get(
                     'TEMPORAL_TASK_QUEUE',
                     TemporalWorkerFactoryInterface::DEFAULT_TASK_QUEUE,
                 ),
@@ -198,7 +197,7 @@ class TemporalBridgeBootloader extends Bootloader
             static fn(mixed $interceptor) => match (true) {
                 \is_string($interceptor) => $factory->make($interceptor),
                 $interceptor instanceof Autowire => $interceptor->resolve($factory),
-                default => $interceptor
+                default => $interceptor,
             },
             $config->getInterceptors(),
         );

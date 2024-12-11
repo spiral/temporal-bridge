@@ -10,6 +10,5 @@ final class DeclarationDto
         public readonly DeclarationType $type,
         public readonly \ReflectionClass $class,
         public readonly ?string $taskQueue = null,
-    ) {
-    }
+    ) {}
 }

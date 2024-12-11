@@ -117,7 +117,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         \assert($client instanceof ServiceClientInterface);
         $connection = $client->getConnection();
         \assert($connection instanceof \Temporal\Client\GRPC\Connection\Connection);
-        $workflowService = (fn() => $connection->workflowService)->call($connection);
+        $workflowService = (static fn() => $connection->workflowService)->call($connection);
         \assert($workflowService instanceof WorkflowServiceClient);
 
         // It might be dns://localhost:7233
@@ -131,7 +131,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         \assert($client instanceof ServiceClientInterface);
         $connection = $client->getConnection();
         \assert($connection instanceof \Temporal\Client\GRPC\Connection\Connection);
-        $workflowService = (fn() => $connection->workflowService)->call($connection);
+        $workflowService = (static fn() => $connection->workflowService)->call($connection);
         \assert($workflowService instanceof WorkflowServiceClient);
 
         // It might be dns://ssl:7233
@@ -154,7 +154,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         $client = $this->getContainer()->get(WorkflowClientInterface::class);
         \assert($client instanceof WorkflowClientInterface);
 
-        $clientOptions = (fn() => $client->clientOptions)->call($client);
+        $clientOptions = (static fn() => $client->clientOptions)->call($client);
         \assert($clientOptions instanceof ClientOptions);
 
         $this->assertSame('foo-bar', $clientOptions->namespace);

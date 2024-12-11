@@ -80,7 +80,7 @@ final class TemporalConfig extends InjectableConfig
     public function getTemporalNamespace(): string
     {
         $client = $this->getDefaultClient();
-        return match(true) {
+        return match (true) {
             isset($this->config['clients'][$client]) => $this->config['clients'][$client]->options->namespace,
             isset($this->config['temporalNamespace']) => $this->config['temporalNamespace'],
             default => 'default',
@@ -141,7 +141,7 @@ final class TemporalConfig extends InjectableConfig
     public function getClientOptions(): ClientOptions
     {
         $client = $this->getDefaultClient();
-        return match(true) {
+        return match (true) {
             isset($this->config['clients'][$client]) => $this->config['clients'][$client]->options,
             isset($this->config['clientOptions']) => $this->config['clientOptions'],
             default => (new ClientOptions())->withNamespace($this->getTemporalNamespace()),

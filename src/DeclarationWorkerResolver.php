@@ -13,8 +13,7 @@ final class DeclarationWorkerResolver
     public function __construct(
         private readonly ReaderInterface $reader,
         private readonly TemporalConfig $config,
-    ) {
-    }
+    ) {}
 
     /**
      * Find the worker name for the given workflow or class declaration. If no worker is assigned, the default task

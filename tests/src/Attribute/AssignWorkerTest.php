@@ -14,18 +14,18 @@ use Spiral\TemporalBridge\Tests\TestCase;
 
 final class AssignWorkerTest extends TestCase
 {
+    public static function assignWorkerDataProvider(): \Traversable
+    {
+        yield [new \ReflectionClass(SomeActivity::class), new AssignWorker('worker1')];
+        yield [new \ReflectionClass(SomeWorkflow::class), new AssignWorker('worker2')];
+        yield [new \ReflectionClass(WithoutAttribute::class), null];
+    }
+
     #[DataProvider(methodName: "assignWorkerDataProvider")]
     public function testAssignWorkerAttribute(\ReflectionClass $class, ?AssignWorker $expected = null): void
     {
         $reader = (new Factory())->create();
 
         $this->assertEquals($expected, $reader->firstClassMetadata($class, AssignWorker::class));
-    }
-
-    public static function assignWorkerDataProvider(): \Traversable
-    {
-        yield [new \ReflectionClass(SomeActivity::class), new AssignWorker('worker1')];
-        yield [new \ReflectionClass(SomeWorkflow::class), new AssignWorker('worker2')];
-        yield [new \ReflectionClass(WithoutAttribute::class), null];
     }
 }

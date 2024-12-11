@@ -15,13 +15,6 @@ final class DeclarationLocatorTest extends TestCase
 {
     private DeclarationLocator $locator;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->locator = new DeclarationLocator(new AttributeReader());
-    }
-
     public function testEnumClassesShouldBeSkipped(): void
     {
         $this->locator->listen(new \ReflectionClass(TestEnum::class));
@@ -194,52 +187,33 @@ final class DeclarationLocatorTest extends TestCase
 
         $this->assertCount(0, $result);
     }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->locator = new DeclarationLocator(new AttributeReader());
+    }
 }
 
-enum TestEnum
-{
-}
+enum TestEnum {}
 
-interface TestInterface
-{
+interface TestInterface {}
 
-}
-
-abstract class TestAbstractClass
-{
-
-}
+abstract class TestAbstractClass {}
 
 #[WorkflowInterface]
-class TestWorkflowClass
-{
-
-}
+class TestWorkflowClass {}
 
 #[ActivityInterface]
-class TestActivityClass
-{
-
-}
+class TestActivityClass {}
 
 #[ActivityInterface]
-interface TestActivityInterface
-{
+interface TestActivityInterface {}
 
-}
-
-class TestActivityClassWithInterface implements TestActivityInterface
-{
-
-}
+class TestActivityClassWithInterface implements TestActivityInterface {}
 
 #[WorkflowInterface]
-interface TestWorkflowInterface
-{
+interface TestWorkflowInterface {}
 
-}
-
-class TestWorkflowClassWithInterface implements TestWorkflowInterface
-{
-
-}
+class TestWorkflowClassWithInterface implements TestWorkflowInterface {}

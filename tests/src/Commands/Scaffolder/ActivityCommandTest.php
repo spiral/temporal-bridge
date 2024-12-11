@@ -12,12 +12,6 @@ final class ActivityCommandTest extends TestCase
 {
     private FilesInterface|MockInterface $files;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->files = $this->mockContainer(FilesInterface::class);
-    }
-
     public function testGenerate(): void
     {
         $this->files->shouldReceive('exists')->andReturnFalse();
@@ -181,7 +175,13 @@ final class ActivityCommandTest extends TestCase
                 'pay',
                 'refund:void',
                 'getPaymentStatus:bool',
-            ]
+            ],
         ]);
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->files = $this->mockContainer(FilesInterface::class);
     }
 }

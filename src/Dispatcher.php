@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge;
 
 use Psr\Container\ContainerInterface;
-use ReflectionClass;
 use Spiral\Attribute\DispatcherScope;
 use Spiral\Boot\DispatcherInterface;
 use Spiral\Core\FactoryInterface;
@@ -23,8 +22,7 @@ final class Dispatcher implements DispatcherInterface
         private readonly ContainerInterface $container,
         private readonly DeclarationWorkerResolver $workerResolver,
         private readonly ScopeInterface $scope,
-    ) {
-    }
+    ) {}
 
     public static function canServe(RoadRunnerMode $mode): bool
     {
@@ -75,12 +73,12 @@ final class Dispatcher implements DispatcherInterface
         $factory->run();
     }
 
-    private function makeActivity(ReflectionClass $class): object
+    private function makeActivity(\ReflectionClass $class): object
     {
         /** @psalm-suppress InvalidArgument */
         return $this->scope->runScope(
             new Scope('temporal-activity'),
-            static fn (FactoryInterface $factory): object => $factory->make($class->getName()),
+            static fn(FactoryInterface $factory): object => $factory->make($class->getName()),
         );
     }
 }
