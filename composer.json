@@ -48,15 +48,14 @@
     "spiral/roadrunner-bridge": "^3.7 || ^4.0",
     "spiral/scaffolder": "^3.14",
     "spiral/tokenizer": "^3.14",
-    "temporal/sdk": "^2.10"
+    "temporal/sdk": "^2.13"
   },
   "require-dev": {
-    "buggregator/trap": "^1.11",
     "spiral/code-style": "^2.2.0",
     "spiral/framework": "^3.14",
     "spiral/dumper": "^3.3",
     "spiral/testing": "^2.8",
-    "vimeo/psalm": "^5.26"
+    "vimeo/psalm": "^6.8"
   },
   "autoload": {
     "psr-4": {
