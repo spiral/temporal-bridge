@@ -35,6 +35,7 @@ use Temporal\DataConverter\DataConverterInterface;
 use Temporal\Interceptor\PipelineProvider;
 use Temporal\Interceptor\SimplePipelineProvider;
 use Temporal\Internal\Interceptor\Interceptor;
+use Temporal\Worker\ServiceCredentials;
 use Temporal\Worker\Transport\Goridge;
 use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
@@ -66,10 +67,21 @@ class TemporalBridgeBootloader extends Bootloader
         return [
             TemporalWorkerFactoryInterface::class => static fn(
                 DataConverterInterface $dataConverter,
+                ServiceCredentials $credentials,
             ): TemporalWorkerFactoryInterface => new TemporalWorkerFactory(
                 dataConverter: $dataConverter,
                 rpc: Goridge::create(),
+                credentials: $credentials,
             ),
+            ServiceCredentials::class => static function (TemporalConfig $config): ServiceCredentials {
+                $client = $config->getClientConfig($config->getDefaultClient());
+                $result = ServiceCredentials::create();
+                // Set the API key if it is provided.
+                $token = $client->connection->authToken;
+                $token === null or $result = $result->withApiKey($token);
+
+                return $result;
+            },
             WorkerFactoryInterface::class => WorkerFactory::class,
             DeclarationLocator::class => static fn(): DeclarationLocator => new DeclarationLocator(
                 reader: new AttributeReader(),
@@ -177,16 +189,19 @@ class TemporalBridgeBootloader extends Bootloader
         $client = $config->getClientConfig($config->getDefaultClient());
         $connection = $client->connection;
 
-        $result = $connection->isSecure()
+        $isSecure = $connection->isSecure() || $connection->authToken !== null;
+
+        $result = $isSecure
             ? ServiceClient::createSSL(
                 address: $connection->address,
-                crt: $connection->tls->rootCerts,
-                clientKey: $connection->tls->privateKey,
-                clientPem: $connection->tls->certChain,
-                overrideServerName: $connection->tls->serverName,
+                crt: $connection->tls?->rootCerts,
+                clientKey: $connection->tls?->privateKey,
+                clientPem: $connection->tls?->certChain,
+                overrideServerName: $connection->tls?->serverName,
             )
             : ServiceClient::create(address: $connection->address);
 
+        $connection->authToken === null or $result = $result->withAuthKey($connection->authToken);
         return $result->withContext($client->context);
     }
 
