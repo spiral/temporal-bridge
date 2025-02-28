@@ -78,7 +78,7 @@ class TemporalBridgeBootloader extends Bootloader
                 $result = ServiceCredentials::create();
                 // Set the API key if it is provided.
                 $token = $client->connection->authToken;
-                $token === null or $result = $result->withApiKey($token);
+                $token === null or $result = $result->withApiKey((string) $token);
 
                 return $result;
             },

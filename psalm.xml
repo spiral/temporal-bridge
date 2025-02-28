@@ -21,6 +21,8 @@
         </ignoreFiles>
     </projectFiles>
     <issueHandlers>
+        <ClassMustBeFinal errorLevel="suppress" />
+        <MissingOverrideAttribute errorLevel="suppress" />
         <MissingClassConstType errorLevel="suppress" />
         <DeprecatedMethod errorLevel="suppress" />
         <DeprecatedInterface>

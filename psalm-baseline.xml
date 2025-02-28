@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="5.26.1@d747f6500b38ac4f7dfc5edbcae6e4b637d7add0">
+<files psalm-version="6.8.8@1361cd33008feb3ae2b4a93f1860e14e538ec8c2">
   <file src="src/Bootloader/TemporalBridgeBootloader.php">
     <MixedArgument>
       <code><![CDATA[$env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233')]]></code>
@@ -10,6 +10,9 @@
       <code><![CDATA[$taskQueue]]></code>
       <code><![CDATA[$taskQueue]]></code>
     </MixedArgumentTypeCoercion>
+    <PossiblyFalseOperand>
+      <code><![CDATA[\realpath($dir->get('root'))]]></code>
+    </PossiblyFalseOperand>
     <UnusedVariable>
       <code><![CDATA[$class]]></code>
     </UnusedVariable>
@@ -57,9 +60,6 @@
     <MixedAssignment>
       <code><![CDATA[$taskQueue]]></code>
     </MixedAssignment>
-    <MixedInferredReturnType>
-      <code><![CDATA[object]]></code>
-    </MixedInferredReturnType>
     <MixedMethodCall>
       <code><![CDATA[getDeclarationList]]></code>
     </MixedMethodCall>
@@ -81,9 +81,6 @@
     </InvalidClassConstantType>
   </file>
   <file src="src/WorkerFactory.php">
-    <MixedInferredReturnType>
-      <code><![CDATA[object]]></code>
-    </MixedInferredReturnType>
     <MixedReturnStatement>
       <code><![CDATA[match (true) {
             \is_string($alias) => $this->factory->make($alias),
