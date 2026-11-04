@@ -11,6 +11,8 @@
 
 [![Psalm Level](https://shepherd.dev/github/spiral/temporal-bridge/level.svg)](https://shepherd.dev/github/spiral/temporal-bridge)
 [![Type Coverage](https://shepherd.dev/github/spiral/temporal-bridge/coverage.svg)](https://shepherd.dev/github/spiral/temporal-bridge)
+[![Codecov](https://codecov.io/gh/spiral/temporal-bridge/branch/3.x/graph/badge.svg)](https://codecov.io/gh/spiral/temporal-bridge/tree/3.x)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fspiral%2Ftemporal-bridge%2F3.x)](https://dashboard.stryker-mutator.io/reports/github.com/spiral/temporal-bridge/3.x)
 
 </div>
 
