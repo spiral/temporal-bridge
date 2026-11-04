@@ -15,4 +15,4 @@ jobs:
             os: >-
                 ['ubuntu-latest']
             stability: >-
-                ['prefer-stable']
+                ['prefer-lowest', 'prefer-stable']
