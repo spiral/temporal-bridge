@@ -70,4 +70,4 @@ interceptors and the `temporal:info`, `create:workflow` and `create:activity` co
 - [Intro to Temporal: create your first workflow with the PHP SDK](https://youtu.be/goulj2CRNOY)
 - [Fault tolerant workflow orchestration on PHP](https://www.youtube.com/watch?v=pdxHkIqX62A)
 - [Fault tolerant workflow orchestration on PHP (rus)](https://www.youtube.com/watch?v=mNsjdTnanA4)
-- [Discord](https://discord.gg/8bZsjYhVVk)
+- [Discord](https://discord.gg/spiralphp)
