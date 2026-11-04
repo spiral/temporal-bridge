@@ -14,6 +14,7 @@ use Spiral\TemporalBridge\Scaffolder\Declaration\WorkflowDeclaration;
 
 final class ScaffolderBootloader extends Bootloader
 {
+    #[\Override]
     public function defineDependencies(): array
     {
         return [

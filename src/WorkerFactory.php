@@ -16,10 +16,14 @@ use Temporal\Worker\WorkerOptions;
 
 /**
  * @psalm-import-type TWorker from TemporalConfig
+ * @psalm-import-type TExceptionInterceptor from TemporalConfig
  */
 final class WorkerFactory implements WorkerFactoryInterface
 {
-    /** @var array<non-empty-string, WorkerOptions|TWorker> */
+    /**
+     * @var array<non-empty-string, WorkerOptions|TWorker>
+     * @readonly
+     */
     private array $workers = [];
 
     public function __construct(
@@ -35,6 +39,7 @@ final class WorkerFactory implements WorkerFactoryInterface
     /**
      * @param non-empty-string $name
      */
+    #[\Override]
     public function create(string $name): WorkerInterface
     {
         $worker = $this->workerFactory->newWorker(
@@ -78,6 +83,9 @@ final class WorkerFactory implements WorkerFactoryInterface
         return $exceptionInterceptor;
     }
 
+    /**
+     * @param TExceptionInterceptor $alias
+     */
     private function wire(mixed $alias): object
     {
         return match (true) {

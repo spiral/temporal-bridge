@@ -15,6 +15,7 @@ use Temporal\Worker\WorkerFactoryInterface;
 #[AsCommand(name: 'create:activity', description: 'Create workflow activity declaration')]
 final class ActivityCommand extends AbstractCommand
 {
+    /** @psalm-suppress PropertyNotSetInConstructor Filled from the console input before perform() runs */
     #[Argument(description: 'Activity class name')]
     #[Question(question: 'What would you like to name the Activity class?')]
     public string $name;
@@ -25,6 +26,7 @@ final class ActivityCommand extends AbstractCommand
     #[Option(name: 'activity-name', shortcut: 'a', description: 'Optional activity name')]
     public ?string $activityName = null;
 
+    /** @var list<non-empty-string> */
     #[Option(name: 'method', shortcut: 'm', description: 'Optional activity name')]
     public array $methods = [];
 

@@ -13,17 +13,23 @@ interface WorkersRegistryInterface
     /**
      * Register a new temporal worker with given task queue and options.
      *
+     * @param non-empty-string $name
+     *
      * @throws WorkersRegistryException
      */
     public function register(string $name, ?WorkerOptions $options): void;
 
     /**
      * Get or create worker by task queue name.
+     *
+     * @param non-empty-string $name
      */
     public function get(string $name): WorkerInterface;
 
     /**
      * Check if a worker with given task queue name registered.
+     *
+     * @param non-empty-string $name
      */
     public function has(string $name): bool;
 }
