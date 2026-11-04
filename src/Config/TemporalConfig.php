@@ -79,6 +79,15 @@ final class TemporalConfig extends InjectableConfig
                 new ConnectionConfig(address: $address),
                 $clientOptions,
             );
+        } elseif (
+            (isset($config['temporalNamespace']) || isset($config['clientOptions']))
+            // Without the default client the getters still fall back to the legacy options.
+            && isset($config['clients'][$config['client'] ?? 'default'])
+        ) {
+            \trigger_error(
+                'Temporal options `clientOptions`, `temporalNamespace` are ignored without `address`. Configure the client in `clients` instead.',
+                \E_USER_DEPRECATED,
+            );
         }
 
         parent::__construct($config);
