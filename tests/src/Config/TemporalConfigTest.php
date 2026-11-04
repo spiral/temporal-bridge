@@ -146,4 +146,17 @@ final class TemporalConfigTest extends TestCase
 
         Assert::same($config->getClientOptions(), $options);
     }
+
+    public function testGetsAddressOfDefaultClient(): void
+    {
+        $config = new TemporalConfig([
+            'client' => 'secondary',
+            'clients' => [
+                'default' => new ClientConfig(new ConnectionConfig('localhost:7233')),
+                'secondary' => new ClientConfig(new ConnectionConfig('secondary:7233')),
+            ],
+        ]);
+
+        Assert::same($config->getAddress(), 'secondary:7233');
+    }
 }

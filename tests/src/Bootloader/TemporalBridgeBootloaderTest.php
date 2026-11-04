@@ -14,6 +14,7 @@ use Spiral\TemporalBridge\Bootloader\TemporalBridgeBootloader;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
+use Spiral\TemporalBridge\Tests\App\SomeInterceptor;
 use Spiral\TemporalBridge\Tests\TestCase;
 use Spiral\TemporalBridge\Tests\Testing\Env;
 use Spiral\TemporalBridge\WorkerFactory;
@@ -113,6 +114,26 @@ final class TemporalBridgeBootloaderTest extends TestCase
             PipelineProvider::class,
             SimplePipelineProvider::class,
         );
+    }
+
+    public function testPipelineProviderResolvesConfiguredInterceptors(): void
+    {
+        $this->getContainer()->bindSingleton(TemporalConfig::class, new TemporalConfig([
+            'interceptors' => [
+                SomeInterceptor::class,
+                new Autowire(SomeInterceptor::class),
+                $instance = new SomeInterceptor(),
+            ],
+        ]));
+
+        $provider = $this->assertContainerBound(PipelineProvider::class, SimplePipelineProvider::class);
+        $interceptors = [...$this->fetchPrivateProperty($provider, 'interceptors')];
+
+        Assert::count($interceptors, 3);
+        Assert::instanceOf($interceptors[0], SomeInterceptor::class);
+        Assert::instanceOf($interceptors[1], SomeInterceptor::class);
+        Assert::notSame($interceptors[0], $interceptors[1]);
+        Assert::same($interceptors[2], $instance);
     }
 
     #[Env('TEMPORAL_CONNECTION', 'default')]
