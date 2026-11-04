@@ -35,21 +35,9 @@ final class TemporalConfigTest extends TestCase
 
     public function testGetConnectionFromAddress(): void
     {
-        $deprecations = [];
-        \set_error_handler(static function (int $errno, string $message) use (&$deprecations): bool {
-            $deprecations[] = $message;
-            return true;
-        }, \E_USER_DEPRECATED);
-
-        try {
-            $config = new TemporalConfig([
-                'address' => 'localhost:1111',
-            ]);
-        } finally {
-            \restore_error_handler();
-        }
-
-        Assert::same($deprecations, ['Temporal options `address`, `clientOptions`, `temporalNamespace` are deprecated.']);
+        $config = self::createLegacyConfig([
+            'address' => 'localhost:1111',
+        ]);
 
         $client = $config->getClientConfig('default');
         Assert::same($client::class, ClientConfig::class);
@@ -59,7 +47,7 @@ final class TemporalConfigTest extends TestCase
 
     public function testLegacyClientOptionsKeepNamespace(): void
     {
-        $config = new TemporalConfig([
+        $config = self::createLegacyConfig([
             'address' => 'localhost:1111',
             'clientOptions' => (new ClientOptions())->withNamespace('foo'),
         ]);
@@ -70,7 +58,7 @@ final class TemporalConfigTest extends TestCase
 
     public function testLegacyTemporalNamespaceOverridesClientOptionsNamespace(): void
     {
-        $config = new TemporalConfig([
+        $config = self::createLegacyConfig([
             'address' => 'localhost:1111',
             'clientOptions' => (new ClientOptions())->withNamespace('foo'),
             'temporalNamespace' => 'bar',
@@ -192,5 +180,28 @@ final class TemporalConfigTest extends TestCase
         ]);
 
         Assert::same($config->getAddress(), 'secondary:7233');
+    }
+
+    /**
+     * Builds a config from the legacy `address` options and asserts the deprecation they raise.
+     */
+    private static function createLegacyConfig(array $options): TemporalConfig
+    {
+        $deprecations = [];
+        // A deprecation left to reach STDERR makes Infection abort its initial test run.
+        \set_error_handler(static function (int $errno, string $message) use (&$deprecations): bool {
+            $deprecations[] = $message;
+            return true;
+        }, \E_USER_DEPRECATED);
+
+        try {
+            $config = new TemporalConfig($options);
+        } finally {
+            \restore_error_handler();
+        }
+
+        Assert::same($deprecations, ['Temporal options `address`, `clientOptions`, `temporalNamespace` are deprecated.']);
+
+        return $config;
     }
 }
