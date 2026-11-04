@@ -7,7 +7,10 @@ namespace Spiral\TemporalBridge\Tests\Config;
 use Spiral\TemporalBridge\Config\ConnectionConfig;
 use Spiral\TemporalBridge\Config\TlsConfig;
 use Spiral\TemporalBridge\Tests\TestCase;
+use Testo\Assert;
+use Testo\Test;
 
+#[Test]
 final class ConnectionConfigTest extends TestCase
 {
     public function testCreateSecure(): void
@@ -19,11 +22,11 @@ final class ConnectionConfigTest extends TestCase
                 certChain: 'clientPem',
             );
 
-        $this->assertTrue($config->isSecure());
-        $this->assertSame('localhost:2222', $config->address);
-        $this->assertSame('crt', $config->tls->rootCerts);
-        $this->assertSame('clientKey', $config->tls->privateKey);
-        $this->assertSame('clientPem', $config->tls->certChain);
+        Assert::true($config->isSecure());
+        Assert::same($config->address, 'localhost:2222');
+        Assert::same($config->tls->rootCerts, 'crt');
+        Assert::same($config->tls->privateKey, 'clientKey');
+        Assert::same($config->tls->certChain, 'clientPem');
     }
 
     public function testCreateInsecure(): void
@@ -32,8 +35,8 @@ final class ConnectionConfigTest extends TestCase
             address: 'localhost:1111',
         );
 
-        $this->assertFalse($config->isSecure());
-        $this->assertSame('localhost:1111', $config->address);
+        Assert::false($config->isSecure());
+        Assert::same($config->address, 'localhost:1111');
     }
 
     public function testWithAuthKey(): void
@@ -47,9 +50,9 @@ final class ConnectionConfigTest extends TestCase
 
         $newConfig = $config->withAuthKey($key = 'authKey');
 
-        $this->assertNotSame($config, $newConfig);
-        $this->assertNull($config->authToken);
-        $this->assertSame($key, $newConfig->authToken);
+        Assert::notSame($newConfig, $config);
+        Assert::null($config->authToken);
+        Assert::same($newConfig->authToken, $key);
     }
 
     public function testWithAuthKeyNull(): void
@@ -60,11 +63,11 @@ final class ConnectionConfigTest extends TestCase
 
         $newConfig = $config->withAuthKey(null);
 
-        $this->assertNotSame($config, $newConfig);
-        $this->assertNotNull($config->authToken);
-        $this->assertNull($newConfig->authToken);
-        $this->assertTrue($config->isSecure());
-        $this->assertTrue($newConfig->isSecure());
+        Assert::notSame($newConfig, $config);
+        Assert::notNull($config->authToken);
+        Assert::null($newConfig->authToken);
+        Assert::true($config->isSecure());
+        Assert::true($newConfig->isSecure());
     }
 
     public function testWithAuthKeyStringable(): void
@@ -80,6 +83,6 @@ final class ConnectionConfigTest extends TestCase
                 },
             );
 
-        $this->assertSame($key, $config->authToken);
+        Assert::same($config->authToken, $key);
     }
 }

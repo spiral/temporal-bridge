@@ -13,15 +13,18 @@ use Temporal\Activity\ActivityInterface;
 use Temporal\Activity\ActivityMethod;
 use Temporal\Workflow\WorkflowInterface;
 use Temporal\Workflow\WorkflowMethod;
+use Testo\Assert;
+use Testo\Lifecycle\BeforeTest;
+use Testo\Test;
 
+#[Test]
 final class InfoCommandTest extends TestCase
 {
     public function testInfo(): void
     {
         $result = $this->runCommand('temporal:info');
 
-        $this->assertStringEqualsStringIgnoringLineEndings(
-            <<<'OUTPUT'
+        Assert::string($result)->ignoringLineEndings()->same(<<<'OUTPUT'
 
                 Workflows
                 =========
@@ -35,9 +38,7 @@ final class InfoCommandTest extends TestCase
                 |                 | src/Commands/InfoCommandTest.php                     |                  |
                 +-----------------+------------------------------------------------------+------------------+
 
-                OUTPUT,
-            $result,
-        );
+                OUTPUT);
     }
 
     public function testInfoWithActivities(): void
@@ -46,8 +47,7 @@ final class InfoCommandTest extends TestCase
             '--show-activities' => true,
         ]);
 
-        $this->assertStringEqualsStringIgnoringLineEndings(
-            <<<'OUTPUT'
+        Assert::string($result)->ignoringLineEndings()->same(<<<'OUTPUT'
 
                 Workflows
                 =========
@@ -73,15 +73,12 @@ final class InfoCommandTest extends TestCase
                 | fooActivitybaz | ActivityInterfaceWithoutWorker::baz | default    |
                 +----------------+-------------------------------------+------------+
 
-                OUTPUT,
-            $result,
-        );
+                OUTPUT);
     }
 
+    #[BeforeTest]
     protected function setUp(): void
     {
-        parent::setUp();
-
         $locator = $this->mockContainer(DeclarationRegistryInterface::class);
         $locator->shouldReceive('getDeclarationList')->andReturnUsing(static function () {
             yield new DeclarationDto(

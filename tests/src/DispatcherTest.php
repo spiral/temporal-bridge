@@ -21,20 +21,24 @@ use Spiral\TemporalBridge\Tests\App\SomeWorkflowWithMultipleWorkers;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerInterface;
+use Testo\Assert;
+use Testo\Lifecycle\BeforeTest;
+use Testo\Test;
 
+#[Test]
 final class DispatcherTest extends TestCase
 {
     private Dispatcher $dispatcher;
 
     public function testCanServe(): void
     {
-        $this->assertTrue(Dispatcher::canServe(RoadRunnerMode::Temporal));
+        Assert::true(Dispatcher::canServe(RoadRunnerMode::Temporal));
 
-        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Http));
-        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Jobs));
-        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Grpc));
-        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Centrifuge));
-        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Unknown));
+        Assert::false(Dispatcher::canServe(RoadRunnerMode::Http));
+        Assert::false(Dispatcher::canServe(RoadRunnerMode::Jobs));
+        Assert::false(Dispatcher::canServe(RoadRunnerMode::Grpc));
+        Assert::false(Dispatcher::canServe(RoadRunnerMode::Centrifuge));
+        Assert::false(Dispatcher::canServe(RoadRunnerMode::Unknown));
     }
 
     public function testServeWithoutDeclarations(): void
@@ -47,7 +51,7 @@ final class DispatcherTest extends TestCase
             ->shouldReceive('get')
             ->once()
             ->with(WorkerFactoryInterface::DEFAULT_TASK_QUEUE)
-            ->andReturn($this->createMock(WorkerInterface::class));
+            ->andReturn(m::mock(WorkerInterface::class)->shouldIgnoreMissing());
 
         $factory = $this->mockContainer(WorkerFactoryInterface::class);
         $factory->shouldReceive('run')->once();
@@ -104,20 +108,16 @@ final class DispatcherTest extends TestCase
     {
         $binder = $this->getContainer()->getBinder('temporal-activity');
         $binder->bind(SomeActivityWithScope::class, SomeActivityWithScope::class);
-        $binder->bind(\ArrayAccess::class, $this->createMock(\ArrayAccess::class));
+        $binder->bind(\ArrayAccess::class, m::mock(\ArrayAccess::class)->shouldIgnoreMissing());
 
         $ref = new \ReflectionMethod($this->dispatcher, 'makeActivity');
 
-        $this->assertInstanceOf(
-            SomeActivityWithScope::class,
-            $ref->invoke($this->dispatcher, new \ReflectionClass(SomeActivityWithScope::class)),
-        );
+        Assert::instanceOf($ref->invoke($this->dispatcher, new \ReflectionClass(SomeActivityWithScope::class)), SomeActivityWithScope::class);
     }
 
+    #[BeforeTest]
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->dispatcher = new Dispatcher(
             $this->getContainer(),
             new DeclarationWorkerResolver(

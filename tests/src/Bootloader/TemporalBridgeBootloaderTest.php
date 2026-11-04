@@ -15,11 +15,11 @@ use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Spiral\TemporalBridge\DeclarationLocatorInterface;
 use Spiral\TemporalBridge\Tests\TestCase;
+use Spiral\TemporalBridge\Tests\Testing\Env;
 use Spiral\TemporalBridge\WorkerFactory;
 use Spiral\TemporalBridge\WorkerFactoryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Spiral\TemporalBridge\WorkersRegistryInterface;
-use Spiral\Testing\Attribute\Env;
 use Temporal\Api\Workflowservice\V1\WorkflowServiceClient;
 use Temporal\Client\ClientOptions;
 use Temporal\Client\GRPC\ServiceClient;
@@ -36,8 +36,12 @@ use Temporal\Internal\Interceptor\Interceptor;
 use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
 use Temporal\WorkerFactory as TemporalWorkerFactory;
+use Testo\Assert;
+use Testo\Expect;
+use Testo\Test;
 
-class TemporalBridgeBootloaderTest extends TestCase
+#[Test]
+final class TemporalBridgeBootloaderTest extends TestCase
 {
     public function testServiceClient(): void
     {
@@ -121,7 +125,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         \assert($workflowService instanceof WorkflowServiceClient);
 
         // It might be dns://localhost:7233
-        $this->assertStringContainsString('localhost:7233', $workflowService->getTarget());
+        Assert::string($workflowService->getTarget())->contains('localhost:7233');
     }
 
     #[Env('TEMPORAL_CONNECTION', 'ssl')]
@@ -134,7 +138,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         \assert($workflowService instanceof WorkflowServiceClient);
 
         // It might be dns://ssl:7233
-        $this->assertStringContainsString('ssl:7233', $workflowService->getTarget());
+        Assert::string($workflowService->getTarget())->contains('ssl:7233');
     }
 
     #[Env('TEMPORAL_CONNECTION', 'ssl')]
@@ -144,7 +148,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         \assert($client instanceof ServiceClientInterface);
         $context = $client->getContext();
 
-        $this->assertSame(['foo' => ['bar']], $context->getMetadata());
+        Assert::same($context->getMetadata(), ['foo' => ['bar']]);
     }
 
     #[Env('TEMPORAL_CONNECTION', 'ssl')]
@@ -156,14 +160,13 @@ class TemporalBridgeBootloaderTest extends TestCase
         $clientOptions = $this->fetchPrivateProperty($client, 'clientOptions');
         \assert($clientOptions instanceof ClientOptions);
 
-        $this->assertSame('foo-bar', $clientOptions->namespace);
+        Assert::same($clientOptions->namespace, 'foo-bar');
     }
 
     #[Env('TEMPORAL_CONNECTION', 'test')]
     public function testNonExistsConnection(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Temporal client config `test` is not defined.');
+        Expect::exception(\InvalidArgumentException::class)->withMessageContaining('Temporal client config `test` is not defined.');
 
         try {
             $this->getContainer()->get(ServiceClientInterface::class);
@@ -175,37 +178,31 @@ class TemporalBridgeBootloaderTest extends TestCase
 
     public function testAddWorkerOptions(): void
     {
-        $configs = new ConfigManager($this->createMock(LoaderInterface::class));
+        $configs = new ConfigManager(m::mock(LoaderInterface::class)->shouldIgnoreMissing());
         $configs->setDefaults(TemporalConfig::CONFIG, ['workers' => []]);
 
         $bootloader = new TemporalBridgeBootloader($configs, $this->getContainer());
         $bootloader->addWorkerOptions('first', $first = WorkerOptions::new());
         $bootloader->addWorkerOptions('second', $second = WorkerOptions::new());
 
-        $this->assertSame(
-            ['first' => $first, 'second' => $second],
-            $configs->getConfig(TemporalConfig::CONFIG)['workers'],
-        );
+        Assert::same($configs->getConfig(TemporalConfig::CONFIG)['workers'], ['first' => $first, 'second' => $second]);
     }
 
     public function testAddInterceptor(): void
     {
-        $configs = new ConfigManager($this->createMock(LoaderInterface::class));
+        $configs = new ConfigManager(m::mock(LoaderInterface::class)->shouldIgnoreMissing());
         $configs->setDefaults(TemporalConfig::CONFIG, ['interceptors' => []]);
 
         $bootloader = new TemporalBridgeBootloader($configs, $this->getContainer());
 
         $bootloader->addInterceptor($iterceptor = m::mock(Interceptor::class));
 
-        $this->assertSame(
-            [$iterceptor],
-            $configs->getConfig(TemporalConfig::CONFIG)['interceptors'],
-        );
+        Assert::same($configs->getConfig(TemporalConfig::CONFIG)['interceptors'], [$iterceptor]);
     }
 
     public function testStringableInterceptor(): void
     {
-        $configs = new ConfigManager($this->createMock(LoaderInterface::class));
+        $configs = new ConfigManager(m::mock(LoaderInterface::class)->shouldIgnoreMissing());
         $configs->setDefaults(TemporalConfig::CONFIG, ['interceptors' => []]);
 
         $bootloader = new TemporalBridgeBootloader($configs, $factory = m::mock(FactoryInterface::class));
@@ -214,15 +211,12 @@ class TemporalBridgeBootloaderTest extends TestCase
 
         $bootloader->addInterceptor('foo');
 
-        $this->assertSame(
-            [$iterceptor],
-            $configs->getConfig(TemporalConfig::CONFIG)['interceptors'],
-        );
+        Assert::same($configs->getConfig(TemporalConfig::CONFIG)['interceptors'], [$iterceptor]);
     }
 
     public function testAutowireInterceptor(): void
     {
-        $configs = new ConfigManager($this->createMock(LoaderInterface::class));
+        $configs = new ConfigManager(m::mock(LoaderInterface::class)->shouldIgnoreMissing());
         $configs->setDefaults(TemporalConfig::CONFIG, ['interceptors' => []]);
 
         $bootloader = new TemporalBridgeBootloader($configs, $factory = m::mock(FactoryInterface::class));
@@ -231,18 +225,14 @@ class TemporalBridgeBootloaderTest extends TestCase
 
         $bootloader->addInterceptor(new Autowire('foo', ['bar' => 'baz']));
 
-        $this->assertSame(
-            [$iterceptor],
-            $configs->getConfig(TemporalConfig::CONFIG)['interceptors'],
-        );
+        Assert::same($configs->getConfig(TemporalConfig::CONFIG)['interceptors'], [$iterceptor]);
     }
 
     public function testInvalidInterceptor(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Interceptor must be an instance of `Temporal\Internal\Interceptor\Interceptor`, `stdClass` given.');
+        Expect::exception(\InvalidArgumentException::class)->withMessageContaining('Interceptor must be an instance of `Temporal\Internal\Interceptor\Interceptor`, `stdClass` given.');
 
-        $configs = new ConfigManager($this->createMock(LoaderInterface::class));
+        $configs = new ConfigManager(m::mock(LoaderInterface::class)->shouldIgnoreMissing());
         $configs->setDefaults(TemporalConfig::CONFIG, ['interceptors' => []]);
 
         $bootloader = new TemporalBridgeBootloader($configs, $factory = m::mock(FactoryInterface::class));

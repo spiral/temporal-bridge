@@ -8,7 +8,11 @@ use Spiral\Attributes\AttributeReader;
 use Spiral\TemporalBridge\Attribute\AssignWorker;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\DeclarationWorkerResolver;
+use Testo\Assert;
+use Testo\Lifecycle\BeforeTest;
+use Testo\Test;
 
+#[Test]
 final class DeclarationWorkerResolverTest extends TestCase
 {
     private DeclarationWorkerResolver $resolver;
@@ -19,7 +23,7 @@ final class DeclarationWorkerResolverTest extends TestCase
             new \ReflectionClass(ActivityInterfaceWithAttribute::class),
         );
 
-        $this->assertSame(['worker1'], $queue);
+        Assert::same($queue, ['worker1']);
     }
 
     public function testResolvingQueueNameWithMultipleAttributeOnClass(): void
@@ -28,7 +32,7 @@ final class DeclarationWorkerResolverTest extends TestCase
             new \ReflectionClass(ActivityInterfaceWithMultipleAttributes::class),
         );
 
-        $this->assertSame(['worker1', 'worker2'], $queue);
+        Assert::same($queue, ['worker1', 'worker2']);
     }
 
     public function testResolvingQueueNameWithAttributeOnParentClass(): void
@@ -37,7 +41,7 @@ final class DeclarationWorkerResolverTest extends TestCase
             new \ReflectionClass(ActivityClass::class),
         );
 
-        $this->assertSame(['worker1'], $queue);
+        Assert::same($queue, ['worker1']);
     }
 
     public function testResolvingQueueNameWithoutAttribute(): void
@@ -46,13 +50,12 @@ final class DeclarationWorkerResolverTest extends TestCase
             new \ReflectionClass(ActivityInterfaceWithoutAttribute::class),
         );
 
-        $this->assertSame(['foo'], $queue);
+        Assert::same($queue, ['foo']);
     }
 
+    #[BeforeTest]
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->resolver = new DeclarationWorkerResolver(
             new AttributeReader(),
             new TemporalConfig(['defaultWorker' => 'foo']),

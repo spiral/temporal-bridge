@@ -4,3 +4,4 @@
 /*.yml   export-ignore
 /*.lock  export-ignore
 /*.dist  export-ignore
+/testo.php export-ignore

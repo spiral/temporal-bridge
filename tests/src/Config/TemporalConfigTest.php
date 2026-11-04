@@ -11,14 +11,17 @@ use Spiral\TemporalBridge\Tests\TestCase;
 use Temporal\Client\ClientOptions;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
+use Testo\Assert;
+use Testo\Test;
 
+#[Test]
 final class TemporalConfigTest extends TestCase
 {
     public function testGetsDefaultTemporalNamespaceIfItNotSet(): void
     {
         $config = new TemporalConfig([]);
 
-        $this->assertSame('default', $config->getTemporalNamespace());
+        Assert::same($config->getTemporalNamespace(), 'default');
     }
 
     public function testGetsDefaultTemporalNamespace(): void
@@ -27,7 +30,7 @@ final class TemporalConfigTest extends TestCase
             'temporalNamespace' => 'foo',
         ]);
 
-        $this->assertSame('foo', $config->getTemporalNamespace());
+        Assert::same($config->getTemporalNamespace(), 'foo');
     }
 
     public function testGetConnectionFromAddress(): void
@@ -37,9 +40,9 @@ final class TemporalConfigTest extends TestCase
         ]);
 
         $client = $config->getClientConfig('default');
-        $this->assertSame(ClientConfig::class, $client::class);
+        Assert::same($client::class, ClientConfig::class);
 
-        $this->assertSame('localhost:1111', $client->connection->address);
+        Assert::same($client->connection->address, 'localhost:1111');
     }
 
     public function testGetTlsConnection(): void
@@ -61,12 +64,12 @@ final class TemporalConfigTest extends TestCase
         $client = $config->getClientConfig('default');
         $connection = $client->connection;
 
-        $this->assertTrue($connection->isSecure());
-        $this->assertSame('localhost:2222', $connection->address);
-        $this->assertSame('crt', $connection->tls->rootCerts);
-        $this->assertSame('clientKey', $connection->tls->privateKey);
-        $this->assertSame('clientPem', $connection->tls->certChain);
-        $this->assertSame('localhost', $connection->tls->serverName);
+        Assert::true($connection->isSecure());
+        Assert::same($connection->address, 'localhost:2222');
+        Assert::same($connection->tls->rootCerts, 'crt');
+        Assert::same($connection->tls->privateKey, 'clientKey');
+        Assert::same($connection->tls->certChain, 'clientPem');
+        Assert::same($connection->tls->serverName, 'localhost');
     }
 
     public function testGetsDefaultWorker(): void
@@ -75,14 +78,14 @@ final class TemporalConfigTest extends TestCase
             'defaultWorker' => 'some-worker',
         ]);
 
-        $this->assertSame('some-worker', $config->getDefaultWorker());
+        Assert::same($config->getDefaultWorker(), 'some-worker');
     }
 
     public function testGetsDefaultWorkerIfItNotSet(): void
     {
         $config = new TemporalConfig([]);
 
-        $this->assertSame(WorkerFactoryInterface::DEFAULT_TASK_QUEUE, $config->getDefaultWorker());
+        Assert::same($config->getDefaultWorker(), WorkerFactoryInterface::DEFAULT_TASK_QUEUE);
     }
 
     public function testGetsWorkers(): void
@@ -114,14 +117,14 @@ final class TemporalConfigTest extends TestCase
             'workers' => $workers,
         ]);
 
-        $this->assertSame($workers, $config->getWorkers());
+        Assert::same($config->getWorkers(), $workers);
     }
 
     public function testGetsWorkersIfItNotSet(): void
     {
         $config = new TemporalConfig([]);
 
-        $this->assertSame([], $config->getWorkers());
+        Assert::same($config->getWorkers(), []);
     }
 
     public function testGetsUndefinedClientOptions(): void
@@ -132,7 +135,7 @@ final class TemporalConfigTest extends TestCase
 
         $options = $config->getClientOptions();
 
-        $this->assertSame('foo', $options->namespace);
+        Assert::same($options->namespace, 'foo');
     }
 
     public function testGetsClientOptions(): void
@@ -141,6 +144,6 @@ final class TemporalConfigTest extends TestCase
             'clientOptions' => $options = new ClientOptions(),
         ]);
 
-        $this->assertSame($options, $config->getClientOptions());
+        Assert::same($config->getClientOptions(), $options);
     }
 }

@@ -2,7 +2,7 @@
 
 [![PHP Version Require](https://poser.pugx.org/spiral/temporal-bridge/require/php)](https://packagist.org/packages/spiral/temporal-bridge)
 [![Latest Stable Version](https://poser.pugx.org/spiral/temporal-bridge/v/stable)](https://packagist.org/packages/spiral/temporal-bridge)
-[![phpunit](https://github.com/spiral/temporal-bridge/actions/workflows/phpunit.yml/badge.svg)](https://github.com/spiral/temporal-bridge/actions)
+[![testo](https://github.com/spiral/temporal-bridge/actions/workflows/testo.yml/badge.svg)](https://github.com/spiral/temporal-bridge/actions)
 [![psalm](https://github.com/spiral/temporal-bridge/actions/workflows/psalm.yml/badge.svg)](https://github.com/spiral/temporal-bridge/actions)
 [![Total Downloads](https://poser.pugx.org/spiral/temporal-bridge/downloads)](https://packagist.org/packages/spiral/temporal-bridge)
 <a href="https://discord.gg/8bZsjYhVVk"><img src="https://img.shields.io/badge/discord-chat-magenta.svg"></a>

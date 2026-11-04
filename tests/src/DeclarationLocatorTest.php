@@ -10,7 +10,11 @@ use Spiral\TemporalBridge\Declaration\DeclarationType;
 use Spiral\TemporalBridge\DeclarationLocator;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Workflow\WorkflowInterface;
+use Testo\Assert;
+use Testo\Lifecycle\BeforeTest;
+use Testo\Test;
 
+#[Test]
 final class DeclarationLocatorTest extends TestCase
 {
     private DeclarationLocator $locator;
@@ -27,7 +31,7 @@ final class DeclarationLocatorTest extends TestCase
             $result[] = [$type, $class];
         }
 
-        $this->assertCount(0, $result);
+        Assert::count($result, 0);
     }
 
     public function testWorkflowsShouldBeRegistered(): void
@@ -46,19 +50,19 @@ final class DeclarationLocatorTest extends TestCase
             $result[] = [$type, $class];
         }
 
-        $this->assertCount(4, $result);
+        Assert::count($result, 4);
 
-        $this->assertSame(WorkflowInterface::class, $result[0][0]);
-        $this->assertSame($workflow1, $result[0][1]);
+        Assert::same($result[0][0], WorkflowInterface::class);
+        Assert::same($result[0][1], $workflow1);
 
-        $this->assertSame(WorkflowInterface::class, $result[1][0]);
-        $this->assertSame($workflow2, $result[1][1]);
+        Assert::same($result[1][0], WorkflowInterface::class);
+        Assert::same($result[1][1], $workflow2);
 
-        $this->assertSame(ActivityInterface::class, $result[2][0]);
-        $this->assertSame($activity1, $result[2][1]);
+        Assert::same($result[2][0], ActivityInterface::class);
+        Assert::same($result[2][1], $activity1);
 
-        $this->assertSame(ActivityInterface::class, $result[3][0]);
-        $this->assertSame($activity2, $result[3][1]);
+        Assert::same($result[3][0], ActivityInterface::class);
+        Assert::same($result[3][1], $activity2);
     }
 
     public function testAddDeclarationSkipsNonClasses(): void
@@ -76,7 +80,7 @@ final class DeclarationLocatorTest extends TestCase
             $result[] = [$type, $class];
         }
 
-        $this->assertCount(0, $result);
+        Assert::count($result, 0);
     }
 
     public function testAddDeclarationReflections(): void
@@ -92,19 +96,19 @@ final class DeclarationLocatorTest extends TestCase
             $result[] = [$type, $class];
         }
 
-        $this->assertCount(4, $result);
+        Assert::count($result, 4);
 
-        $this->assertSame(WorkflowInterface::class, $result[0][0]);
-        $this->assertSame($workflow1, $result[0][1]);
+        Assert::same($result[0][0], WorkflowInterface::class);
+        Assert::same($result[0][1], $workflow1);
 
-        $this->assertSame(WorkflowInterface::class, $result[1][0]);
-        $this->assertSame($workflow2, $result[1][1]);
+        Assert::same($result[1][0], WorkflowInterface::class);
+        Assert::same($result[1][1], $workflow2);
 
-        $this->assertSame(ActivityInterface::class, $result[2][0]);
-        $this->assertSame($activity1, $result[2][1]);
+        Assert::same($result[2][0], ActivityInterface::class);
+        Assert::same($result[2][1], $activity1);
 
-        $this->assertSame(ActivityInterface::class, $result[3][0]);
-        $this->assertSame($activity2, $result[3][1]);
+        Assert::same($result[3][0], ActivityInterface::class);
+        Assert::same($result[3][1], $activity2);
     }
 
     public function testAddDeclarationClassNames(): void
@@ -120,19 +124,19 @@ final class DeclarationLocatorTest extends TestCase
             $result[] = [$type, $class];
         }
 
-        $this->assertCount(4, $result);
+        Assert::count($result, 4);
 
-        $this->assertSame(WorkflowInterface::class, $result[0][0]);
-        $this->assertSame(TestWorkflowClass::class, $result[0][1]->getName());
+        Assert::same($result[0][0], WorkflowInterface::class);
+        Assert::same($result[0][1]->getName(), TestWorkflowClass::class);
 
-        $this->assertSame(WorkflowInterface::class, $result[1][0]);
-        $this->assertSame(TestWorkflowClassWithInterface::class, $result[1][1]->getName());
+        Assert::same($result[1][0], WorkflowInterface::class);
+        Assert::same($result[1][1]->getName(), TestWorkflowClassWithInterface::class);
 
-        $this->assertSame(ActivityInterface::class, $result[2][0]);
-        $this->assertSame(TestActivityClass::class, $result[2][1]->getName());
+        Assert::same($result[2][0], ActivityInterface::class);
+        Assert::same($result[2][1]->getName(), TestActivityClass::class);
 
-        $this->assertSame(ActivityInterface::class, $result[3][0]);
-        $this->assertSame(TestActivityClassWithInterface::class, $result[3][1]->getName());
+        Assert::same($result[3][0], ActivityInterface::class);
+        Assert::same($result[3][1]->getName(), TestActivityClassWithInterface::class);
     }
 
     public function testAddDeclarationDto(): void
@@ -160,19 +164,19 @@ final class DeclarationLocatorTest extends TestCase
             $result[] = [$type, $class];
         }
 
-        $this->assertCount(4, $result);
+        Assert::count($result, 4);
 
-        $this->assertSame(WorkflowInterface::class, $result[0][0]);
-        $this->assertSame(TestWorkflowClass::class, $result[0][1]->getName());
+        Assert::same($result[0][0], WorkflowInterface::class);
+        Assert::same($result[0][1]->getName(), TestWorkflowClass::class);
 
-        $this->assertSame(WorkflowInterface::class, $result[1][0]);
-        $this->assertSame(TestWorkflowClassWithInterface::class, $result[1][1]->getName());
+        Assert::same($result[1][0], WorkflowInterface::class);
+        Assert::same($result[1][1]->getName(), TestWorkflowClassWithInterface::class);
 
-        $this->assertSame(ActivityInterface::class, $result[2][0]);
-        $this->assertSame(TestActivityClass::class, $result[2][1]->getName());
+        Assert::same($result[2][0], ActivityInterface::class);
+        Assert::same($result[2][1]->getName(), TestActivityClass::class);
 
-        $this->assertSame(ActivityInterface::class, $result[3][0]);
-        $this->assertSame(TestActivityClassWithInterface::class, $result[3][1]->getName());
+        Assert::same($result[3][0], ActivityInterface::class);
+        Assert::same($result[3][1]->getName(), TestActivityClassWithInterface::class);
     }
 
     public function testWrongClasses(): void
@@ -185,13 +189,12 @@ final class DeclarationLocatorTest extends TestCase
             $result[] = [$type, $class];
         }
 
-        $this->assertCount(0, $result);
+        Assert::count($result, 0);
     }
 
+    #[BeforeTest]
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->locator = new DeclarationLocator(new AttributeReader());
     }
 }
