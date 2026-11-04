@@ -12,11 +12,18 @@ use Temporal\Client\ClientOptions;
 use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerOptions;
 use Testo\Assert;
+use Testo\Data\DataProvider;
 use Testo\Test;
 
 #[Test]
 final class TemporalConfigTest extends TestCase
 {
+    public static function provideIgnoredLegacyOptions(): iterable
+    {
+        yield 'temporalNamespace' => [['temporalNamespace' => 'foo']];
+        yield 'clientOptions' => [['clientOptions' => (new ClientOptions())->withNamespace('foo')]];
+    }
+
     public function testGetsDefaultTemporalNamespaceIfItNotSet(): void
     {
         $config = new TemporalConfig([]);
@@ -182,11 +189,28 @@ final class TemporalConfigTest extends TestCase
         Assert::same($config->getAddress(), 'secondary:7233');
     }
 
-    /**
-     * Builds a config from the legacy `address` options and asserts the deprecation they raise.
-     */
-    private static function createLegacyConfig(array $options): TemporalConfig
+    #[DataProvider('provideIgnoredLegacyOptions')]
+    public function testWarnsAboutLegacyOptionsIgnoredWithoutAddress(array $legacy): void
     {
+        $config = self::createLegacyConfig(
+            [
+                'clients' => [
+                    'default' => new ClientConfig(new ConnectionConfig('localhost:7233')),
+                ],
+            ] + $legacy,
+            'Temporal options `clientOptions`, `temporalNamespace` are ignored without `address`. Configure the client in `clients` instead.',
+        );
+
+        Assert::same($config->getClientOptions()->namespace, 'default');
+    }
+
+    /**
+     * Builds a config from legacy options and asserts the single deprecation they raise.
+     */
+    private static function createLegacyConfig(
+        array $options,
+        string $deprecation = 'Temporal options `address`, `clientOptions`, `temporalNamespace` are deprecated.',
+    ): TemporalConfig {
         $deprecations = [];
         // A deprecation left to reach STDERR makes Infection abort its initial test run.
         \set_error_handler(static function (int $errno, string $message) use (&$deprecations): bool {
@@ -200,7 +224,7 @@ final class TemporalConfigTest extends TestCase
             \restore_error_handler();
         }
 
-        Assert::same($deprecations, ['Temporal options `address`, `clientOptions`, `temporalNamespace` are deprecated.']);
+        Assert::same($deprecations, [$deprecation]);
 
         return $config;
     }
