@@ -51,7 +51,9 @@
     "temporal/sdk": "^2.20"
   },
   "require-dev": {
+    "llm/skills": "^1.15",
     "mockery/mockery": "^1.6.12",
+    "roxblnfk/unpoly": "^1.8",
     "spiral/code-style": "^2.4",
     "spiral/framework": "^3.18",
     "spiral/dumper": "^3.3.1",
@@ -80,6 +82,7 @@
   "config": {
     "sort-packages": true,
     "allow-plugins": {
+      "llm/skills": true,
       "spiral/composer-publish-plugin": true
     }
   },
