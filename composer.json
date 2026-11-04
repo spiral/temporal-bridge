@@ -41,14 +41,14 @@
     }
   ],
   "require": {
-    "php": ">=8.1",
-    "spiral/attributes": "^2.8 || ^3.1.5",
+    "php": ">=8.2",
+    "spiral/attributes": "^3.1.8",
     "spiral/boot": "^3.14",
     "spiral/core": "^3.14",
-    "spiral/roadrunner-bridge": "^3.7 || ^4.0",
+    "spiral/roadrunner-bridge": "^5.0",
     "spiral/scaffolder": "^3.14",
     "spiral/tokenizer": "^3.14",
-    "temporal/sdk": "^2.13"
+    "temporal/sdk": "^2.20"
   },
   "require-dev": {
     "spiral/code-style": "^2.2.0",
@@ -79,6 +79,13 @@
     "sort-packages": true,
     "allow-plugins": {
       "spiral/composer-publish-plugin": true
+    },
+    "policy": {
+      "advisories": {
+        "ignore-id": {
+          "PKSA-z3gr-8qht-p93v": "spiral/testing 2.x pins phpunit 10.5.45; the advisory affects PHPT code coverage, which is not used here"
+        }
+      }
     }
   },
   "extra": {

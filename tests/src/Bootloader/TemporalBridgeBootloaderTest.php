@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spiral\TemporalBridge\Tests\Bootloader;
 
 use Mockery as m;
+use Psr\Container\ContainerExceptionInterface;
 use Spiral\Core\Container\Autowire;
 use Spiral\Core\FactoryInterface;
 use Spiral\TemporalBridge\Bootloader\TemporalBridgeBootloader;
@@ -116,8 +117,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         $client = $this->getContainer()->get(ServiceClientInterface::class);
         \assert($client instanceof ServiceClientInterface);
         $connection = $client->getConnection();
-        \assert($connection instanceof \Temporal\Client\GRPC\Connection\Connection);
-        $workflowService = $this->fetchPrivateProperty($connection, 'workflowService');
+        $workflowService = $connection->getClient();
         \assert($workflowService instanceof WorkflowServiceClient);
 
         // It might be dns://localhost:7233
@@ -130,8 +130,7 @@ class TemporalBridgeBootloaderTest extends TestCase
         $client = $this->getContainer()->get(ServiceClientInterface::class);
         \assert($client instanceof ServiceClientInterface);
         $connection = $client->getConnection();
-        \assert($connection instanceof \Temporal\Client\GRPC\Connection\Connection);
-        $workflowService = $this->fetchPrivateProperty($connection, 'workflowService');
+        $workflowService = $connection->getClient();
         \assert($workflowService instanceof WorkflowServiceClient);
 
         // It might be dns://ssl:7233
@@ -166,7 +165,12 @@ class TemporalBridgeBootloaderTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Temporal client config `test` is not defined.');
 
-        $this->getContainer()->get(ServiceClientInterface::class);
+        try {
+            $this->getContainer()->get(ServiceClientInterface::class);
+        } catch (ContainerExceptionInterface $e) {
+            // Newer spiral/core wraps factory errors into a container exception.
+            throw $e->getPrevious() ?? $e;
+        }
     }
 
     public function testAddWorkerOptions(): void

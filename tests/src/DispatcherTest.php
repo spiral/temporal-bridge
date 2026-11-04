@@ -33,7 +33,6 @@ final class DispatcherTest extends TestCase
         $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Http));
         $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Jobs));
         $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Grpc));
-        $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Tcp));
         $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Centrifuge));
         $this->assertFalse(Dispatcher::canServe(RoadRunnerMode::Unknown));
     }
