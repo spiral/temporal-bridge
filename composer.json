@@ -42,22 +42,29 @@
   ],
   "require": {
     "php": ">=8.2",
+    "psr/container": "^2.0.2",
     "spiral/attributes": "^3.1.8",
     "spiral/boot": "^3.18",
+    "spiral/config": "^3.18",
+    "spiral/console": "^3.18",
     "spiral/core": "^3.18",
+    "spiral/prototype": "^3.18",
     "spiral/roadrunner-bridge": "^5.0",
     "spiral/scaffolder": "^3.18",
     "spiral/tokenizer": "^3.18",
+    "symfony/console": "^6.4.50 || ^7.4.23 || ^8.0",
     "temporal/sdk": "^2.20"
   },
   "require-dev": {
-    "mockery/mockery": "^1.6.12",
-    "spiral/code-style": "^2.4",
+    "bamarni/composer-bin-plugin": "^1.9.1",
+    "llm/skills": "^1.15",
+    "mockery/mockery": "^1.6.15",
+    "roxblnfk/unpoly": "^1.8.2",
     "spiral/framework": "^3.18",
     "spiral/dumper": "^3.3.1",
+    "testo/bridge-infection": "^0.1.9",
     "testo/bridge-mockery": "^0.1.2",
-    "testo/testo": "^0.10.56",
-    "vimeo/psalm": "^7.0"
+    "testo/testo": "^0.10.56"
   },
   "autoload": {
     "psr-4": {
@@ -71,19 +78,37 @@
     }
   },
   "scripts": {
-    "cs:diff": "php-cs-fixer fix --dry-run -v --diff",
-    "cs:fix": "php-cs-fixer fix -v",
-    "psalm": "psalm",
-    "psalm:baseline": "psalm --set-baseline=psalm-baseline.xml",
+    "cs:diff": "php-cs-fixer fix --dry-run -v --diff --config=tools/code-style/.php-cs-fixer.dist.php",
+    "cs:fix": "php-cs-fixer fix -v --config=tools/code-style/.php-cs-fixer.dist.php",
+    "infect": [
+      "@putenv XDEBUG_MODE=coverage",
+      "@putenv GRPC_VERBOSITY=NONE",
+      "infection --threads=max --min-msi=80 --min-covered-msi=80"
+    ],
+    "infect:ci": [
+      "@putenv XDEBUG_MODE=coverage",
+      "@putenv GRPC_VERBOSITY=NONE",
+      "infection --ansi --threads=max --logger-github --show-mutations=0 --min-msi=80 --min-covered-msi=80"
+    ],
+    "psalm": "psalm -c tools/psalm/psalm.xml",
+    "psalm:baseline": "psalm -c tools/psalm/psalm.xml --set-baseline=tools/psalm/psalm-baseline.xml",
+    "psalm:ci": "psalm -c tools/psalm/psalm.xml --output-format=github --shepherd --show-info=false --stats --threads=4",
     "test": "testo"
   },
   "config": {
     "sort-packages": true,
     "allow-plugins": {
+      "bamarni/composer-bin-plugin": true,
+      "llm/skills": true,
       "spiral/composer-publish-plugin": true
     }
   },
   "extra": {
+    "bamarni-bin": {
+      "bin-links": true,
+      "forward-command": false,
+      "target-directory": "tools"
+    },
     "spiral": {
       "bootloaders": [
         "Spiral\\TemporalBridge\\Bootloader\\TemporalBridgeBootloader"

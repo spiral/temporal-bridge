@@ -44,6 +44,18 @@ final class TemporalConfig extends InjectableConfig
         'interceptors' => [],
     ];
 
+    /**
+     * @param array{
+     *     client?: non-empty-string,
+     *     clients?: array<non-empty-string, ClientConfig>,
+     *     defaultWorker?: non-empty-string,
+     *     workers?: array<non-empty-string, WorkerOptions|TWorker>,
+     *     interceptors?: TInterceptor[],
+     *     temporalNamespace?: non-empty-string,
+     *     address?: non-empty-string|null,
+     *     clientOptions?: ClientOptions
+     * } $config
+     */
     public function __construct(array $config = [])
     {
         // Legacy support. Will be removed in further versions.
@@ -89,6 +101,9 @@ final class TemporalConfig extends InjectableConfig
         };
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function getDefaultClient(): string
     {
         return $this->config['client'] ?? 'default';
@@ -103,6 +118,8 @@ final class TemporalConfig extends InjectableConfig
 
     /**
      * Get default connection address.
+     *
+     * @return non-empty-string
      *
      * @deprecated
      */
@@ -139,6 +156,7 @@ final class TemporalConfig extends InjectableConfig
      * Get default client options.
      *
      * @deprecated
+     * @psalm-suppress DeprecatedMethod Falls back to the legacy `temporalNamespace` option
      */
     public function getClientOptions(): ClientOptions
     {

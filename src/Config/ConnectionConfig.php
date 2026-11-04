@@ -18,6 +18,8 @@ namespace Spiral\TemporalBridge\Config;
  *              privateKey: '/my-project.key',
  *              certChain: '/my-project.pem',
  *          ),
+ *
+ * @psalm-immutable
  */
 final class ConnectionConfig
 {

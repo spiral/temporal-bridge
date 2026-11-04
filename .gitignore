@@ -1,6 +1,13 @@
 /.*/
 !/.github/
+!/.idea/
+/.idea/*
+!/.idea/icon.svg
 /runtime/
 /tests/runtime/
 /vendor/
-composer.lock
+/tools/*/vendor/
+/tools/*/composer.lock
+/composer.lock
+/.env
+*.log

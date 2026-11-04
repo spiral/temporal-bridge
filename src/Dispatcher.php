@@ -11,7 +11,6 @@ use Spiral\Core\FactoryInterface;
 use Spiral\Core\Scope;
 use Spiral\Core\ScopeInterface;
 use Spiral\RoadRunnerBridge\RoadRunnerMode;
-use Spiral\TemporalBridge\Declaration\DeclarationDto;
 use Spiral\TemporalBridge\Declaration\DeclarationType;
 use Temporal\Worker\WorkerFactoryInterface;
 
@@ -29,11 +28,13 @@ final class Dispatcher implements DispatcherInterface
         return \PHP_SAPI === 'cli' && $mode === RoadRunnerMode::Temporal;
     }
 
+    #[\Override]
     public function serve(): void
     {
         // finds all available workflows, activity types and commands in a given directory
-        /** @var list<DeclarationDto> $declarations */
-        $declarations = $this->container->get(DeclarationRegistryInterface::class)->getDeclarationList();
+        /** @var DeclarationRegistryInterface $declarationRegistry */
+        $declarationRegistry = $this->container->get(DeclarationRegistryInterface::class);
+        $declarations = $declarationRegistry->getDeclarationList();
 
         // factory initiates and runs task queue specific activity and workflow workers
         /** @var WorkerFactoryInterface $factory */
@@ -75,7 +76,10 @@ final class Dispatcher implements DispatcherInterface
 
     private function makeActivity(\ReflectionClass $class): object
     {
-        /** @psalm-suppress InvalidArgument */
+        /**
+         * @psalm-suppress InvalidArgument ScopeInterface::runScope() declares array bindings, the container also accepts a Scope
+         * @var object
+         */
         return $this->scope->runScope(
             new Scope('temporal-activity'),
             static fn(FactoryInterface $factory): object => $factory->make($class->getName()),

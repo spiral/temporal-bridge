@@ -179,6 +179,24 @@ final class DeclarationLocatorTest extends TestCase
         Assert::same($result[3][1]->getName(), TestActivityClassWithInterface::class);
     }
 
+    public function testGetDeclarationList(): void
+    {
+        $this->locator->addDeclaration($dto = new DeclarationDto(
+            type: DeclarationType::Activity,
+            class: new \ReflectionClass(TestActivityClass::class),
+            taskQueue: 'custom',
+        ));
+        $this->locator->listen($workflow = new \ReflectionClass(TestWorkflowClass::class));
+
+        $result = [...$this->locator->getDeclarationList()];
+
+        Assert::count($result, 2);
+        Assert::same($result[0], $dto);
+        Assert::same($result[1]->type, DeclarationType::Workflow);
+        Assert::same($result[1]->class, $workflow);
+        Assert::null($result[1]->taskQueue);
+    }
+
     public function testWrongClasses(): void
     {
         $this->locator->listen(new \ReflectionClass(\stdClass::class));

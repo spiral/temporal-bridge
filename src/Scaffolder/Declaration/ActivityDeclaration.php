@@ -13,7 +13,7 @@ use Temporal\Activity\ActivityMethod;
 
 final class ActivityDeclaration extends AbstractDeclaration
 {
-    /** @var non-empty-string */
+    /** @psalm-suppress InvalidClassConstantType The parent interface declares TYPE as an empty string literal */
     public const TYPE = 'activity';
 
     public function __construct(
@@ -26,6 +26,7 @@ final class ActivityDeclaration extends AbstractDeclaration
         parent::__construct($config, $name, $comment, $namespace);
     }
 
+    #[\Override]
     public function declare(): void
     {
         $this->namespace->addUse(ActivityInterface::class);

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!--
+    Lives next to the isolated Psalm install in tools/psalm/. resolveFromConfigFile is off, so paths
+    below resolve against the project root (where `composer psalm` runs) and Psalm loads the
+    project's own vendor/autoload.php from there.
+-->
+<psalm
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    errorLevel="1"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
+    hoistConstants="true"
+    resolveFromConfigFile="false"
+    findUnusedPsalmSuppress="true"
+    findUnusedVariablesAndParams="true"
+    ensureArrayStringOffsetsExist="true"
+    addParamDefaultToDocblockType="true"
+>
+    <projectFiles>
+        <directory name="src"/>
+        <ignoreFiles>
+            <directory name="vendor"/>
+        </ignoreFiles>
+    </projectFiles>
+    <issueHandlers>
+        <!-- Making public classes final would break BC for users who extend them -->
+        <ClassMustBeFinal errorLevel="suppress" />
+    </issueHandlers>
+</psalm>

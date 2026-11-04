@@ -64,7 +64,9 @@ final class InfoCommand extends Command
             }
         }
 
-        $rootDir = \realpath($dir->get('root')) . '/';
+        $root = $dir->get('root');
+        $realRoot = \realpath($root);
+        $rootDir = ($realRoot === false ? $root : $realRoot) . '/';
 
         \assert($this->output instanceof OutputInterface);
 
@@ -89,7 +91,7 @@ final class InfoCommand extends Command
 
         $this->output->title('Activities');
         $table = $this->table(['Name', 'Class', 'Task Queue']);
-        foreach ($activities as $class => $prototypes) {
+        foreach ($activities as $prototypes) {
             foreach ($prototypes as $prototype) {
                 $table->addRow([
                     $prototype['name'],

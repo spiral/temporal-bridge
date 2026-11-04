@@ -104,6 +104,30 @@ final class DispatcherTest extends TestCase
         $this->dispatcher->serve();
     }
 
+    public function testServeWithExplicitTaskQueue(): void
+    {
+        $locator = $this->mockContainer(DeclarationRegistryInterface::class);
+        $locator->shouldReceive('getDeclarationList')->once()->andReturn([
+            new DeclarationDto(DeclarationType::Workflow, new \ReflectionClass(SomeWorkflow::class), 'custom'),
+            new DeclarationDto(DeclarationType::Activity, new \ReflectionClass(SomeActivity::class), 'custom'),
+        ]);
+
+        $registry = $this->mockContainer(WorkersRegistryInterface::class);
+        $registry
+            ->shouldReceive('get')
+            ->twice()
+            ->with('custom')
+            ->andReturn($worker = m::mock(WorkerInterface::class));
+
+        $worker->shouldReceive('registerWorkflowTypes')->once()->with(SomeWorkflow::class);
+        $worker->shouldReceive('registerActivity')->once()->withSomeOfArgs(SomeActivity::class);
+
+        $factory = $this->mockContainer(WorkerFactoryInterface::class);
+        $factory->shouldReceive('run')->once();
+
+        $this->dispatcher->serve();
+    }
+
     public function testScope(): void
     {
         $binder = $this->getContainer()->getBinder('temporal-activity');

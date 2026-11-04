@@ -7,6 +7,7 @@ namespace Spiral\TemporalBridge\Tests;
 use Spiral\Boot\FinalizerInterface;
 use Spiral\TemporalBridge\Config\TemporalConfig;
 use Spiral\TemporalBridge\Exception\WorkersRegistryException;
+use Spiral\TemporalBridge\WorkerFactoryInterface as BridgeWorkerFactoryInterface;
 use Spiral\TemporalBridge\WorkersRegistry;
 use Temporal\DataConverter\DataConverterInterface;
 use Temporal\Worker\Transport\RPCConnectionInterface;
@@ -33,6 +34,23 @@ final class WorkersRegistryTest extends TestCase
         $worker->shouldReceive('registerActivityFinalizer')->times(1);
 
         $registry->register('foo', null);
+    }
+
+    public function testRegisterWorkerViaBridgeFactory(): void
+    {
+        $factory = \Mockery::mock(BridgeWorkerFactoryInterface::class);
+        $factory->shouldReceive('create')->once()->with('foo')->andReturn($worker = \Mockery::mock(WorkerInterface::class));
+
+        $registry = new WorkersRegistry(
+            $factory,
+            \Mockery::mock(FinalizerInterface::class),
+            new TemporalConfig(['workers' => []]),
+        );
+
+        $registry->register('foo', WorkerOptions::new());
+
+        Assert::true($registry->has('foo'));
+        Assert::same($registry->get('foo'), $worker);
     }
 
     public function testRegisterWorkerWithExistsName(): void

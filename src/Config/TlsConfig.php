@@ -6,6 +6,8 @@ namespace Spiral\TemporalBridge\Config;
 
 /**
  * gRPC TLS configuration.
+ *
+ * @psalm-immutable
  */
 final class TlsConfig
 {

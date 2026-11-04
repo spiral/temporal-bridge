@@ -10,6 +10,7 @@ use Temporal\Client\WorkflowClientInterface;
 
 final class PrototypeBootloader extends Bootloader
 {
+    #[\Override]
     public function defineDependencies(): array
     {
         return [
