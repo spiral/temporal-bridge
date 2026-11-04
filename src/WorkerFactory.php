@@ -37,7 +37,6 @@ final class WorkerFactory implements WorkerFactoryInterface
      */
     public function create(string $name): WorkerInterface
     {
-        /** @psalm-suppress TooManyArguments */
         $worker = $this->workerFactory->newWorker(
             $name,
             $this->getWorkerOptions($name),

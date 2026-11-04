@@ -64,15 +64,14 @@ final class InfoCommandTest extends TestCase
                 Activities
                 ==========
 
-                +------------------------+---------------------------------------------+------------+
-                | Name                   | Class                                       | Task Queue |
-                +------------------------+---------------------------------------------+------------+
-                | fooActivity            | ActivityInterfaceWithWorker::foo            | worker1    |
-                | bar                    | ActivityInterfaceWithWorker::bar            |            |
-                +------------------------+---------------------------------------------+------------+
-                | fooActivity__construct | ActivityInterfaceWithoutWorker::__construct | default    |
-                | fooActivitybaz         | ActivityInterfaceWithoutWorker::baz         |            |
-                +------------------------+---------------------------------------------+------------+
+                +----------------+-------------------------------------+------------+
+                | Name           | Class                               | Task Queue |
+                +----------------+-------------------------------------+------------+
+                | fooActivity    | ActivityInterfaceWithWorker::foo    | worker1    |
+                | bar            | ActivityInterfaceWithWorker::bar    |            |
+                +----------------+-------------------------------------+------------+
+                | fooActivitybaz | ActivityInterfaceWithoutWorker::baz | default    |
+                +----------------+-------------------------------------+------------+
 
                 OUTPUT,
             $result,
