@@ -197,6 +197,26 @@ final class DeclarationLocatorTest extends TestCase
         Assert::null($result[1]->taskQueue);
     }
 
+    public function testDeclarationsInheritedFromParentClassShouldBeRegistered(): void
+    {
+        $this->locator->listen($workflow = new \ReflectionClass(TestWorkflowClassWithParent::class));
+        $this->locator->listen($activity = new \ReflectionClass(TestActivityClassWithParent::class));
+
+        $result = [];
+
+        foreach ($this->locator->getDeclarations() as $type => $class) {
+            $result[] = [$type, $class];
+        }
+
+        Assert::count($result, 2);
+
+        Assert::same($result[0][0], WorkflowInterface::class);
+        Assert::same($result[0][1], $workflow);
+
+        Assert::same($result[1][0], ActivityInterface::class);
+        Assert::same($result[1][1], $activity);
+    }
+
     public function testWrongClasses(): void
     {
         $this->locator->listen(new \ReflectionClass(\stdClass::class));
@@ -238,3 +258,13 @@ class TestActivityClassWithInterface implements TestActivityInterface {}
 interface TestWorkflowInterface {}
 
 class TestWorkflowClassWithInterface implements TestWorkflowInterface {}
+
+#[WorkflowInterface]
+abstract class TestAbstractWorkflowClass {}
+
+class TestWorkflowClassWithParent extends TestAbstractWorkflowClass {}
+
+#[ActivityInterface]
+abstract class TestAbstractActivityClass {}
+
+class TestActivityClassWithParent extends TestAbstractActivityClass {}
