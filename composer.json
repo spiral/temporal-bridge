@@ -55,7 +55,6 @@
     "llm/skills": "^1.15",
     "mockery/mockery": "^1.6.12",
     "roxblnfk/unpoly": "^1.8",
-    "spiral/code-style": "^2.4",
     "spiral/framework": "^3.18",
     "spiral/dumper": "^3.3.1",
     "testo/bridge-mockery": "^0.1.2",
@@ -73,8 +72,8 @@
     }
   },
   "scripts": {
-    "cs:diff": "php-cs-fixer fix --dry-run -v --diff",
-    "cs:fix": "php-cs-fixer fix -v",
+    "cs:diff": "php-cs-fixer fix --dry-run -v --diff --config=tools/code-style/.php-cs-fixer.dist.php",
+    "cs:fix": "php-cs-fixer fix -v --config=tools/code-style/.php-cs-fixer.dist.php",
     "psalm": "psalm -c tools/psalm/psalm.xml",
     "psalm:baseline": "psalm -c tools/psalm/psalm.xml --set-baseline=tools/psalm/psalm-baseline.xml",
     "psalm:ci": "psalm -c tools/psalm/psalm.xml --output-format=github --shepherd --show-info=false --stats --threads=4",
