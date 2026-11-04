@@ -35,9 +35,21 @@ final class TemporalConfigTest extends TestCase
 
     public function testGetConnectionFromAddress(): void
     {
-        $config = new TemporalConfig([
-            'address' => 'localhost:1111',
-        ]);
+        $deprecations = [];
+        \set_error_handler(static function (int $errno, string $message) use (&$deprecations): bool {
+            $deprecations[] = $message;
+            return true;
+        }, \E_USER_DEPRECATED);
+
+        try {
+            $config = new TemporalConfig([
+                'address' => 'localhost:1111',
+            ]);
+        } finally {
+            \restore_error_handler();
+        }
+
+        Assert::same($deprecations, ['Temporal options `address`, `clientOptions`, `temporalNamespace` are deprecated.']);
 
         $client = $config->getClientConfig('default');
         Assert::same($client::class, ClientConfig::class);
