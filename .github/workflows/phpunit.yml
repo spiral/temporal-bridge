@@ -2,10 +2,16 @@ on:
     pull_request: null
     push:
         branches:
-            - master
-            - '*.*'
+            - 3.x
 
 name: phpunit
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
     phpunit:
@@ -14,5 +20,7 @@ jobs:
             extensions: sockets, grpc
             os: >-
                 ['ubuntu-latest']
+            php: >-
+                ['8.2', '8.3', '8.4', '8.5']
             stability: >-
                 ['prefer-stable']
