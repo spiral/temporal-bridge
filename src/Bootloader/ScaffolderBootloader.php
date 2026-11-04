@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Bootloader;
 
-use Spiral\Console\Bootloader\ConsoleBootloader;
 use Spiral\Boot\Bootloader\Bootloader;
+use Spiral\Console\Bootloader\ConsoleBootloader;
 use Spiral\Scaffolder\Bootloader\ScaffolderBootloader as BaseScaffolderBootloader;
 use Spiral\TemporalBridge\Commands\Scaffolder\ActivityCommand;
 use Spiral\TemporalBridge\Commands\Scaffolder\WorkflowCommand;
