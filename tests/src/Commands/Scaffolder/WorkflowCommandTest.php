@@ -7,7 +7,11 @@ namespace Spiral\TemporalBridge\Tests\Commands\Scaffolder;
 use Mockery\MockInterface;
 use Spiral\Files\FilesInterface;
 use Spiral\TemporalBridge\Tests\TestCase;
+use Testo\Assert;
+use Testo\Lifecycle\BeforeTest;
+use Testo\Test;
 
+#[Test]
 final class WorkflowCommandTest extends TestCase
 {
     private FilesInterface|MockInterface $files;
@@ -15,15 +19,14 @@ final class WorkflowCommandTest extends TestCase
     public function testGenerate(): void
     {
         $this->files->shouldReceive('exists')->andReturnFalse();
-        $this->files->shouldReceive('write')->once()->withArgs(function (string $path, string $body) {
-            $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
-            $this->assertSame(
-                <<<'PHP'
+        $this->files->shouldReceive('write')->once()->withArgs(static function (string $path, string $body) {
+            Assert::true(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
+            Assert::same($body, <<<'PHP'
                     <?php
 
                     declare(strict_types=1);
 
-                    namespace Spiral\Testing\Endpoint\Temporal\Workflow;
+                    namespace Spiral\TemporalBridge\Tests\App\Endpoint\Temporal\Workflow;
 
                     use Temporal\Workflow\WorkflowInterface;
                     use Temporal\Workflow\WorkflowMethod;
@@ -41,9 +44,7 @@ final class WorkflowCommandTest extends TestCase
                         }
                     }
 
-                    PHP,
-                $body,
-            );
+                    PHP);
             return true;
         });
 
@@ -55,15 +56,14 @@ final class WorkflowCommandTest extends TestCase
     public function testGenerateWithWorkflowName(): void
     {
         $this->files->shouldReceive('exists')->andReturnFalse();
-        $this->files->shouldReceive('write')->once()->withArgs(function (string $path, string $body) {
-            $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
-            $this->assertSame(
-                <<<'PHP'
+        $this->files->shouldReceive('write')->once()->withArgs(static function (string $path, string $body) {
+            Assert::true(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
+            Assert::same($body, <<<'PHP'
                     <?php
 
                     declare(strict_types=1);
 
-                    namespace Spiral\Testing\Endpoint\Temporal\Workflow;
+                    namespace Spiral\TemporalBridge\Tests\App\Endpoint\Temporal\Workflow;
 
                     use Temporal\Workflow\WorkflowInterface;
                     use Temporal\Workflow\WorkflowMethod;
@@ -81,9 +81,7 @@ final class WorkflowCommandTest extends TestCase
                         }
                     }
 
-                    PHP,
-                $body,
-            );
+                    PHP);
             return true;
         });
 
@@ -96,15 +94,14 @@ final class WorkflowCommandTest extends TestCase
     public function testGenerateWithWorker(): void
     {
         $this->files->shouldReceive('exists')->andReturnFalse();
-        $this->files->shouldReceive('write')->once()->withArgs(function (string $path, string $body) {
-            $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
-            $this->assertSame(
-                <<<'PHP'
+        $this->files->shouldReceive('write')->once()->withArgs(static function (string $path, string $body) {
+            Assert::true(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
+            Assert::same($body, <<<'PHP'
                     <?php
 
                     declare(strict_types=1);
 
-                    namespace Spiral\Testing\Endpoint\Temporal\Workflow;
+                    namespace Spiral\TemporalBridge\Tests\App\Endpoint\Temporal\Workflow;
 
                     use Spiral\TemporalBridge\Attribute\AssignWorker;
                     use Temporal\Workflow\WorkflowInterface;
@@ -124,9 +121,7 @@ final class WorkflowCommandTest extends TestCase
                         }
                     }
 
-                    PHP,
-                $body,
-            );
+                    PHP);
             return true;
         });
 
@@ -139,15 +134,14 @@ final class WorkflowCommandTest extends TestCase
     public function testGenerateWithQueryMethods(): void
     {
         $this->files->shouldReceive('exists')->andReturnFalse();
-        $this->files->shouldReceive('write')->once()->withArgs(function (string $path, string $body) {
-            $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
-            $this->assertSame(
-                <<<'PHP'
+        $this->files->shouldReceive('write')->once()->withArgs(static function (string $path, string $body) {
+            Assert::true(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
+            Assert::same($body, <<<'PHP'
                     <?php
 
                     declare(strict_types=1);
 
-                    namespace Spiral\Testing\Endpoint\Temporal\Workflow;
+                    namespace Spiral\TemporalBridge\Tests\App\Endpoint\Temporal\Workflow;
 
                     use Temporal\Workflow\QueryMethod;
                     use Temporal\Workflow\WorkflowInterface;
@@ -184,9 +178,7 @@ final class WorkflowCommandTest extends TestCase
                         }
                     }
 
-                    PHP,
-                $body,
-            );
+                    PHP);
             return true;
         });
 
@@ -203,15 +195,14 @@ final class WorkflowCommandTest extends TestCase
     public function testGenerateWithSignalMethods(): void
     {
         $this->files->shouldReceive('exists')->andReturnFalse();
-        $this->files->shouldReceive('write')->once()->withArgs(function (string $path, string $body) {
-            $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
-            $this->assertSame(
-                <<<'PHP'
+        $this->files->shouldReceive('write')->once()->withArgs(static function (string $path, string $body) {
+            Assert::true(\str_ends_with($path, '/app/src/Endpoint/Temporal/Workflow/PaymentWorkflow.php'));
+            Assert::same($body, <<<'PHP'
                     <?php
 
                     declare(strict_types=1);
 
-                    namespace Spiral\Testing\Endpoint\Temporal\Workflow;
+                    namespace Spiral\TemporalBridge\Tests\App\Endpoint\Temporal\Workflow;
 
                     use Temporal\Workflow\SignalMethod;
                     use Temporal\Workflow\WorkflowInterface;
@@ -242,9 +233,7 @@ final class WorkflowCommandTest extends TestCase
                         }
                     }
 
-                    PHP,
-                $body,
-            );
+                    PHP);
             return true;
         });
 
@@ -257,9 +246,9 @@ final class WorkflowCommandTest extends TestCase
         ]);
     }
 
+    #[BeforeTest]
     protected function setUp(): void
     {
-        parent::setUp();
         $this->files = $this->mockContainer(FilesInterface::class);
     }
 }

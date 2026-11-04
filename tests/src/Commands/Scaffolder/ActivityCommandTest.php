@@ -7,7 +7,11 @@ namespace Spiral\TemporalBridge\Tests\Commands\Scaffolder;
 use Mockery\MockInterface;
 use Spiral\Files\FilesInterface;
 use Spiral\TemporalBridge\Tests\TestCase;
+use Testo\Assert;
+use Testo\Lifecycle\BeforeTest;
+use Testo\Test;
 
+#[Test]
 final class ActivityCommandTest extends TestCase
 {
     private FilesInterface|MockInterface $files;
@@ -15,15 +19,14 @@ final class ActivityCommandTest extends TestCase
     public function testGenerate(): void
     {
         $this->files->shouldReceive('exists')->andReturnFalse();
-        $this->files->shouldReceive('write')->once()->withArgs(function (string $path, string $body) {
-            $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
-            $this->assertSame(
-                <<<'PHP'
+        $this->files->shouldReceive('write')->once()->withArgs(static function (string $path, string $body) {
+            Assert::true(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
+            Assert::same($body, <<<'PHP'
                     <?php
 
                     declare(strict_types=1);
 
-                    namespace Spiral\Testing\Endpoint\Temporal\Activity;
+                    namespace Spiral\TemporalBridge\Tests\App\Endpoint\Temporal\Activity;
 
                     use React\Promise\PromiseInterface;
                     use Temporal\Activity\ActivityInterface;
@@ -34,9 +37,7 @@ final class ActivityCommandTest extends TestCase
                     {
                     }
 
-                    PHP,
-                $body,
-            );
+                    PHP);
             return true;
         });
 
@@ -48,15 +49,14 @@ final class ActivityCommandTest extends TestCase
     public function testGenerateWithAssignedWorker(): void
     {
         $this->files->shouldReceive('exists')->andReturnFalse();
-        $this->files->shouldReceive('write')->once()->withArgs(function (string $path, string $body) {
-            $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
-            $this->assertSame(
-                <<<'PHP'
+        $this->files->shouldReceive('write')->once()->withArgs(static function (string $path, string $body) {
+            Assert::true(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
+            Assert::same($body, <<<'PHP'
                     <?php
 
                     declare(strict_types=1);
 
-                    namespace Spiral\Testing\Endpoint\Temporal\Activity;
+                    namespace Spiral\TemporalBridge\Tests\App\Endpoint\Temporal\Activity;
 
                     use React\Promise\PromiseInterface;
                     use Spiral\TemporalBridge\Attribute\AssignWorker;
@@ -69,9 +69,7 @@ final class ActivityCommandTest extends TestCase
                     {
                     }
 
-                    PHP,
-                $body,
-            );
+                    PHP);
             return true;
         });
 
@@ -84,15 +82,14 @@ final class ActivityCommandTest extends TestCase
     public function testGenerateWithActivityName(): void
     {
         $this->files->shouldReceive('exists')->andReturnFalse();
-        $this->files->shouldReceive('write')->once()->withArgs(function (string $path, string $body) {
-            $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
-            $this->assertSame(
-                <<<'PHP'
+        $this->files->shouldReceive('write')->once()->withArgs(static function (string $path, string $body) {
+            Assert::true(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
+            Assert::same($body, <<<'PHP'
                     <?php
 
                     declare(strict_types=1);
 
-                    namespace Spiral\Testing\Endpoint\Temporal\Activity;
+                    namespace Spiral\TemporalBridge\Tests\App\Endpoint\Temporal\Activity;
 
                     use React\Promise\PromiseInterface;
                     use Temporal\Activity\ActivityInterface;
@@ -103,9 +100,7 @@ final class ActivityCommandTest extends TestCase
                     {
                     }
 
-                    PHP,
-                $body,
-            );
+                    PHP);
             return true;
         });
 
@@ -118,15 +113,14 @@ final class ActivityCommandTest extends TestCase
     public function testGenerateWithMethods(): void
     {
         $this->files->shouldReceive('exists')->andReturnFalse();
-        $this->files->shouldReceive('write')->once()->withArgs(function (string $path, string $body) {
-            $this->assertTrue(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
-            $this->assertSame(
-                <<<'PHP'
+        $this->files->shouldReceive('write')->once()->withArgs(static function (string $path, string $body) {
+            Assert::true(\str_ends_with($path, '/app/src/Endpoint/Temporal/Activity/PaymentActivity.php'));
+            Assert::same($body, <<<'PHP'
                     <?php
 
                     declare(strict_types=1);
 
-                    namespace Spiral\Testing\Endpoint\Temporal\Activity;
+                    namespace Spiral\TemporalBridge\Tests\App\Endpoint\Temporal\Activity;
 
                     use React\Promise\PromiseInterface;
                     use Temporal\Activity\ActivityInterface;
@@ -163,9 +157,7 @@ final class ActivityCommandTest extends TestCase
                         }
                     }
 
-                    PHP,
-                $body,
-            );
+                    PHP);
             return true;
         });
 
@@ -179,9 +171,9 @@ final class ActivityCommandTest extends TestCase
         ]);
     }
 
+    #[BeforeTest]
     protected function setUp(): void
     {
-        parent::setUp();
         $this->files = $this->mockContainer(FilesInterface::class);
     }
 }

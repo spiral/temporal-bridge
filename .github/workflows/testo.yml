@@ -1,0 +1,21 @@
+on:
+  pull_request: null
+  push:
+    branches:
+      - master
+      - '*.*'
+
+name: testo
+
+permissions:
+  contents: read
+
+jobs:
+  testo:
+    uses: spiral/gh-actions/.github/workflows/testo.yml@master
+    with:
+      extensions: sockets, grpc
+      os: >-
+        ['ubuntu-latest']
+      dependencies: >-
+        ['lowest', 'highest']

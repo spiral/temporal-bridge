@@ -14,37 +14,36 @@ use Temporal\Worker\WorkerFactoryInterface;
 use Temporal\Worker\WorkerInterface;
 use Temporal\Worker\WorkerOptions;
 use Temporal\WorkerFactory;
+use Testo\Assert;
+use Testo\Expect;
+use Testo\Test;
 
+#[Test]
 final class WorkersRegistryTest extends TestCase
 {
     public function testRegisterWorker(): void
     {
         $registry = new WorkersRegistry(
-            $factory = $this->createMock(WorkerFactoryInterface::class),
-            $this->createMock(FinalizerInterface::class),
+            $factory = \Mockery::mock(WorkerFactoryInterface::class)->shouldIgnoreMissing(),
+            \Mockery::mock(FinalizerInterface::class)->shouldIgnoreMissing(),
             new TemporalConfig(['workers' => []]),
         );
-        $factory
-            ->expects($this->exactly(1))
-            ->method('newWorker')
-            ->with('foo', null)
-            ->willReturn($worker = $this->createMock(WorkerInterface::class));
+        $factory->shouldReceive('newWorker')->times(1)->with('foo', null, \Mockery::andAnyOtherArgs())->andReturn($worker = \Mockery::mock(WorkerInterface::class)->shouldIgnoreMissing());
 
-        $worker
-            ->expects($this->exactly(1))
-            ->method('registerActivityFinalizer');
+        $worker->shouldReceive('registerActivityFinalizer')->times(1);
 
         $registry->register('foo', null);
     }
 
     public function testRegisterWorkerWithExistsName(): void
     {
-        $this->expectException(WorkersRegistryException::class);
-        $this->expectExceptionMessage('Temporal worker with given name `foo` has already been registered.');
+        Expect::exception(WorkersRegistryException::class)->withMessageContaining('Temporal worker with given name `foo` has already been registered.');
 
         $registry = new WorkersRegistry(
-            $this->createMock(WorkerFactoryInterface::class),
-            $this->createMock(FinalizerInterface::class),
+            \Mockery::mock(WorkerFactoryInterface::class, [
+                'newWorker' => \Mockery::mock(WorkerInterface::class)->shouldIgnoreMissing(),
+            ]),
+            \Mockery::mock(FinalizerInterface::class)->shouldIgnoreMissing(),
             new TemporalConfig(['workers' => []]),
         );
 
@@ -57,39 +56,41 @@ final class WorkersRegistryTest extends TestCase
         $options = WorkerOptions::new();
         $options->enableSessionWorker = true;
         $factory = new WorkerFactory(
-            $this->createMock(DataConverterInterface::class),
-            $this->createMock(RPCConnectionInterface::class),
+            \Mockery::mock(DataConverterInterface::class)->shouldIgnoreMissing(),
+            \Mockery::mock(RPCConnectionInterface::class)->shouldIgnoreMissing(),
         );
 
         $registry = new WorkersRegistry(
             $factory,
-            $this->createMock(FinalizerInterface::class),
+            \Mockery::mock(FinalizerInterface::class)->shouldIgnoreMissing(),
             new TemporalConfig(['workers' => ['worker1' => $options]]),
         );
 
         $worker = $registry->get('worker1');
-        $this->assertInstanceOf(WorkerInterface::class, $worker);
-        $this->assertTrue($worker->getOptions()->enableSessionWorker);
+        Assert::instanceOf($worker, WorkerInterface::class);
+        Assert::true($worker->getOptions()->enableSessionWorker);
 
-        $this->assertSame($worker, $registry->get('worker1'));
+        Assert::same($registry->get('worker1'), $worker);
 
         $worker = $registry->get('worker2');
-        $this->assertInstanceOf(WorkerInterface::class, $worker);
-        $this->assertFalse($worker->getOptions()->enableSessionWorker);
+        Assert::instanceOf($worker, WorkerInterface::class);
+        Assert::false($worker->getOptions()->enableSessionWorker);
     }
 
     public function testHasWorker(): void
     {
         $registry = new WorkersRegistry(
-            $this->createMock(WorkerFactoryInterface::class),
-            $this->createMock(FinalizerInterface::class),
+            \Mockery::mock(WorkerFactoryInterface::class, [
+                'newWorker' => \Mockery::mock(WorkerInterface::class)->shouldIgnoreMissing(),
+            ]),
+            \Mockery::mock(FinalizerInterface::class)->shouldIgnoreMissing(),
             new TemporalConfig(),
         );
 
         $registry->get('foo');
-        $this->assertFalse($registry->has('default'));
+        Assert::false($registry->has('default'));
 
         $registry->get('default');
-        $this->assertTrue($registry->has('default'));
+        Assert::true($registry->has('default'));
     }
 }

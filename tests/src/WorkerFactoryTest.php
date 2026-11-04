@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Spiral\TemporalBridge\Tests;
 
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Spiral\Boot\FinalizerInterface;
 use Spiral\Core\Container;
 use Spiral\Core\Container\Autowire;
@@ -18,8 +16,13 @@ use Temporal\Interceptor\SimplePipelineProvider;
 use Temporal\Worker\WorkerFactoryInterface as TemporalWorkerFactory;
 use Temporal\Worker\WorkerInterface;
 use Temporal\Worker\WorkerOptions;
+use Testo\Assert;
+use Testo\Data\DataProvider;
+use Testo\Lifecycle\BeforeTest;
+use Testo\Test;
 
-final class WorkerFactoryTest extends TestCase
+#[Test]
+final class WorkerFactoryTest
 {
     private TemporalWorkerFactory $temporalWorkerFactory;
 
@@ -32,55 +35,39 @@ final class WorkerFactoryTest extends TestCase
 
     public function testCreateWithoutAnyOptions(): void
     {
-        $this->temporalWorkerFactory
-            ->expects($this->once())
-            ->method('newWorker')
-            ->with('without-any-options')
-            ->willReturn($worker = $this->createMock(WorkerInterface::class));
+        $this->temporalWorkerFactory->shouldReceive('newWorker')->once()->with('without-any-options', \Mockery::andAnyOtherArgs())->andReturn($worker = \Mockery::mock(WorkerInterface::class)->shouldIgnoreMissing());
 
         $factory = $this->createWorkerFactory($this->temporalWorkerFactory);
 
-        $this->assertSame($worker, $factory->create('without-any-options'));
+        Assert::same($factory->create('without-any-options'), $worker);
     }
 
     public function testCreateWithOptionsAsValue(): void
     {
-        $this->temporalWorkerFactory
-            ->expects($this->once())
-            ->method('newWorker')
-            ->with('with-options-as-value', $this->equalTo(WorkerOptions::new()->withEnableSessionWorker()))
-            ->willReturn($worker = $this->createMock(WorkerInterface::class));
+        $this->temporalWorkerFactory->shouldReceive('newWorker')->once()->with('with-options-as-value', \Mockery::isEqual(WorkerOptions::new()->withEnableSessionWorker()), \Mockery::andAnyOtherArgs())->andReturn($worker = \Mockery::mock(WorkerInterface::class)->shouldIgnoreMissing());
 
         $factory = $this->createWorkerFactory($this->temporalWorkerFactory);
 
-        $this->assertSame($worker, $factory->create('with-options-as-value'));
+        Assert::same($factory->create('with-options-as-value'), $worker);
     }
 
     public function testCreateWithOptionsInArray(): void
     {
-        $this->temporalWorkerFactory
-            ->expects($this->once())
-            ->method('newWorker')
-            ->with('with-options-in-array', $this->equalTo(WorkerOptions::new()->withEnableSessionWorker()))
-            ->willReturn($worker = $this->createMock(WorkerInterface::class));
+        $this->temporalWorkerFactory->shouldReceive('newWorker')->once()->with('with-options-in-array', \Mockery::isEqual(WorkerOptions::new()->withEnableSessionWorker()), \Mockery::andAnyOtherArgs())->andReturn($worker = \Mockery::mock(WorkerInterface::class)->shouldIgnoreMissing());
 
         $factory = $this->createWorkerFactory($this->temporalWorkerFactory);
 
-        $this->assertSame($worker, $factory->create('with-options-in-array'));
+        Assert::same($factory->create('with-options-in-array'), $worker);
     }
 
-    #[DataProvider(methodName: 'exceptionInterceptorsDataProvider')]
+    #[DataProvider('exceptionInterceptorsDataProvider')]
     public function testCreateWithExceptionInterceptor(string $name): void
     {
-        $this->temporalWorkerFactory
-            ->expects($this->once())
-            ->method('newWorker')
-            ->with($name, null, $this->equalTo(new ExceptionInterceptor([])))
-            ->willReturn($worker = $this->createMock(WorkerInterface::class));
+        $this->temporalWorkerFactory->shouldReceive('newWorker')->once()->with($name, null, \Mockery::isEqual(new ExceptionInterceptor([])), \Mockery::andAnyOtherArgs())->andReturn($worker = \Mockery::mock(WorkerInterface::class)->shouldIgnoreMissing());
 
         $factory = $this->createWorkerFactory($this->temporalWorkerFactory);
 
-        $this->assertSame($worker, $factory->create($name));
+        Assert::same($factory->create($name), $worker);
     }
 
     public function testCreateWithInterceptors(): void
@@ -91,15 +78,11 @@ final class WorkerFactoryTest extends TestCase
             new SomeInterceptor(),
         ]);
 
-        $this->temporalWorkerFactory
-            ->expects($this->once())
-            ->method('newWorker')
-            ->with('with-interceptors', null, null, $this->equalTo($expectedInterceptors))
-            ->willReturn($worker = $this->createMock(WorkerInterface::class));
+        $this->temporalWorkerFactory->shouldReceive('newWorker')->once()->with('with-interceptors', null, null, \Mockery::isEqual($expectedInterceptors), \Mockery::andAnyOtherArgs())->andReturn($worker = \Mockery::mock(WorkerInterface::class)->shouldIgnoreMissing());
 
         $factory = $this->createWorkerFactory($this->temporalWorkerFactory, $expectedInterceptors);
 
-        $this->assertSame($worker, $factory->create('with-interceptors'));
+        Assert::same($factory->create('with-interceptors'), $worker);
     }
 
     public function testCreateWithAllOptions(): void
@@ -110,25 +93,17 @@ final class WorkerFactoryTest extends TestCase
             new SomeInterceptor(),
         ]);
 
-        $this->temporalWorkerFactory
-            ->expects($this->once())
-            ->method('newWorker')
-            ->with(
-                'all',
-                $this->equalTo(WorkerOptions::new()->withEnableSessionWorker()),
-                $this->equalTo(new ExceptionInterceptor([])),
-                $this->equalTo($expectedInterceptors),
-            )
-            ->willReturn($worker = $this->createMock(WorkerInterface::class));
+        $this->temporalWorkerFactory->shouldReceive('newWorker')->once()->with('all', \Mockery::isEqual(WorkerOptions::new()->withEnableSessionWorker()), \Mockery::isEqual(new ExceptionInterceptor([])), \Mockery::isEqual($expectedInterceptors), \Mockery::andAnyOtherArgs())->andReturn($worker = \Mockery::mock(WorkerInterface::class)->shouldIgnoreMissing());
 
         $factory = $this->createWorkerFactory($this->temporalWorkerFactory, $expectedInterceptors);
 
-        $this->assertSame($worker, $factory->create('all'));
+        Assert::same($factory->create('all'), $worker);
     }
 
+    #[BeforeTest]
     protected function setUp(): void
     {
-        $this->temporalWorkerFactory = $this->createMock(TemporalWorkerFactory::class);
+        $this->temporalWorkerFactory = \Mockery::mock(TemporalWorkerFactory::class)->shouldIgnoreMissing();
     }
 
     private function createWorkerFactory(
@@ -147,7 +122,7 @@ final class WorkerFactoryTest extends TestCase
 
         return new WorkerFactory(
             $workerFactory,
-            $this->createMock(FinalizerInterface::class),
+            \Mockery::mock(FinalizerInterface::class)->shouldIgnoreMissing(),
             $container,
             $pipelineProvider,
             new TemporalConfig([

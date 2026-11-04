@@ -51,10 +51,12 @@
     "temporal/sdk": "^2.20"
   },
   "require-dev": {
+    "mockery/mockery": "^1.6.12",
     "spiral/code-style": "^2.4",
     "spiral/framework": "^3.18",
     "spiral/dumper": "^3.3.1",
-    "spiral/testing": "^2.12",
+    "testo/bridge-mockery": "^0.1.2",
+    "testo/testo": "^0.10.56",
     "vimeo/psalm": "^7.0"
   },
   "autoload": {
@@ -73,19 +75,12 @@
     "cs:fix": "php-cs-fixer fix -v",
     "psalm": "psalm",
     "psalm:baseline": "psalm --set-baseline=psalm-baseline.xml",
-    "test": "phpunit --color=always"
+    "test": "testo"
   },
   "config": {
     "sort-packages": true,
     "allow-plugins": {
       "spiral/composer-publish-plugin": true
-    },
-    "policy": {
-      "advisories": {
-        "ignore-id": {
-          "PKSA-z3gr-8qht-p93v": "spiral/testing 2.x pins phpunit 10.5.45; the advisory affects PHPT code coverage, which is not used here"
-        }
-      }
     }
   },
   "extra": {
