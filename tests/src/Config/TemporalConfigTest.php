@@ -45,6 +45,28 @@ final class TemporalConfigTest extends TestCase
         Assert::same($client->connection->address, 'localhost:1111');
     }
 
+    public function testLegacyClientOptionsKeepNamespace(): void
+    {
+        $config = new TemporalConfig([
+            'address' => 'localhost:1111',
+            'clientOptions' => (new ClientOptions())->withNamespace('foo'),
+        ]);
+
+        Assert::same($config->getClientOptions()->namespace, 'foo');
+        Assert::same($config->getTemporalNamespace(), 'foo');
+    }
+
+    public function testLegacyTemporalNamespaceOverridesClientOptionsNamespace(): void
+    {
+        $config = new TemporalConfig([
+            'address' => 'localhost:1111',
+            'clientOptions' => (new ClientOptions())->withNamespace('foo'),
+            'temporalNamespace' => 'bar',
+        ]);
+
+        Assert::same($config->getClientOptions()->namespace, 'bar');
+    }
+
     public function testGetTlsConnection(): void
     {
         $config = new TemporalConfig([

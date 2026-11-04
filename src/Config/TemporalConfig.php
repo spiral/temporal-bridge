@@ -56,9 +56,11 @@ final class TemporalConfig extends InjectableConfig
             );
 
             // Create a default client configuration from the legacy options.
-            $namespace = $config['temporalNamespace'] ?? 'default';
-            $clientOptions = ($config['clientOptions'] ?? new ClientOptions())
-                ->withNamespace($namespace);
+            // `temporalNamespace` overrides the namespace of `clientOptions` only when it is set.
+            $namespace = $config['temporalNamespace'] ?? null;
+            $clientOptions = $namespace === null
+                ? $config['clientOptions'] ?? new ClientOptions()
+                : ($config['clientOptions'] ?? new ClientOptions())->withNamespace($namespace);
 
             $config['client'] = 'default';
             $config['clients']['default'] = new ClientConfig(
