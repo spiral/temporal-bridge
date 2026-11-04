@@ -13,6 +13,9 @@ use Spiral\Tokenizer\TokenizationListenerInterface;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Workflow\WorkflowInterface;
 
+/**
+ * @psalm-suppress DeprecatedInterface Still implements DeclarationLocatorInterface for BC
+ */
 #[Singleton]
 #[TargetAttribute(WorkflowInterface::class, scanParents: true)]
 #[TargetAttribute(ActivityInterface::class, scanParents: true)]
@@ -28,6 +31,7 @@ final class DeclarationLocator implements
         private readonly ReaderInterface $reader,
     ) {}
 
+    #[\Override]
     public function addDeclaration(DeclarationDto|\ReflectionClass|string $class): void
     {
         if ($class instanceof DeclarationDto) {
@@ -38,11 +42,13 @@ final class DeclarationLocator implements
         $this->listen($class instanceof \ReflectionClass ? $class : new \ReflectionClass($class));
     }
 
+    #[\Override]
     public function getDeclarationList(): iterable
     {
         return $this->declarations;
     }
 
+    #[\Override]
     public function getDeclarations(): iterable
     {
         foreach ($this->declarations as $declaration) {
@@ -53,6 +59,7 @@ final class DeclarationLocator implements
         }
     }
 
+    #[\Override]
     public function listen(\ReflectionClass $class): void
     {
         if ($class->isAbstract() || $class->isInterface() || $class->isEnum()) {
@@ -84,6 +91,7 @@ final class DeclarationLocator implements
 
     }
 
+    #[\Override]
     public function finalize(): void
     {
         // do nothing

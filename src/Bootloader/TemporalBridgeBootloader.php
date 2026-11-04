@@ -54,6 +54,7 @@ class TemporalBridgeBootloader extends Bootloader
         private readonly FactoryInterface $factory,
     ) {}
 
+    #[\Override]
     public function defineDependencies(): array
     {
         return [
@@ -62,6 +63,10 @@ class TemporalBridgeBootloader extends Bootloader
         ];
     }
 
+    /**
+     * @psalm-suppress DeprecatedMethod getClientOptions() keeps the fallback to the legacy `clientOptions` option
+     */
+    #[\Override]
     public function defineSingletons(): array
     {
         return [
@@ -164,15 +169,16 @@ class TemporalBridgeBootloader extends Bootloader
 
     protected function initConfig(EnvironmentInterface $env): void
     {
+        /** @var non-empty-string $address */
+        $address = $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233');
+
         $this->config->setDefaults(
             TemporalConfig::CONFIG,
             [
                 'client' => $env->get('TEMPORAL_CONNECTION', 'default'),
                 'clients' => [
                     'default' => new ClientConfig(
-                        connection: new ConnectionConfig(
-                            address: $env->get('TEMPORAL_ADDRESS', '127.0.0.1:7233'),
-                        ),
+                        connection: new ConnectionConfig(address: $address),
                     ),
                 ],
                 'defaultWorker' => (string) $env->get(

@@ -15,6 +15,7 @@ use Temporal\Worker\WorkerFactoryInterface;
 #[AsCommand(name: 'create:workflow', description: 'Create workflow declaration')]
 final class WorkflowCommand extends AbstractCommand
 {
+    /** @psalm-suppress PropertyNotSetInConstructor Filled from the console input before perform() runs */
     #[Argument(description: 'Workflow class name')]
     #[Question(question: 'What would you like to name the Workflow class?')]
     public string $name;
@@ -25,9 +26,11 @@ final class WorkflowCommand extends AbstractCommand
     #[Option(name: 'workflow-name', shortcut: 'a', description: 'Optional workflow name')]
     public ?string $workflowName = null;
 
+    /** @var list<string> */
     #[Option(name: 'query-method', shortcut: 'c', description: 'Create query method in a format "name:type"')]
     public array $queryMethods = [];
 
+    /** @var list<string> */
     #[Option(name: 'signal-method', shortcut: 's', description: 'Create signal method in a format "name"')]
     public array $signalMethods = [];
 

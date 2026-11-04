@@ -14,7 +14,7 @@ use Temporal\Workflow\WorkflowMethod;
 
 final class WorkflowDeclaration extends AbstractDeclaration
 {
-    /** @var non-empty-string */
+    /** @psalm-suppress InvalidClassConstantType The parent interface declares TYPE as an empty string literal */
     public const TYPE = 'workflow';
 
     public function __construct(
@@ -27,6 +27,7 @@ final class WorkflowDeclaration extends AbstractDeclaration
         parent::__construct($config, $name, $comment, $namespace);
     }
 
+    #[\Override]
     public function declare(): void
     {
         $this->namespace->addUse(WorkflowInterface::class);

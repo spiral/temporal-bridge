@@ -35,6 +35,7 @@ final class WorkerFactory implements WorkerFactoryInterface
     /**
      * @param non-empty-string $name
      */
+    #[\Override]
     public function create(string $name): WorkerInterface
     {
         $worker = $this->workerFactory->newWorker(
@@ -78,6 +79,9 @@ final class WorkerFactory implements WorkerFactoryInterface
         return $exceptionInterceptor;
     }
 
+    /**
+     * @param object|class-string|Autowire $alias
+     */
     private function wire(mixed $alias): object
     {
         return match (true) {

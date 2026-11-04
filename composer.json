@@ -51,6 +51,7 @@
     "temporal/sdk": "^2.20"
   },
   "require-dev": {
+    "bamarni/composer-bin-plugin": "^1.8",
     "llm/skills": "^1.15",
     "mockery/mockery": "^1.6.12",
     "roxblnfk/unpoly": "^1.8",
@@ -58,8 +59,7 @@
     "spiral/framework": "^3.18",
     "spiral/dumper": "^3.3.1",
     "testo/bridge-mockery": "^0.1.2",
-    "testo/testo": "^0.10.56",
-    "vimeo/psalm": "^7.0"
+    "testo/testo": "^0.10.56"
   },
   "autoload": {
     "psr-4": {
@@ -75,18 +75,25 @@
   "scripts": {
     "cs:diff": "php-cs-fixer fix --dry-run -v --diff",
     "cs:fix": "php-cs-fixer fix -v",
-    "psalm": "psalm",
-    "psalm:baseline": "psalm --set-baseline=psalm-baseline.xml",
+    "psalm": "psalm -c tools/psalm/psalm.xml",
+    "psalm:baseline": "psalm -c tools/psalm/psalm.xml --set-baseline=tools/psalm/psalm-baseline.xml",
+    "psalm:ci": "psalm -c tools/psalm/psalm.xml --output-format=github --shepherd --show-info=false --stats --threads=4",
     "test": "testo"
   },
   "config": {
     "sort-packages": true,
     "allow-plugins": {
+      "bamarni/composer-bin-plugin": true,
       "llm/skills": true,
       "spiral/composer-publish-plugin": true
     }
   },
   "extra": {
+    "bamarni-bin": {
+      "bin-links": true,
+      "forward-command": false,
+      "target-directory": "tools"
+    },
     "spiral": {
       "bootloaders": [
         "Spiral\\TemporalBridge\\Bootloader\\TemporalBridgeBootloader"
