@@ -136,6 +136,9 @@ class TemporalBridgeBootloader extends Bootloader
         $kernel->addDispatcher(Dispatcher::class);
     }
 
+    /**
+     * @param non-empty-string $worker Task queue name.
+     */
     public function addWorkerOptions(string $worker, WorkerOptions $options): void
     {
         $this->config->modify(TemporalConfig::CONFIG, new Append('workers', $worker, $options));

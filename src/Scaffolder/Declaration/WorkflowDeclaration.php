@@ -65,6 +65,9 @@ final class WorkflowDeclaration extends AbstractDeclaration
             ->setBody('// TODO: Implement query method');
     }
 
+    /**
+     * @param non-empty-string $name
+     */
     public function addSignalMethod(string $name): void
     {
         $this->namespace->addUse(SignalMethod::class);

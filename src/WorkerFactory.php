@@ -16,10 +16,14 @@ use Temporal\Worker\WorkerOptions;
 
 /**
  * @psalm-import-type TWorker from TemporalConfig
+ * @psalm-import-type TExceptionInterceptor from TemporalConfig
  */
 final class WorkerFactory implements WorkerFactoryInterface
 {
-    /** @var array<non-empty-string, WorkerOptions|TWorker> */
+    /**
+     * @var array<non-empty-string, WorkerOptions|TWorker>
+     * @readonly
+     */
     private array $workers = [];
 
     public function __construct(
@@ -80,7 +84,7 @@ final class WorkerFactory implements WorkerFactoryInterface
     }
 
     /**
-     * @param object|class-string|Autowire $alias
+     * @param TExceptionInterceptor $alias
      */
     private function wire(mixed $alias): object
     {

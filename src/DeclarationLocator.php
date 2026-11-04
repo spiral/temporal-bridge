@@ -42,6 +42,9 @@ final class DeclarationLocator implements
         $this->listen($class instanceof \ReflectionClass ? $class : new \ReflectionClass($class));
     }
 
+    /**
+     * @return list<DeclarationDto>
+     */
     #[\Override]
     public function getDeclarationList(): iterable
     {
@@ -66,7 +69,6 @@ final class DeclarationLocator implements
             return;
         }
 
-        /** @var DeclarationType|null $type */
         $type = null;
 
         foreach (\array_merge($class->getInterfaces(), [$class]) as $reflection) {

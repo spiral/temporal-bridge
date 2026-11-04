@@ -19,7 +19,7 @@ final class DeclarationWorkerResolver
      * Find the worker name for the given workflow or class declaration. If no worker is assigned, the default task
      * queue name is returned.
      *
-     * @return non-empty-list<string>
+     * @return non-empty-list<non-empty-string>
      */
     public function resolve(\ReflectionClass $declaration): array
     {
@@ -33,7 +33,7 @@ final class DeclarationWorkerResolver
     }
 
     /**
-     * @return list<string>
+     * @return list<non-empty-string>
      */
     private function resolveTaskQueues(\ReflectionClass $declaration): array
     {

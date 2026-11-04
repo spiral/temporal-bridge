@@ -26,11 +26,11 @@ final class WorkflowCommand extends AbstractCommand
     #[Option(name: 'workflow-name', shortcut: 'a', description: 'Optional workflow name')]
     public ?string $workflowName = null;
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     #[Option(name: 'query-method', shortcut: 'c', description: 'Create query method in a format "name:type"')]
     public array $queryMethods = [];
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     #[Option(name: 'signal-method', shortcut: 's', description: 'Create signal method in a format "name"')]
     public array $signalMethods = [];
 

@@ -99,6 +99,9 @@ final class TemporalConfig extends InjectableConfig
         };
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function getDefaultClient(): string
     {
         return $this->config['client'] ?? 'default';
@@ -113,6 +116,8 @@ final class TemporalConfig extends InjectableConfig
 
     /**
      * Get default connection address.
+     *
+     * @return non-empty-string
      *
      * @deprecated
      */

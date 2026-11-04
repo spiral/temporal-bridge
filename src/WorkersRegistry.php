@@ -13,18 +13,18 @@ use Temporal\Worker\WorkerOptions;
 
 final class WorkersRegistry implements WorkersRegistryInterface
 {
-    /** @psalm-var array<non-empty-string, WorkerInterface> */
+    /** @var array<non-empty-string, WorkerInterface> */
     private array $workers = [];
 
-    /**
-     * @psalm-param array<non-empty-string, WorkerOptions> $options
-     */
     public function __construct(
         private readonly WorkerFactoryInterface|TemporalWorkerFactory $workerFactory,
         private readonly FinalizerInterface $finalizer,
         private readonly TemporalConfig $config,
     ) {}
 
+    /**
+     * @param string $name Wider than the interface: an empty name fails the assertion below.
+     */
     #[\Override]
     public function register(string $name, ?WorkerOptions $options): void
     {
@@ -44,6 +44,9 @@ final class WorkersRegistry implements WorkersRegistryInterface
         }
     }
 
+    /**
+     * @param string $name Wider than the interface: an empty name fails the assertion below.
+     */
     #[\Override]
     public function get(string $name): WorkerInterface
     {
@@ -58,6 +61,9 @@ final class WorkersRegistry implements WorkersRegistryInterface
         return $this->workers[$name];
     }
 
+    /**
+     * @param string $name Wider than the interface: an empty name fails the assertion below.
+     */
     #[\Override]
     public function has(string $name): bool
     {

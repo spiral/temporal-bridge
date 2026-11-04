@@ -26,7 +26,7 @@ final class ActivityCommand extends AbstractCommand
     #[Option(name: 'activity-name', shortcut: 'a', description: 'Optional activity name')]
     public ?string $activityName = null;
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     #[Option(name: 'method', shortcut: 'm', description: 'Optional activity name')]
     public array $methods = [];
 
