@@ -1,5 +1,6 @@
 {
   "name": "spiral/temporal-bridge",
+  "type": "library",
   "description": "Temporal integration package for Spiral Framework",
   "keywords": [
     "spiral",
