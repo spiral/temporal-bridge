@@ -1,5 +1,6 @@
 {
   "name": "spiral/temporal-bridge",
+  "type": "library",
   "description": "Temporal integration package for Spiral Framework",
   "keywords": [
     "spiral",
@@ -73,6 +74,7 @@
   },
   "autoload-dev": {
     "psr-4": {
+      "Spiral\\TemporalBridge\\Tests\\Acceptance\\": "tests/acceptance/src",
       "Spiral\\TemporalBridge\\Tests\\App\\": "tests/app/src",
       "Spiral\\TemporalBridge\\Tests\\": "tests/src"
     }
