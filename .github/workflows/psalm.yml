@@ -9,6 +9,10 @@ name: static analysis
 permissions:
     contents: read
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
     psalm:
         uses: spiral/gh-actions/.github/workflows/psalm.yml@master

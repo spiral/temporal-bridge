@@ -6,8 +6,6 @@
 /runtime/
 /tests/runtime/
 /vendor/
-/tools/*/vendor/
-/tools/*/composer.lock
 /composer.lock
 /.env
 *.log

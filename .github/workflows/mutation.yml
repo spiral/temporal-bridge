@@ -39,7 +39,7 @@ jobs:
           dependency-versions: highest
 
       # Infection needs PHP 8.3+ while the package supports 8.2, so it lives in
-      # tools/infection (bamarni/composer-bin-plugin), not in the root require-dev.
+      # vendor-bin/infection (bamarni/composer-bin-plugin), not in the root require-dev.
       - name: Install Infection
         run: composer bin infection install --no-interaction --no-progress
 
