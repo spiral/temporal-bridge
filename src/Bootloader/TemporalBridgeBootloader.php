@@ -157,6 +157,7 @@ class TemporalBridgeBootloader extends Bootloader
             $interceptor = $interceptor->resolve($this->factory);
         }
 
+        /** @psalm-suppress DocblockTypeContradiction, NoValue guards callers that skip static analysis */
         if (!$interceptor instanceof Interceptor) {
             throw new \InvalidArgumentException(
                 \sprintf(
@@ -216,7 +217,6 @@ class TemporalBridgeBootloader extends Bootloader
 
     protected function initPipelineProvider(TemporalConfig $config, FactoryInterface $factory): PipelineProvider
     {
-        /** @var Interceptor[] $interceptors */
         $interceptors = \array_map(
             static fn(mixed $interceptor) => match (true) {
                 \is_string($interceptor) => $factory->make($interceptor),
