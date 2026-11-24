@@ -16,6 +16,10 @@ return new ApplicationConfig(
             name: 'Unit',
             location: ['tests/src'],
         ),
+        new SuiteConfig(
+            name: 'Acceptance',
+            location: ['tests/acceptance/src'],
+        ),
     ],
     plugins: [new MockeryPlugin()],
 );

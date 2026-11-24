@@ -4,6 +4,8 @@
         "directories": ["src"]
     },
     "testFramework": "testo",
+    // Acceptance tests drive the application in subprocesses, where mutants are not loaded.
+    "testFrameworkOptions": "--suite=Unit",
     "tmpDir": "runtime",
     "timeout": 10,
     "logs": {
