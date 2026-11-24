@@ -2,13 +2,16 @@ on:
   pull_request: null
   push:
     branches:
-      - master
-      - '*.*'
+      - 3.x
 
 name: testo
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   testo:
@@ -19,6 +22,11 @@ jobs:
         ['ubuntu-latest']
       dependencies: >-
         ['lowest', 'highest']
+      # ext-grpc leaves its threads running at exit: once PHP dlcloses grpc.so in module shutdown,
+      # they jump into unmapped code and the run segfaults (exit 139) after all tests pass.
+      run: ZEND_DONT_UNLOAD_MODULES=1 vendor/bin/testo
       codecov: true
+      codecov-php: '8.4'
+      codecov-dependencies: highest
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

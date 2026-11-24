@@ -10,6 +10,10 @@ name: Fix Code Style
 permissions:
   contents: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   cs-fix:
     permissions:
