@@ -71,7 +71,12 @@ final class DeclarationLocator implements
 
         $type = null;
 
-        foreach (\array_merge($class->getInterfaces(), [$class]) as $reflection) {
+        $parents = [];
+        for ($parent = $class->getParentClass(); $parent !== false; $parent = $parent->getParentClass()) {
+            $parents[] = $parent;
+        }
+
+        foreach (\array_merge($class->getInterfaces(), [$class], $parents) as $reflection) {
             if ($this->reader->firstClassMetadata($reflection, WorkflowInterface::class) !== null) {
                 $type = DeclarationType::Workflow;
                 break;
